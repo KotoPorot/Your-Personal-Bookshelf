@@ -56,4 +56,20 @@ public class MyShelfService {
         return null;
     }
 
+    public boolean deleteShelf(Long id, MyUser user) {
+        if (shelfRepository.existsByIdAndUser(id, user)){
+            shelfRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
+
+    public MyShelfResponseDTO updateShelfName(Long id, MyUser user, String newName) {
+        return shelfRepository.findById(id).filter(shelf -> shelf.getUser().getId().equals(user.getId()))
+                .map(shelf -> {
+                    shelf.setShelfName(newName);
+                    MyShelf updatedShelf = shelfRepository.save(shelf);
+                    return mapToShelfDTO(updatedShelf);
+                }).orElse(null);
+    }
+}

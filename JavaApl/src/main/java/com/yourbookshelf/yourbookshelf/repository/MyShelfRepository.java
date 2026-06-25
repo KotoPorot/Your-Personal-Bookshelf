@@ -12,4 +12,6 @@ public interface MyShelfRepository extends JpaRepository<MyShelf, Long> {
 
 
     boolean existsByShelfNameAndUser(String shelName, MyUser user);
+
+    boolean existsByIdAndUser(Long id, MyUser user);
 }
