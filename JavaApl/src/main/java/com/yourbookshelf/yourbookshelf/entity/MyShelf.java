@@ -18,7 +18,7 @@ public class MyShelf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "shelfName", nullable = false)
+    @Column(name = "shelf_name", nullable = false)
     private String shelfName;
 
    @ManyToOne(fetch = FetchType.LAZY)
