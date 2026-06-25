@@ -1,0 +1,11 @@
+2026-06-25 09:25:37.212780+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "DATABASECHANGELOG" not found (this database is empty); SQL statement:
+SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOG [42104-240]
+2026-06-25 09:25:37.306042+02:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Таблица "DATABASECHANGELOGLOCK" не найдена
+Table "DATABASECHANGELOGLOCK" not found; SQL statement:
+SELECT COUNT(*) FROM PUBLIC.DATABASECHANGELOGLOCK [42102-240]
+2026-06-25 09:27:24.766460+02:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Синтаксическая ошибка в выражении SQL "SELECT * FROM MY_APP_SCHEMA.BOOKS MY_APP_SCHEMA[*].SHELVES"
+Syntax error in SQL statement "SELECT * FROM MY_APP_SCHEMA.BOOKS MY_APP_SCHEMA[*].SHELVES"; SQL statement:
+SELECT * FROM MY_APP_SCHEMA.BOOKS MY_APP_SCHEMA.SHELVES [42000-240]

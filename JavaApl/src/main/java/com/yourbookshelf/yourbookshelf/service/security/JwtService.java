@@ -16,7 +16,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static SecretKey secretKey;
+    private final static SecretKey secretKey;
 
     static {
         try {
