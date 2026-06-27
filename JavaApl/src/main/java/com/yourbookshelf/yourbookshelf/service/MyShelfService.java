@@ -5,6 +5,7 @@ import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
+import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyShelfRepository;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -12,38 +13,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class MyShelfService {
     private final MyShelfRepository shelfRepository;
+    private final DtoMapper mapper;
 
     public List<MyShelfResponseDTO> getUserShelves(MyUser user) {
         List<MyShelf> shelves = shelfRepository.findAllByUser(user);
 
-        return shelves.stream().map(this::mapToShelfDTO).toList();
+        return shelves.stream().map(mapper::mapToShelfDTO).toList();
 
     }
 
-    private MyShelfResponseDTO mapToShelfDTO(MyShelf shelf) {
-        MyShelfResponseDTO shelfDTO = new MyShelfResponseDTO();
-        shelfDTO.setShelfName(shelf.getShelfName());
-        shelfDTO.setId(shelf.getId());
-        if (shelf.getBooks() != null) {
-            shelfDTO.setBooks(shelf.getBooks().stream().map(this::mapToBookDTO).toList());
-        }
-        return shelfDTO;
-    }
-
-    private MyBookResponseDTO mapToBookDTO(MyBook book) {
-        MyBookResponseDTO bookDTO = new MyBookResponseDTO();
-        bookDTO.setTitle(book.getTitle());
-        bookDTO.setId(book.getId());
-        return bookDTO;
-    }
-
-
-    public @Nullable MyShelfResponseDTO saveShelf(String shelfName, MyUser user) {
+    public MyShelfResponseDTO saveShelf(String shelfName, MyUser user) {
         if (!shelfRepository.existsByShelfNameAndUser(shelfName, user)) {
 
             MyShelf shelfToSave = new MyShelf();
@@ -51,7 +36,7 @@ public class MyShelfService {
             shelfToSave.setBooks(new ArrayList<>());
             shelfToSave.setUser(user);
             MyShelf savedShelf = shelfRepository.save(shelfToSave);
-            return mapToShelfDTO(savedShelf);
+            return mapper.mapToShelfDTO(savedShelf);
         }
         return null;
     }
@@ -69,7 +54,11 @@ public class MyShelfService {
                 .map(shelf -> {
                     shelf.setShelfName(newName);
                     MyShelf updatedShelf = shelfRepository.save(shelf);
-                    return mapToShelfDTO(updatedShelf);
+                    return mapper.mapToShelfDTO(updatedShelf);
                 }).orElse(null);
+    }
+
+    public Optional<MyShelf> findShelfByID(Long id){
+        return shelfRepository.findById(id);
     }
 }
