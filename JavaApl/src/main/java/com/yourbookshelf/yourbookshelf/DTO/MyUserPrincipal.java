@@ -2,6 +2,7 @@ package com.yourbookshelf.yourbookshelf.DTO;
 
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +13,7 @@ import java.util.Collections;
 
 
 @AllArgsConstructor
+@Getter
 public class MyUserPrincipal implements UserDetails {
     private MyUser user;
 

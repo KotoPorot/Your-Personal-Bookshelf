@@ -26,8 +26,8 @@ import java.util.List;
 @AllArgsConstructor
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private MyUserDetailsService userDetailsService;
-    private JwtConfiguration jwtConfiguration;
+    private final MyUserDetailsService userDetailsService;
+    private final JwtConfiguration jwtConfiguration;
 
     @Bean
     public PasswordEncoder passwordEncoder() {

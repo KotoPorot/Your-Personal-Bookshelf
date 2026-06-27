@@ -20,8 +20,8 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 public class JwtConfiguration extends OncePerRequestFilter {
-    private JwtService jwtService;
-    private ApplicationContext context;
+    private final JwtService jwtService;
+    private final ApplicationContext context;
 
 
     @Override
