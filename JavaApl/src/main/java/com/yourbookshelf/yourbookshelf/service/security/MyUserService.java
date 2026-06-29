@@ -1,10 +1,13 @@
 package com.yourbookshelf.yourbookshelf.service.security;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyUserDTO;
+import com.yourbookshelf.yourbookshelf.customException.MyInvalidCredentialsException;
+import com.yourbookshelf.yourbookshelf.customException.MyUserAlreadyExistsException;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,21 +24,24 @@ public class MyUserService {
     public String createUser(MyUserDTO userDTO) {
 
         if (userRepository.findByUsername(userDTO.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new MyUserAlreadyExistsException("Username already exists");
         }
         userRepository.save(new MyUser(userDTO.getUsername(), passwordEncoder.encode(userDTO.getPassword())));
         return verify(userDTO);
     }
 
     public String verify(MyUserDTO userDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                userDTO.getUsername(), userDTO.getPassword()));
 
-        if (authentication.isAuthenticated()) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    userDTO.getUsername(), userDTO.getPassword()));
+
             return jwtService.generateToken(userDTO.getUsername());
-        } else {
-            return null;
+
+        } catch (BadCredentialsException e) {
+            throw new MyInvalidCredentialsException("Incorrect login or password");
         }
+
     }
 
 }

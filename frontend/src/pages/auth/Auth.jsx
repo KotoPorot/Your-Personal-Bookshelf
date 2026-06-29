@@ -32,7 +32,7 @@ const Auth = ({ onLoginSuccess }) => {
     } catch (err) {
       // Если бэкенд вернул 401 Unauthorized, 403 или упал
       console.error('Ошибка авторизации:', err);
-      setError('Неверный логин или пароль, либо сервер недоступен.');
+      setError('Неверный логин или пароль');
     }
   };
 

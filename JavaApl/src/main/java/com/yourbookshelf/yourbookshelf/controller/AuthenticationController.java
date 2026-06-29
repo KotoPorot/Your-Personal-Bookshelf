@@ -21,19 +21,12 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @NonNull MyUserDTO userDTO) {
         String response = myUserService.verify(userDTO);
-        if (response == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @NonNull MyUserDTO userDTO) {
-        try {
             return ResponseEntity.status(HttpStatus.CREATED).body(myUserService.createUser(userDTO));
-        } catch (IllegalArgumentException exception) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
-        }
     }
 
 }
