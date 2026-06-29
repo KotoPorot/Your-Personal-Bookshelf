@@ -33,14 +33,23 @@ const Register = ({ onLoginSuccess, onNavigateToWelcome }) => {
     } catch (err) {
       console.error('Ошибка регистрации:', err);
 
-      // Если бэкенд выбросил IllegalArgumentException, вернется статус 409 CONFLICT
-      if (err.response && err.response.status === 409) {
-        setError(err.response.data || 'Имя пользователя уже занято.');
+      // Безопасно проверяем статус ответа бэкенда через ?.
+      if (err.response?.status === 409) {
+        // Если бэкенд возвращает JSON { message: "..." }, читаем err.response.data.message
+        const backendMessage = typeof err.response.data === 'object'
+          ? err.response.data.message
+          : err.response.data;
+
+        setError(backendMessage || 'Имя пользователя уже занято.');
+      } else if (err.request) {
+        // Запрос был отправлен, но ответ от сервера не получен вообще (сервер лежит)
+        setError('Сервер не отвечает. Попробуйте позже.');
       } else {
+        // Произошло что-то совсем другое при настройке запроса
         setError('Не удалось подключиться к серверу.');
       }
     }
-  };
+}
 
   return (
     <div className="register-wrapper">
