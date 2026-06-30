@@ -1,14 +1,11 @@
 package com.yourbookshelf.yourbookshelf.service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
-import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyShelfRepository;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
