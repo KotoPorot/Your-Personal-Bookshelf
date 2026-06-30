@@ -1,14 +1,13 @@
 package com.yourbookshelf.yourbookshelf.service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
-import com.yourbookshelf.yourbookshelf.entity.MyBook;
+import com.yourbookshelf.yourbookshelf.customException.MyShelfAlreadyExistsException;
+import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveShelfException;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyShelfRepository;
 import lombok.AllArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,42 +22,45 @@ public class MyShelfService {
 
     public List<MyShelfResponseDTO> getUserShelves(MyUser user) {
         List<MyShelf> shelves = shelfRepository.findAllByUser(user);
-
         return shelves.stream().map(mapper::mapToShelfDTO).toList();
 
     }
 
     public MyShelfResponseDTO saveShelf(String shelfName, MyUser user) {
-        if (!shelfRepository.existsByShelfNameAndUser(shelfName, user)) {
-
-            MyShelf shelfToSave = new MyShelf();
-            shelfToSave.setShelfName(shelfName);
-            shelfToSave.setBooks(new ArrayList<>());
-            shelfToSave.setUser(user);
-            MyShelf savedShelf = shelfRepository.save(shelfToSave);
-            return mapper.mapToShelfDTO(savedShelf);
+        if (shelfRepository.existsByShelfNameAndUser(shelfName, user)) {
+            throw new MyShelfAlreadyExistsException("Shelf " + shelfName + " already exist");
         }
-        return null;
+        MyShelf shelfToSave = new MyShelf();
+        shelfToSave.setShelfName(shelfName);
+        shelfToSave.setBooks(new ArrayList<>());
+        shelfToSave.setUser(user);
+        MyShelf savedShelf = shelfRepository.save(shelfToSave);
+        return mapper.mapToShelfDTO(savedShelf);
     }
 
     public boolean deleteShelf(Long id, MyUser user) {
-        if (shelfRepository.existsByIdAndUser(id, user)){
-            shelfRepository.deleteById(id);
-            return true;
+        if (!shelfRepository.existsByIdAndUser(id, user)) {
+            throw new MyUserDoesNotHaveShelfException("User: " + user.getUsername() + "does not have a shelf");
         }
-        return false;
+        shelfRepository.deleteById(id);
+        return true;
     }
 
     public MyShelfResponseDTO updateShelfName(Long id, MyUser user, String newName) {
-        return shelfRepository.findById(id).filter(shelf -> shelf.getUser().getId().equals(user.getId()))
-                .map(shelf -> {
-                    shelf.setShelfName(newName);
-                    MyShelf updatedShelf = shelfRepository.save(shelf);
-                    return mapper.mapToShelfDTO(updatedShelf);
-                }).orElse(null);
+        MyShelf shelf = shelfRepository.findById(id).filter(
+                it -> it.getUser().getId().equals(user.getId())).orElseThrow(
+                () -> new MyUserDoesNotHaveShelfException("User: " + user.getUsername() + "does not have a shelf"));
+
+        if (shelfRepository.existsByShelfNameAndUser(newName, user) && !shelf.getShelfName().equalsIgnoreCase(newName)) {
+            throw new MyShelfAlreadyExistsException("Shelf " + newName + " already exist");
+        }
+
+        shelf.setShelfName(newName);
+        MyShelf updatedShelf = shelfRepository.save(shelf);
+        return mapper.mapToShelfDTO(updatedShelf);
     }
 
-    public Optional<MyShelf> findShelfByID(Long id){
+    public Optional<MyShelf> findShelfByID(Long id) {
         return shelfRepository.findById(id);
     }
 }

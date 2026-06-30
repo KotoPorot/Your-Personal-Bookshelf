@@ -21,10 +21,15 @@ public class MyShelf {
     @Column(name = "shelf_name", nullable = false)
     private String shelfName;
 
-   @ManyToOne(fetch = FetchType.LAZY)
-   @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private MyUser user;
 
-   @OneToMany(mappedBy = "shelf", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "shelf", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MyBook> books = new ArrayList<>();
+
+    public MyShelf(String shelfName, MyUser user) {
+        this.shelfName = shelfName;
+        this.user = user;
+    }
 }

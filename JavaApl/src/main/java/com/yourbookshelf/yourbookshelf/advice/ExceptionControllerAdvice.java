@@ -2,7 +2,9 @@ package com.yourbookshelf.yourbookshelf.advice;
 
 import com.yourbookshelf.yourbookshelf.DTO.ExceptionResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyInvalidCredentialsException;
+import com.yourbookshelf.yourbookshelf.customException.MyShelfAlreadyExistsException;
 import com.yourbookshelf.yourbookshelf.customException.MyUserAlreadyExistsException;
+import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveShelfException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,6 +25,18 @@ public class ExceptionControllerAdvice {
     public ResponseEntity<ExceptionResponseDTO> handleMyUserAlreadyExistsException(MyUserAlreadyExistsException exp) {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionResponseDTO(exp.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MyShelfAlreadyExistsException.class)
+    public ResponseEntity<ExceptionResponseDTO> handleMyShelfAlreadyExistsException(MyShelfAlreadyExistsException exp) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionResponseDTO(exp.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(MyUserDoesNotHaveShelfException.class)
+    public ResponseEntity<ExceptionResponseDTO> handleMyUserDoesNotHaveShelfException(MyUserDoesNotHaveShelfException exp) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionResponseDTO(exp.getMessage(), LocalDateTime.now()));
     }
 
 }
