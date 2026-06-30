@@ -1,0 +1,1181 @@
+.bookshelf-layout {
+
+    display: flex;
+
+    flex-direction: column;
+
+    height: 100vh;
+
+    font-family: sans-serif;
+
+    background-color: #f5f6f8;
+
+}
+
+
+
+/* Стили шапки (Header) */
+
+.bookshelf-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 15px 30px;
+
+    background-color: #2c3e50;
+
+    color: white;
+
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+}
+
+
+
+.header-logo {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+}
+
+
+
+.logout-button {
+
+    background-color: #e74c3c;
+
+    color: white;
+
+    border: none;
+
+    padding: 8px 16px;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    margin-left: 15px;
+
+    transition: background 0.2s;
+
+}
+
+
+
+.logout-button:hover {
+
+    background-color: #c0392b;
+
+}
+
+
+
+/* Внутренний контейнер для сайдбара и контента */
+
+.bookshelf-main {
+
+    display: flex;
+
+    flex: 1;
+
+    overflow: hidden;
+
+}
+
+
+
+/* Настоящий сайдбар */
+
+.bookshelf-sidebar {
+
+    width: 280px;
+
+    background-color: #ffffff;
+
+    border-right: 1px solid #dee2e6;
+
+    padding: 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+
+.sidebar-top {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+
+
+.sidebar-top h3 {
+
+    margin: 0;
+
+    font-size: 18px;
+
+    color: #34495e;
+
+}
+
+
+
+.create-shelf-btn {
+
+    background-color: #3498db;
+
+    color: white;
+
+    border: none;
+
+    padding: 6px 12px;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    transition: background 0.2s;
+
+}
+
+
+
+.create-shelf-btn:hover {
+
+    background-color: #2980b9;
+
+}
+
+
+
+/* Список полок */
+
+.shelf-list {
+
+    list-style: none;
+
+    padding: 0;
+
+    margin: 0;
+
+}
+
+
+
+.shelf-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 12px 15px;
+
+    margin-bottom: 6px;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    background-color: #fdfdfd;
+
+    border: 1px solid #f0f0f0;
+
+    transition: all 0.2s ease;
+
+}
+
+
+
+.shelf-item:hover {
+
+    background-color: #f1f2f6;
+
+    border-color: #dcdde1;
+
+}
+
+
+
+.shelf-item.active {
+
+    background-color: #e8f4fd;
+
+    color: #2980b9;
+
+    border-color: #3498db;
+
+    font-weight: bold;
+
+}
+
+
+
+/* Кнопки действий на полках */
+
+.shelf-actions {
+
+    display: flex;
+
+    gap: 5px;
+
+}
+
+
+
+.action-btn {
+
+    background: none;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+    padding: 2px 5px;
+
+    border-radius: 3px;
+
+    transition: background 0.1s;
+
+}
+
+
+
+.action-btn:hover {
+
+    background-color: rgba(0, 0, 0, 0.05);
+
+}
+
+
+
+/* Правая зона контента */
+
+.bookshelf-content {
+
+    flex: 1;
+
+    padding: 30px;
+
+    overflow-y: auto;
+
+    background-color: #f8f9fa;
+
+}
+
+
+
+.shelf-title {
+
+    margin-top: 0;
+
+    margin-bottom: 25px;
+
+    color: #2c3e50;
+
+    font-size: 24px;
+
+}
+
+
+
+/* Сетка (Grid) */
+
+.book-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+    gap: 25px;
+
+}
+
+
+
+/* Карточка книги */
+
+.book-card {
+
+    background-color: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+
+.book-card:hover {
+
+    transform: translateY(-4px);
+
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+}
+
+
+
+.book-card-cover {
+
+    height: 160px;
+
+    background-color: #edf2f7;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 48px;
+
+}
+
+
+
+.book-card-info {
+
+    padding: 15px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    flex: 1;
+
+}
+
+
+
+.book-card-title {
+
+    margin: 0 0 5px 0;
+
+    font-size: 16px;
+
+    color: #2d3748;
+
+}
+
+
+
+.book-card-author {
+
+    margin: 0 0 15px 0;
+
+    font-size: 14px;
+
+    color: #718096;
+
+}
+
+
+
+.book-card-footer {
+
+    margin-top: auto;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    font-size: 12px;
+
+}
+
+
+
+.book-card-pages {
+
+    color: #a0aec0;
+
+}
+
+
+
+/* Бейджи статусов */
+
+.status-badge {
+
+    padding: 3px 8px;
+
+    border-radius: 12px;
+
+    font-weight: bold;
+
+    text-transform: uppercase;
+
+    font-size: 10px;
+
+}
+
+
+
+.status-badge.reading { background-color: #feebc8; color: #c05621; }
+
+.status-badge.planned { background-color: #e2e8f0; color: #4a5568; }
+
+.status-badge.completed { background-color: #c6f6d5; color: #22543d; }
+
+
+
+.no-books-message {
+
+    color: #718096;
+
+    font-style: italic;
+
+}
+
+/* Шапка контентной зоны (Название полки + Кнопка добавления книги) */
+
+.content-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+
+}
+
+
+
+.content-header .shelf-title {
+
+    margin-bottom: 0;
+
+}
+
+
+
+.add-book-btn {
+
+    background-color: #2ecc71;
+
+    color: white;
+
+    border: none;
+
+    padding: 10px 20px;
+
+    border-radius: 6px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: background 0.2s;
+
+}
+
+
+
+.add-book-btn:hover {
+
+    background-color: #27ae60;
+
+}
+
+
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА --- */
+
+.modal-overlay {
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    bottom: 0;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 1000;
+
+}
+
+
+
+.modal-content {
+
+    background-color: white;
+
+    padding: 25px;
+
+    border-radius: 8px;
+
+    width: 100%;
+
+    max-width: 500px;
+
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+    box-sizing: border-box;
+
+}
+
+
+
+.modal-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    padding-bottom: 10px;
+
+}
+
+
+
+.modal-header h3 {
+
+    margin: 0;
+
+    color: #2c3e50;
+
+}
+
+
+
+.close-modal-btn {
+
+    background: none;
+
+    border: none;
+
+    font-size: 24px;
+
+    cursor: pointer;
+
+    color: #a0aec0;
+
+}
+
+
+
+.close-modal-btn:hover {
+
+    color: #4a5568;
+
+}
+
+
+
+/* Форма в модалке */
+
+.modal-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
+
+
+.form-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+}
+
+
+
+.form-group label {
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    color: #4a5568;
+
+}
+
+
+
+.form-group input,
+
+.form-group select,
+
+.form-group textarea {
+
+    padding: 10px;
+
+    border: 1px solid #cbd5e0;
+
+    border-radius: 4px;
+
+    font-size: 14px;
+
+}
+
+
+
+.form-group input:focus,
+
+.form-group select:focus,
+
+.form-group textarea:focus {
+
+    border-color: #3182ce;
+
+    outline: none;
+
+}
+
+
+
+.form-row {
+
+    display: flex;
+
+    gap: 15px;
+
+}
+
+
+
+.form-row .form-group {
+
+    flex: 1;
+
+}
+
+
+
+/* Кнопки в модалке */
+
+.modal-actions {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 10px;
+
+}
+
+
+
+.modal-actions button {
+
+    padding: 10px 20px;
+
+    border-radius: 4px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+
+    border: none;
+
+}
+
+
+
+.cancel-btn {
+
+    background-color: #edf2f7;
+
+    color: #4a5568;
+
+}
+
+
+
+.cancel-btn:hover {
+
+    background-color: #e2e8f0;
+
+}
+
+
+
+.save-btn {
+
+    background-color: #3182ce;
+
+    color: white;
+
+}
+
+
+
+.save-btn:hover {
+
+    background-color: #2b6cb0;
+
+}
+
+/* Зона загрузки файла в модалке */
+
+.file-upload-zone {
+
+    border: 2px dashed #cbd5e0;
+
+    border-radius: 6px;
+
+    padding: 20px;
+
+    text-align: center;
+
+    background-color: #f7fafc;
+
+    cursor: pointer;
+
+    transition: border-color 0.2s;
+
+}
+
+
+
+.file-upload-zone:hover {
+
+    border-color: #4299e1;
+
+    background-color: #ebf8ff;
+
+}
+
+
+
+.file-label {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+
+    width: 100%;
+
+}
+
+
+
+.upload-icon {
+
+    font-size: 32px;
+
+}
+
+
+
+.upload-text {
+
+    font-size: 14px;
+
+    color: #4a5568;
+
+    font-weight: 500;
+
+}
+
+/* --- Стили для Информационной Модалки книги --- */
+
+.book-info-modal {
+
+    background: white;
+
+    padding: 24px;
+
+    border-radius: 16px;
+
+    width: 100%;
+
+    max-width: 440px;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+    position: relative;
+
+    animation: fadeIn 0.25s ease-out;
+
+}
+
+
+
+.book-modal-title {
+
+    margin-top: 0;
+
+    margin-bottom: 20px;
+
+    font-size: 24px;
+
+    color: #2d3748;
+
+    font-weight: 700;
+
+    line-height: 1.3;
+
+}
+
+
+
+/* Сетка параметров */
+
+.book-info-grid {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+
+    margin-bottom: 28px;
+
+}
+
+
+
+.info-row {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid #edf2f7;
+
+}
+
+
+
+.info-row:last-child {
+
+    border-bottom: none;
+
+}
+
+
+
+.info-label {
+
+    color: #718096;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+}
+
+
+
+.info-value {
+
+    color: #1a202c;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    text-align: right;
+
+}
+
+
+
+.shelf-highlight {
+
+    background-color: #ebf8ff;
+
+    color: #2b6cb0;
+
+    padding: 4px 10px;
+
+    border-radius: 6px;
+
+    font-size: 13px;
+
+}
+
+
+
+/* Прогресс-бар внутри строки */
+
+.progress-value-wrapper {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 4px;
+
+    width: 50%;
+
+}
+
+
+
+.mini-progress-bar {
+
+    width: 100%;
+
+    height: 6px;
+
+    background-color: #edf2f7;
+
+    border-radius: 3px;
+
+    overflow: hidden;
+
+}
+
+
+
+.mini-progress-fill {
+
+    height: 100%;
+
+    background: linear-gradient(90deg, #3182ce, #319795);
+
+    border-radius: 3px;
+
+    transition: width 0.3s ease;
+
+}
+
+
+
+/* Контейнер управления шестерёнкой */
+
+.settings-container {
+
+    position: relative;
+
+}
+
+
+
+.settings-btn {
+
+    font-size: 20px;
+
+    background: none;
+
+    border: none;
+
+    cursor: pointer;
+
+    padding: 6px;
+
+    border-radius: 50%;
+
+    transition: background 0.2s, transform 0.2s;
+
+}
+
+
+
+.settings-btn:hover {
+
+    background-color: #edf2f7;
+
+    transform: rotate(45deg);
+
+}
+
+
+
+/* Выпадашка действий */
+
+.settings-dropdown {
+
+    position: absolute;
+
+    top: 100%;
+
+    left: 0;
+
+    margin-top: 6px;
+
+    background: white;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 10px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    z-index: 100;
+
+    min-width: 180px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+}
+
+
+
+.settings-dropdown button {
+
+    background: none;
+
+    border: none;
+
+    padding: 12px 16px;
+
+    text-align: left;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    color: #4a5568;
+
+    cursor: pointer;
+
+    transition: background 0.15s;
+
+    width: 100%;
+
+}
+
+
+
+.settings-dropdown button:hover {
+
+    background-color: #f7fafc;
+
+}
+
+
+
+.settings-dropdown button.delete-action {
+
+    color: #e53e3e;
+
+    border-top: 1px solid #edf2f7;
+
+}
+
+
+
+.settings-dropdown button.delete-action:hover {
+
+    background-color: #fff5f5;
+
+}
+
+
+
+/* Кнопки фич в подвале */
+
+.book-info-modal .modal-footer {
+
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 10px;
+
+}
+
+
+
+.notes-btn {
+
+    flex: 1;
+
+    background-color: #f7fafc;
+
+    border: 1px solid #e2e8f0;
+
+    color: #4a5568;
+
+}
+
+
+
+.notes-btn:hover {
+
+    background-color: #edf2f7;
+
+}
+
+
+
+.read-btn {
+
+    flex: 1.5;
+
+}

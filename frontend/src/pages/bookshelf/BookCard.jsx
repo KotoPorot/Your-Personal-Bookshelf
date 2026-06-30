@@ -1,0 +1,32 @@
+import React from 'react';
+
+const BookCard = ({ book, onBookClick }) => {
+    // Встроенная SVG-заглушка в виде аккуратной серой книжки с иконкой
+    const placeholderCover = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiAxNDQiIGZpbGw9Im5vbmUiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSIxNDQiIGZpbGw9IiNFREYyRjciLz48cGF0aCBkPSJNMzIgNDhINjRWMTEySDMyVjQ4WiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iIzcxODBONiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZD0iTTQ0IDYwaDRWMTAwaDRWMTAwSDQ0VjYwWiIgZmlsbD0iIzcxODBONiIvPjwvc3ZnPg==";
+
+    return (
+        <div className="book-card" onClick={() => onBookClick(book)}>
+            <div className="book-card-cover-wrapper">
+                <img
+                    src={book.coverUrl || placeholderCover}
+                    alt={`Обложка книги ${book.title}`}
+                    className="book-card-cover-image"
+                />
+            </div>
+            <div className="book-card-info">
+                <h4 className="book-card-title">{book.title}</h4>
+                <p className="book-card-author">{book.author}</p>
+                <div className="book-card-footer">
+                    <span className="book-card-pages">{book.pages} стр.</span>
+                    <span className={`status-badge ${book.status}`}>
+                        {book.status === 'reading' && 'Читаю'}
+                        {book.status === 'planned' && 'В планах'}
+                        {book.status === 'completed' && 'Прочитано'}
+                    </span>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default BookCard;

@@ -1,0 +1,108 @@
+/* 1. Фон-подложка (Overlay) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(2px); /* Легкое размытие фона */
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* 2. Контейнер модального окна */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 3. Шапка модалки */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 15px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #2c3e50;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #a0aec0;
+    transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+    color: #4a5568;
+}
+
+/* 4. Общие элементы форм внутри */
+.modal-form { display: flex; flex-direction: column; gap: 15px; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+
+.form-group label { font-size: 14px; font-weight: 600; color: #4a5568; }
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* 5. Кнопки действий */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+}
+
+.save-btn { background-color: #3182ce; color: white; }
+.save-btn:hover { background-color: #2b6cb0; }
+
+.cancel-btn { background-color: #edf2f7; color: #4a5568; }
+.cancel-btn:hover { background-color: #e2e8f0; }
+
+/* 6. Анимация появления */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 7. Дополнительный класс для информационного вида (если нужно) */
+.info-grid { display: flex; flex-direction: column; gap: 12px; }
+.info-row { display: flex; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #edf2f7; }
+.info-label { color: #718096; font-size: 14px; }
+.info-value { font-weight: 600; color: #2d3748; }
