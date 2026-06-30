@@ -24,7 +24,7 @@ const Sidebar = ({
                         className={`shelf-item ${shelf.id === activeShelfId ? 'active' : ''}`}
                         onClick={() => onSelectShelf(shelf.id)}
                     >
-                        <span className="shelf-name">{shelf.name}</span>
+                        <span className="shelf-name">{shelf.shelfName}</span>
 
                         {/* Кнопки управления полкой */}
                         <div className="shelf-actions" onClick={(e) => e.stopPropagation()}>

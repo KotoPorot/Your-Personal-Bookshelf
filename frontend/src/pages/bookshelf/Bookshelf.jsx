@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import BookGrid from './BookGrid';
 import BookModal from './BookModal';
-import AddBookModal from './AddBookModal'; // Импортируем новую модалку загрузки
+import AddBookModal from './AddBookModal';
 import './styles/Bookshelf.css';
 
-const Bookshelf = ({ token, onLogout }) => {
-    const [shelves, setShelves] = useState([
-        { id: 1, name: 'Читаю сейчас' },
-        { id: 2, name: 'Хочу прочитать' },
-        { id: 3, name: 'Прочитано' }
-    ]);
+const Bookshelf = ({ token, username, onLogout }) => {
+    const [shelves, setShelves] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [activeShelfId, setActiveShelfId] = useState(1);
 
     const [books, setBooks] = useState([
@@ -21,33 +19,139 @@ const Bookshelf = ({ token, onLogout }) => {
         { id: 4, shelfId: 3, title: 'Паттерны проектирования', author: 'Эрик Фримен', pages: 656, status: 'completed', description: 'Классические приемы ООП.' }
     ]);
 
+    // -- API useEffects
+    useEffect(() => {
+            const fetchShelves = async () => {
+                try {
+                    const response = await axios.get('http://localhost:8080/api/v1/shelves/getAll', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                const data = response.data;
+                    setShelves(data);
+                    if (data.length > 0) {
+                                    // Пытаемся взять ID из localStorage
+                                    const savedShelfId = localStorage.getItem('lastSelectedShelfId');
+
+                                    // Проверяем, существует ли полка с таким ID в полученных данных
+                                    const exists = data.find(s => s.id === Number(savedShelfId));
+
+                                    if (exists) {
+                                        setActiveShelfId(exists.id);
+                                    } else {
+                                        // Если ID нет или его нет в списке (например, удалили полку), берем первую
+                                        setActiveShelfId(data[0].id);
+                                        localStorage.setItem('lastSelectedShelfId', data[0].id);
+                                    }
+                                }
+
+                  }catch (err) {
+                    console.error('Ошибка при загрузке полок:', err);
+                    alert('Не удалось загрузить полки');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            if (token) { // Хорошая практика: проверять, есть ли токен
+                fetchShelves();
+            }
+        }, [token]);
+
     // Разделяем управление окнами
     const [selectedBook, setSelectedBook] = useState(null); // Для просмотра/редактирования (объект или null)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Для загрузки файлов (true/false)
 
     // Управление полками
-    const handleCreateShelf = () => {
-        const name = prompt('Введите название новой полки:');
-        if (name && name.trim() !== '') {
-            setShelves([...shelves, { id: Date.now(), name: name.trim() }]);
+    const handleCreateShelf = async () => {
+        const shelfName = prompt('Введите название новой полки:');
+
+        if (shelfName && shelfName.trim() !== '') {
+            try {
+                // Отправляем POST-запрос
+                // Предполагаю, что контроллер принимает объект { shelfName: "..." }
+                const response = await axios.post('http://localhost:8080/api/v1/shelves/createShelf',
+                    { shelfName: shelfName.trim() },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                // Обновляем список полок, добавив новую, полученную с сервера
+                // (response.data должен содержать объект созданной полки с новым ID)
+                setShelves([...shelves, response.data]);
+
+                // Опционально: делаем новую полку активной
+                setActiveShelfId(response.data.id);
+
+            } catch (err) {
+                console.error('Ошибка при создании полки:', err);
+                alert('Не удалось создать полку');
+            }
         }
     };
 
-    const handleEditShelf = (id) => {
+    const handleEditShelf = async (id) => {
         const currentShelf = shelves.find(s => s.id === id);
-        const newName = prompt('Изменить название полки:', currentShelf.name);
-        if (newName && newName.trim() !== '') {
-            setShelves(shelves.map(s => s.id === id ? { ...s, name: newName.trim() } : s));
+        const newName = prompt('Изменить название полки:', currentShelf.shelfName);
+
+        if (newName && newName.trim() !== '' && newName.trim() !== currentShelf.shelfName) {
+            try {
+                // Отправляем PUT запрос
+                const response = await axios.put(
+                    `http://localhost:8080/api/v1/shelves/updateShelfName/${id}`,
+                    { shelfName: newName.trim() }, // Тело запроса (DTO)
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                // Обновляем состояние, используя данные, которые вернул бэкенд
+                setShelves(shelves.map(s => s.id === id ? response.data : s));
+
+            } catch (err) {
+                console.error('Ошибка при обновлении полки:', err);
+                alert('Не удалось обновить название полки');
+            }
         }
     };
 
-    const handleDeleteShelf = (id) => {
+    const handleDeleteShelf = async (id) => {
+        // Находим полку для подтверждения в диалоговом окне
         const currentShelf = shelves.find(s => s.id === id);
-        if (window.confirm(`Вы уверены, что хотите удалить полку "${currentShelf.name}"?`)) {
-            setShelves(shelves.filter(s => s.id !== id));
-            if (activeShelfId === id) {
-                const remaining = shelves.filter(s => s.id !== id);
-                if (remaining.length > 0) setActiveShelfId(remaining[0].id);
+        if (!currentShelf) return;
+
+        if (window.confirm(`Вы уверены, что хотите удалить полку "${currentShelf.shelfName}"?`)) {
+            try {
+                // Отправляем DELETE запрос
+                await axios.delete(`http://localhost:8080/api/v1/shelves/deleteShelf/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                // Если запрос успешен (сервер ответил 204), обновляем стейт
+                const updatedShelves = shelves.filter(s => s.id !== id);
+                setShelves(updatedShelves);
+
+                // Если удалили активную полку, переключаем на первую доступную
+                if (activeShelfId === id) {
+                    if (updatedShelves.length > 0) {
+                        setActiveShelfId(updatedShelves[0].id);
+                    } else {
+                        setActiveShelfId(null); // Или другое значение, если полок больше нет
+                    }
+                }
+            } catch (err) {
+                console.error('Ошибка при удалении полки:', err);
+                alert('Не удалось удалить полку. Возможно, на ней есть книги?');
             }
         }
     };
@@ -67,7 +171,7 @@ console.log("Текущая книга в стейте:", selectedBook);
 
     return (
         <div className="bookshelf-layout">
-            <Header onLogout={onLogout} />
+            <Header username={username} onLogout={onLogout} />
 
             <div className="bookshelf-main">
                 <Sidebar
@@ -82,7 +186,7 @@ console.log("Текущая книга в стейте:", selectedBook);
                 <main className="bookshelf-content">
                     <div className="content-header">
                         <h2 className="shelf-title">
-                            {shelves.find(s => s.id === activeShelfId)?.name || 'Полка не выбрана'}
+                            {shelves.find(s => s.id === activeShelfId)?.shelfName || 'Полка не выбрана'}
                         </h2>
                         {activeShelfId && (
                             <button

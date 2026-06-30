@@ -7,25 +7,30 @@ import './App.css';
 
 function App() {
   // 1. Проверяем токен в localStorage
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('token')||null);
+  const [username, setUsername] = useState(localStorage.getItem('username')||'Гость');
 
   // 2. Новое состояние для навигации между экранами 'welcome' или 'login'
   const [currentScreen, setCurrentScreen] = useState('welcome');
 
-  const handleLoginSuccess = (receivedToken) => {
+  const handleLoginSuccess = (receivedToken, username) => {
     setToken(receivedToken);
     localStorage.setItem('token', receivedToken);
+    setUsername(username);
+    localStorage.setItem('username', username);
   };
 
   const handleLogout = () => {
     setToken(null);
+    setUsername('');
     localStorage.removeItem('token');
+    localStorage.removeItem('username');
     setCurrentScreen('welcome'); // После выхода возвращаем на приветственную страницу
   };
 
   // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН — сразу пускаем в приложение
   if (token) {
-    return <Bookshelf token={token} onLogout={handleLogout} />;
+    return <Bookshelf token={token} username={username} onLogout={handleLogout} />;
   }
 
   // ЕСЛИ НЕ АВТОРИЗОВАН — смотрим, на какой кнопке он находится

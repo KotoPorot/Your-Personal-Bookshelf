@@ -24,7 +24,7 @@ const Auth = ({ onLoginSuccess }) => {
       const token = response.data;
 
       if (token) {
-        onLoginSuccess(token); // Передаем настоящий токен в App.jsx
+        onLoginSuccess(token, username); // Передаем настоящий токен в App.jsx
       } else {
         setError('Сервер не вернул токен доступа.');
       }
