@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import BookGrid from './BookGrid';
 import BookModal from './BookModal';
 import AddBookModal from './AddBookModal';
+import { handleRequestError } from '../../utils/apiErrorHandler.js';
 import './styles/Bookshelf.css';
 
 const Bookshelf = ({ token, username, onLogout }) => {
@@ -47,8 +48,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                                 }
 
                   }catch (err) {
-                    console.error('Ошибка при загрузке полок:', err);
-                    alert('Не удалось загрузить полки');
+                    handleRequestError(err);
                 } finally {
                     setLoading(false);
                 }
@@ -89,8 +89,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                 setActiveShelfId(response.data.id);
 
             } catch (err) {
-                console.error('Ошибка при создании полки:', err);
-                alert('Не удалось создать полку');
+                handleRequestError(err);
             }
         }
     };
@@ -117,8 +116,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                 setShelves(shelves.map(s => s.id === id ? response.data : s));
 
             } catch (err) {
-                console.error('Ошибка при обновлении полки:', err);
-                alert('Не удалось обновить название полки');
+                handleRequestError(err);
             }
         }
     };
@@ -150,8 +148,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                     }
                 }
             } catch (err) {
-                console.error('Ошибка при удалении полки:', err);
-                alert('Не удалось удалить полку. Возможно, на ней есть книги?');
+                handleRequestError(err);
             }
         }
     };
