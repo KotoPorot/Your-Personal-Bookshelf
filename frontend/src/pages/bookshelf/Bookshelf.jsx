@@ -48,7 +48,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                                 }
 
                   }catch (err) {
-                    handleRequestError(err);
+                    handleRequestError(err, onLogout);
                 } finally {
                     setLoading(false);
                 }
@@ -89,7 +89,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                 setActiveShelfId(response.data.id);
 
             } catch (err) {
-                handleRequestError(err);
+                handleRequestError(err, onLogout);
             }
         }
     };
@@ -116,7 +116,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                 setShelves(shelves.map(s => s.id === id ? response.data : s));
 
             } catch (err) {
-                handleRequestError(err);
+                handleRequestError(err, onLogout);
             }
         }
     };
@@ -148,7 +148,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                     }
                 }
             } catch (err) {
-                handleRequestError(err);
+                handleRequestError(err, onLogout);
             }
         }
     };
@@ -164,7 +164,6 @@ const Bookshelf = ({ token, username, onLogout }) => {
         setBooks([...books, newBook]);
         setIsAddModalOpen(false); // Закрываем окно загрузки
     };
-console.log("Текущая книга в стейте:", selectedBook);
 
     return (
         <div className="bookshelf-layout">
@@ -216,6 +215,7 @@ console.log("Текущая книга в стейте:", selectedBook);
             {/* Окно 2: Загрузка нового файла */}
             {isAddModalOpen && (
                 <AddBookModal
+                    token={token}
                     activeShelfId={activeShelfId}
                     onClose={() => setIsAddModalOpen(false)}
                     onUpload={handleAddBook}

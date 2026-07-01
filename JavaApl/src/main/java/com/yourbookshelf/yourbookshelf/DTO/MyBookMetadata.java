@@ -3,10 +3,9 @@ package com.yourbookshelf.yourbookshelf.DTO;
 import lombok.Data;
 
 @Data
-public class MyBookResponseDTO {
+public class MyBookMetadata {
     private String title;
     private String author;
-    private Long id;
-    private String coverImageURL;
-    private String bookUrl;
+    private String coverPath;
+    private String filePath;
 }

@@ -1,93 +1,88 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
-const AddBookModal = ({ activeShelfId, onClose, onUpload }) => {
-    const [title, setTitle] = useState('');
-    const [author, setAuthor] = useState('');
-
-    // Заглушка под будущий файл
+const AddBookModal = ({ activeShelfId, onClose, onUpload, token }) => {
     const [selectedFile, setSelectedFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setSelectedFile(file);
-            // Для удобства пользователя автоматически вытащим имя файла в название, если поле пустое
-            if (!title) {
-                const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                setTitle(fileNameWithoutExt);
-            }
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!title.trim() || !author.trim()) {
-            alert('Укажите название книги и автора!');
+
+        if (!selectedFile) {
+            alert('Пожалуйста, выберите файл EPUB!');
             return;
         }
 
-        // Формируем объект новой книги
-        const newBook = {
-            id: Date.now(),
-            shelfId: activeShelfId,
-            title: title.trim(),
-            author: author.trim(),
-            pages: Math.floor(Math.random() * 300) + 150, // пока заглушка для страниц
-            status: 'planned', // новая книга по умолчанию идет в планы
-            description: selectedFile ? `Файл: ${selectedFile.name}` : 'Загружено без файла'
-        };
+        setIsUploading(true);
 
-        onUpload(newBook);
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        try {
+            // Отправляем файл на бэкенд
+            const response = await axios.post(
+                `http://localhost:8080/api/v1/books/addBook/${activeShelfId}`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        // Content-Type браузер установит сам (multipart/form-data)
+                    }
+                }
+            );
+
+            // Получаем объект книги с заполненными метаданными (id, title, author, coverImageUrl)
+            onUpload(response.data);
+            onClose();
+        } catch (err) {
+            console.error("Ошибка при загрузке:", err);
+            alert('Не удалось загрузить книгу. Проверьте формат файла (должен быть EPUB).');
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h3>Загрузка новой книги (.fb2, .epub)</h3>
+                    <h3>Загрузка книги</h3>
                     <button className="close-modal-btn" onClick={onClose}>&times;</button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form">
-                    {/* Область для будущего перетаскивания файлов */}
                     <div className="file-upload-zone">
                         <label className="file-label">
                             <span className="upload-icon">📁</span>
                             <span className="upload-text">
-                                {selectedFile ? `Выбран файл: ${selectedFile.name}` : 'Выберите файл FB2 или EPUB'}
+                                {selectedFile ? selectedFile.name : 'Выберите файл .epub'}
                             </span>
                             <input
                                 type="file"
-                                accept=".fb2,.epub"
+                                accept=".epub"
                                 onChange={handleFileChange}
                                 style={{ display: 'none' }}
                             />
                         </label>
                     </div>
 
-                    <div className="form-group">
-                        <label>Название книги *</label>
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Введи название или оно определится из файла"
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label>Автор *</label>
-                        <input
-                            type="text"
-                            value={author}
-                            onChange={(e) => setAuthor(e.target.value)}
-                            placeholder="Имя автора"
-                        />
-                    </div>
-
                     <div className="modal-actions">
                         <button type="button" className="cancel-btn" onClick={onClose}>Отмена</button>
-                        <button type="submit" className="save-btn" style={{ backgroundColor: '#2ecc71' }}>Загрузить</button>
+                        <button
+                            type="submit"
+                            className="save-btn"
+                            disabled={isUploading || !selectedFile}
+                            style={{ backgroundColor: isUploading ? '#ccc' : '#2ecc71' }}
+                        >
+                            {isUploading ? 'Парсинг и загрузка...' : 'Загрузить'}
+                        </button>
                     </div>
                 </form>
             </div>
