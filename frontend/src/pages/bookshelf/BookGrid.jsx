@@ -1,7 +1,9 @@
 import React from 'react';
 import BookCard from './BookCard'; // или правильный путь к карточке
 
-const BookGrid = ({ books, activeShelfId, onBookClick }) => {
+const BookGrid = ({ books, activeShelfId, onBookClick, token }) => {
+        console.log("Все книги:", books);
+        console.log("Активная полка:", activeShelfId);
     // Фильтруем книги по активной полке
     const filteredBooks = books.filter(book => book.shelfId === activeShelfId);
 
@@ -14,6 +16,7 @@ const BookGrid = ({ books, activeShelfId, onBookClick }) => {
                         book={book}
                         // КРИТИЧЕСКИ ВАЖНО: передаем функцию клика дальше в карточку!
                         onBookClick={onBookClick}
+                        token = {token}
                     />
                 ))
             ) : (

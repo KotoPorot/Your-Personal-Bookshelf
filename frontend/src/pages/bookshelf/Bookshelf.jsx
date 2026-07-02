@@ -11,14 +11,9 @@ import './styles/Bookshelf.css';
 const Bookshelf = ({ token, username, onLogout }) => {
     const [shelves, setShelves] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [activeShelfId, setActiveShelfId] = useState(1);
+    const [activeShelfId, setActiveShelfId] = useState(null);
 
-    const [books, setBooks] = useState([
-        { id: 1, shelfId: 1, title: 'Чистый код', author: 'Роберт Мартин', pages: 464, status: 'reading', description: 'Легендарная книга об искусстве написания кода.' },
-        { id: 2, shelfId: 1, title: 'Совершенный код', author: 'Стив Макконнелл', pages: 896, status: 'reading', description: 'Практическое руководство по созданию качественного ПО.' },
-        { id: 3, shelfId: 2, title: 'Грокаем алгоритмы', author: 'Адитья Бхаргава', pages: 288, status: 'planned', description: 'Иллюстрированное руководство для программистов.' },
-        { id: 4, shelfId: 3, title: 'Паттерны проектирования', author: 'Эрик Фримен', pages: 656, status: 'completed', description: 'Классические приемы ООП.' }
-    ]);
+    const [books, setBooks] = useState([]);
 
     // -- API useEffects
     useEffect(() => {
@@ -58,6 +53,30 @@ const Bookshelf = ({ token, username, onLogout }) => {
                 fetchShelves();
             }
         }, [token]);
+
+    useEffect(() => {
+        const fetchBooks = async () => {
+            if (!activeShelfId) return; // Не грузим, если полка еще не выбрана
+
+            try {
+                setLoading(true); // Можно включить лоадер, если есть
+                const response = await axios.get(`http://localhost:8080/api/v1/books/getBooks/${activeShelfId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                setBooks(response.data); // Обновляем список книг полученными данными
+            } catch (err) {
+                handleRequestError(err, onLogout);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (token && activeShelfId!==null) {
+            fetchBooks();
+        }
+    }, [token, activeShelfId]);
 
     // Разделяем управление окнами
     const [selectedBook, setSelectedBook] = useState(null); // Для просмотра/редактирования (объект или null)
@@ -198,6 +217,7 @@ const Bookshelf = ({ token, username, onLogout }) => {
                         books={books}
                         activeShelfId={activeShelfId}
                         onBookClick={handleBookClick}
+                        token={token}
                     />
                 </main>
             </div>

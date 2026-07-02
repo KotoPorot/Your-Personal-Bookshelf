@@ -26,6 +26,7 @@ public class DtoMapper {
         bookDTO.setAuthor(book.getAuthor());
         bookDTO.setBookUrl(book.getFilePath());
         bookDTO.setCoverImageURL(book.getCoverPath());
+        bookDTO.setShelfId(book.getShelf().getId());
         return bookDTO;
     }
 
