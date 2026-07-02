@@ -33,6 +33,6 @@ build/
 .vscode/
 
 ### Local database ###
-JavaAp1/data/
-JavaAp1/book_storage/
-JavaAp1/cover_image_storage/
+JavaApl/data
+**/book_storage/
+**/cover_image_storage/
