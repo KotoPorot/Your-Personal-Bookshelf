@@ -28,8 +28,10 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
     const progressPercent = totalPages > 0 ? Math.round((readPages / totalPages) * 100) : 0;
 
     // Находим название полки по её ID
-    const currentShelf = shelves.find(s => s.id === book.shelfId);
-    const shelfName = currentShelf ? currentShelf.name : 'Без полки';
+    const currentShelf = shelves.find(s => Number(s.id) === Number(book.shelfId));
+    console.log('currentShelf:', currentShelf)
+    const shelfName = currentShelf ? currentShelf.shelfName : 'Без полки';
+    console.log('currentShelf name: ', shelfName)
 
     // Обработчики действий из шестерёнки
     const handleRename = () => {

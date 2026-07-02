@@ -22,4 +22,12 @@ public class MyBook {
     @Column(name = "title", nullable = false)
     private String title;
 
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "cover_path")
+    private String coverPath;
+
+    @Column(name = "author")
+    private String author;
 }

@@ -5,10 +5,12 @@ import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.MyBookService;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,18 +20,24 @@ import java.util.List;
 public class MyBookController {
     private final MyBookService bookService;
 
+    //work correct
     @PostMapping("/addBook/{shelfId}")
     public ResponseEntity<MyBookResponseDTO> addBook(@AuthenticationPrincipal MyUserPrincipal principal,
                                                      @PathVariable Long shelfId,
-                                                     @RequestBody MyBookRequestDTO title){
+                                                     @RequestParam("file") MultipartFile file){
 
-        MyBookResponseDTO response = bookService.addBook(title, shelfId, principal.getUser());
-        if(response!=null){
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookService.addBook(file, shelfId, principal.getUser()));
 
     }
+
+    @GetMapping("/getCoverImage/{bookId}")
+    public ResponseEntity<Resource> getCoverImage(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                  @PathVariable Long bookId){
+        return bookService.getCoverImage(bookId, principal.getUser());
+    }
+
+
+
 
     @GetMapping("/getBooks/{shelfId}")
     public ResponseEntity<List<MyBookResponseDTO>> getBooks (@AuthenticationPrincipal MyUserPrincipal principal,
