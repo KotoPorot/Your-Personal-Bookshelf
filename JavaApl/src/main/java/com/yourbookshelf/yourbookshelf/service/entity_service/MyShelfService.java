@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.service;
+package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyShelfAlreadyExistsException;
@@ -62,5 +62,13 @@ public class MyShelfService {
 
     public Optional<MyShelf> findShelfByID(Long id) {
         return shelfRepository.findById(id);
+    }
+
+    public boolean isShelfBelongsUser(MyShelf shelf, Long userId) {
+        return shelf.getUser().getId().equals(userId);
+    }
+
+    public boolean isShelfHasBook(MyShelf shelf, String bookTitle) {
+        return shelf.getBooks().stream().anyMatch(book -> book.getTitle().equalsIgnoreCase(bookTitle));
     }
 }

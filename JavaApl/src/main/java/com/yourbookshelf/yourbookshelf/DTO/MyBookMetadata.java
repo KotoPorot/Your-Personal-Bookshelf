@@ -6,6 +6,4 @@ import lombok.Data;
 public class MyBookMetadata {
     private String title;
     private String author;
-    private String coverPath;
-    private String filePath;
 }
