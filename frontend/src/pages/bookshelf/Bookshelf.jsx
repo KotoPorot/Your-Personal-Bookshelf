@@ -174,7 +174,6 @@ const Bookshelf = ({ token, username, onLogout }) => {
 
     // Сохранение отредактированной книги
     const handleBookClick = (book) => {
-        console.log("Клик получен в Bookshelf, книга:", book); // Добавь это!
         setSelectedBook(book); // Устанавливаем книгу, чтобы модалка знала, что показывать
     };
 
@@ -183,6 +182,50 @@ const Bookshelf = ({ token, username, onLogout }) => {
         setBooks([...books, newBook]);
         setIsAddModalOpen(false); // Закрываем окно загрузки
     };
+
+// Переименование книги (использует @PatchMapping /rename/{bookId})
+const handleRenameBook = async (bookId, newTitle) => {
+    try {
+        const response = await axios.patch(
+            `http://localhost:8080/api/v1/books/rename/${bookId}`,
+            { newTitle: newTitle }, // Соответствует рекорду BookTitleUpdate
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        // Обновляем состояние: заменяем книгу на обновленную от сервера
+        setBooks(books.map(b => b.id === bookId ? response.data : b));
+    } catch (err) {
+        handleRequestError(err, onLogout);
+    }
+};
+
+// Изменение полки книги (использует @PatchMapping /changeShelf/{bookId})
+const handleChangeBookShelf = async (bookId, newShelfId) => {
+    try {
+        const response = await axios.patch(
+            `http://localhost:8080/api/v1/books/changeShelf/${bookId}`,
+            { newShelfId: newShelfId }, // Соответствует рекорду BookShelfUpdate
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        // Если книга улетела на другую полку, убираем её из текущего вида
+        setBooks(books.filter(b => b.id !== bookId));
+    } catch (err) {
+        handleRequestError(err, onLogout);
+    }
+};
+
+// Удаление книги (использует @DeleteMapping /deleteBook/{bookId})
+const handleDeleteBook = async (bookId) => {
+    try {
+        await axios.delete(`http://localhost:8080/api/v1/books/deleteBook/${bookId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        // Удаляем из стейта
+        setBooks(books.filter(b => b.id !== bookId));
+    } catch (err) {
+        handleRequestError(err, onLogout);
+    }
+};
+
 
     return (
         <div className="bookshelf-layout">
@@ -229,6 +272,20 @@ const Bookshelf = ({ token, username, onLogout }) => {
                     book={selectedBook}
                     shelves={shelves}
                     onClose={() => setSelectedBook(null)}
+                    onUpdateBook={async(updatedData) => {
+                                // Эта логика связывает универсальный onUpdateBook из модалки с конкретными API
+                                if (updatedData.title !== selectedBook.title) {
+                                    await handleRenameBook(selectedBook.id, updatedData.title);
+                                    setSelectedBook(updatedData);
+                                }
+                                if (updatedData.shelfId !== selectedBook.shelfId) {
+                                   await handleChangeBookShelf(selectedBook.id, updatedData.shelfId);
+                                    setActiveShelfId(updatedData.shelfId);
+                                    localStorage.setItem('lastSelectedShelfId', updatedData.shelfId);
+                                    setSelectedBook(null);
+                                }
+                            }}
+                    onDeleteBook={handleDeleteBook}
                 />
             )}
 

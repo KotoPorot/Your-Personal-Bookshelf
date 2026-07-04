@@ -5,6 +5,8 @@ import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -73,7 +75,8 @@ public class MyBookController {
     }
 
     public record BookShelfUpdate(
-            @NotBlank()
+            @NotNull(message = "Shelf ID cannot be null")
+            @Positive(message = "Shelf Id must be greater thank 0")
             Long newShelfId
     ){}
     @PatchMapping("/changeShelf/{bookId}")
