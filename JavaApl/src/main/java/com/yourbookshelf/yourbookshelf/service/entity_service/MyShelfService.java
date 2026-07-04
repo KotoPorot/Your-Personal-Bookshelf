@@ -71,4 +71,9 @@ public class MyShelfService {
     public boolean isShelfHasBook(MyShelf shelf, String bookTitle) {
         return shelf.getBooks().stream().anyMatch(book -> book.getTitle().equalsIgnoreCase(bookTitle));
     }
+
+    public MyShelf getUserShelf(Long shelfId, MyUser user) {
+        return shelfRepository.findById(shelfId).filter(it->it.getUser().getId().equals(user.getId()))
+                .orElseThrow(()->new MyUserDoesNotHaveShelfException("Shelf does not belongs user"));
+    }
 }

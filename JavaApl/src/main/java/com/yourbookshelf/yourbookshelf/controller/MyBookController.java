@@ -3,6 +3,8 @@ package com.yourbookshelf.yourbookshelf.controller;
 import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,12 @@ public class MyBookController {
         return bookService.getCoverImage(bookId, principal.getUser());
     }
 
+    @GetMapping("/getBook/{bookId}")
+    public ResponseEntity<Resource> getBook (@AuthenticationPrincipal MyUserPrincipal principal,
+                                             @PathVariable Long bookId){
+        return bookService.getFileBook(bookId, principal.getUser());
+    }
+
 
 
 
@@ -51,14 +59,30 @@ public class MyBookController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    public record BookTitleUpdate(String newTitle){}
-
-    @PostMapping("/rename/{bookId}")
+    public record BookTitleUpdate(@NotBlank(
+            message = "Title cannot be empty")
+            String newTitle
+    ){
+    }
+    @PatchMapping("/rename/{bookId}")
     public ResponseEntity<MyBookResponseDTO> renameBook (@AuthenticationPrincipal MyUserPrincipal principal,
                                                          @PathVariable Long bookId,
-                                                         @RequestBody BookTitleUpdate request ){
+                                                         @Valid @RequestBody BookTitleUpdate request ){
 
         return ResponseEntity.ok(bookService.updateTitle(bookId, request.newTitle, principal.getUser()));
     }
+
+    public record BookShelfUpdate(
+            @NotBlank()
+            Long newShelfId
+    ){}
+    @PatchMapping("/changeShelf/{bookId}")
+    public ResponseEntity<MyBookResponseDTO> updateBookShelf(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                             @PathVariable Long bookId,
+                                                             @Valid @RequestBody BookShelfUpdate request ){
+
+        return ResponseEntity.ok(bookService.updateShelf(bookId, request.newShelfId, principal.getUser()));
+    }
+
 
 }

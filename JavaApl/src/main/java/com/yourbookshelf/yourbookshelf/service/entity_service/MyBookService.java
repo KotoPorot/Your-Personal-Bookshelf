@@ -2,7 +2,6 @@ package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
 import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
-import com.yourbookshelf.yourbookshelf.controller.MyBookController;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
@@ -13,7 +12,6 @@ import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
 import lombok.AllArgsConstructor;
 import nl.siegmann.epublib.domain.Book;
-import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -55,17 +53,6 @@ public class MyBookService {
         return shelf.getBooks().stream().map(mapper::mapToBookDTO).toList();
     }
 
-    //have to check
-    public boolean deleteBook(Long bookId, MyUser user) {
-        MyBook book = bookRepository.findById(bookId).filter(it -> it.getShelf().getUser().getId().equals(user.getId())).orElseThrow(() -> new MyUserDoesNotHaveBookException("user: " + user.getUsername() + " does not have a book with id: " + bookId));
-
-        fileService.deleteFileFromStorage(book.getFilePath());
-        fileService.deleteFileFromStorage(book.getCoverPath());
-        bookRepository.delete(book);
-
-        return true;
-    }
-
     public MyBookResponseDTO addBook(MultipartFile file, Long shelfId, MyUser user) {
         MyShelf shelf = shelfService.findShelfByID(shelfId).filter(it -> it.getUser().getId().equals(user.getId())).orElseThrow(() -> new MyUserDoesNotHaveShelfException("Shelf does not belong user"));
 
@@ -103,14 +90,7 @@ public class MyBookService {
     public ResponseEntity<Resource> getCoverImage(Long bookId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
 
-        if (book.getCoverPath() == null || book.getCoverPath().isEmpty()) {
-            throw new MyPathDoesNotExistException("Book does not have a path");
-        }
-
-        Path coverImgPath = Paths.get(book.getCoverPath()).normalize();
-        if (!coverImgPath.startsWith(fileService.getCOVER_IMAGE_STORAGE().toString())) {
-            throw new MyUserDoesNotHaveAcces("user cant read this file");
-        }
+        Path coverImgPath = fileService.validatePath(book.getCoverPath(), fileService.getCOVER_IMAGE_STORAGE());
         Resource resource = new FileSystemResource(coverImgPath);
 
         try {
@@ -137,7 +117,7 @@ public class MyBookService {
 
 
     public MyBookResponseDTO updateTitle(Long bookId, String newTitle, MyUser user) {
-        if(newTitle==null||newTitle.isEmpty()){
+        if (newTitle == null || newTitle.isEmpty()) {
             throw new MyInvalidArgumentsException("Title cannot be empty");
         }
 
@@ -145,6 +125,36 @@ public class MyBookService {
 
         book.setTitle(newTitle);
         return mapper.mapToBookDTO(bookRepository.save(book));
+    }
 
+    public boolean deleteBook(Long bookId, MyUser user) {
+        MyBook book = getUserBook(bookId, user);
+        fileService.deleteFileFromStorage(book.getFilePath());
+        fileService.deleteFileFromStorage(book.getCoverPath());
+        bookRepository.delete(book);
+
+        return true;
+    }
+
+
+    public MyBookResponseDTO updateShelf(Long bookId, Long newShelfId, MyUser user) {
+        MyBook book = getUserBook(bookId, user);
+        MyShelf shelf = shelfService.getUserShelf(newShelfId, user);
+
+        book.setShelf(shelf);
+        return mapper.mapToBookDTO(bookRepository.save(book));
+    }
+
+    public ResponseEntity<Resource> getFileBook(Long bookId, MyUser user) {
+        MyBook book = getUserBook(bookId, user);
+
+        Path path = fileService.validatePath(book.getFilePath(), fileService.getBOOK_STORAGE_LOCATION());
+
+        Resource resource = new FileSystemResource(path);
+
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/epub+zip"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
+                +path.getFileName().toString()+"\"")
+                .body(resource);
     }
 }

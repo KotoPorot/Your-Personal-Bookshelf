@@ -1,5 +1,8 @@
 package com.yourbookshelf.yourbookshelf.service.fileService;
 
+import com.yourbookshelf.yourbookshelf.customException.MyIOException;
+import com.yourbookshelf.yourbookshelf.customException.MyPathDoesNotExistException;
+import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveAcces;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,6 +36,21 @@ public class MyFileService {
         Path path = rootLocation.resolve(fileName);
         Files.copy(stream, path, StandardCopyOption.REPLACE_EXISTING);
         return path;
+    }
+
+    public Path validatePath(String path, Path storage){
+        if (path == null || path.isEmpty()) {
+            throw new MyPathDoesNotExistException("Path does not exist");
+        }
+
+        Path validPath = Paths.get(path).normalize();
+        if (!validPath.startsWith(storage)) {
+            throw new MyUserDoesNotHaveAcces("user cant read this file");
+        }
+        if(Files.notExists(validPath)){
+            throw new MyIOException("file does not exist");
+        }
+        return validPath;
     }
 
     public Path getBOOK_STORAGE_LOCATION() {
