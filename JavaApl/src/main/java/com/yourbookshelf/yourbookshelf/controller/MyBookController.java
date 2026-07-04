@@ -51,4 +51,14 @@ public class MyBookController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    public record BookTitleUpdate(String newTitle){}
+
+    @PostMapping("/rename/{bookId}")
+    public ResponseEntity<MyBookResponseDTO> renameBook (@AuthenticationPrincipal MyUserPrincipal principal,
+                                                         @PathVariable Long bookId,
+                                                         @RequestBody BookTitleUpdate request ){
+
+        return ResponseEntity.ok(bookService.updateTitle(bookId, request.newTitle, principal.getUser()));
+    }
+
 }

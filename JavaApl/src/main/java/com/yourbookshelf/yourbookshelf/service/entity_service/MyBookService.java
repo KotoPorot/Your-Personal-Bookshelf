@@ -2,6 +2,7 @@ package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
 import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
+import com.yourbookshelf.yourbookshelf.controller.MyBookController;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
@@ -12,7 +13,7 @@ import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
 import lombok.AllArgsConstructor;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.epub.EpubReader;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +55,7 @@ public class MyBookService {
         return shelf.getBooks().stream().map(mapper::mapToBookDTO).toList();
     }
 
+    //have to check
     public boolean deleteBook(Long bookId, MyUser user) {
         MyBook book = bookRepository.findById(bookId).filter(it -> it.getShelf().getUser().getId().equals(user.getId())).orElseThrow(() -> new MyUserDoesNotHaveBookException("user: " + user.getUsername() + " does not have a book with id: " + bookId));
 
@@ -82,10 +83,10 @@ public class MyBookService {
             }
             String uuid = UUID.randomUUID().toString();
 
-            Path filePath = fileService.saveFile(file.getInputStream(), uuid+".epub", fileService.getBOOK_STORAGE_LOCATION());
+            Path filePath = fileService.saveFile(file.getInputStream(), uuid + ".epub", fileService.getBOOK_STORAGE_LOCATION());
             myBook.setFilePath(filePath.toString());
 
-            if (book.getCoverImage()!=null) {
+            if (book.getCoverImage() != null) {
                 String imgFormat = epubService.getImageFormat(book.getCoverImage().getMediaType().toString());
                 Path coverImagePath = fileService.saveFile(book.getCoverImage().getInputStream(), uuid + imgFormat, fileService.getCOVER_IMAGE_STORAGE());
                 myBook.setCoverPath(coverImagePath.toString());
@@ -118,7 +119,10 @@ public class MyBookService {
             if (contentType == null) {
                 throw new MyFileInvalidFormatException("invalid content type");
             }
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + coverImgPath.getFileName().toString() + "\"").body(resource);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
+                            + coverImgPath.getFileName().toString() + "\"")
+                    .body(resource);
 
         } catch (IOException e) {
             throw new MyResourceNotFoundException("resource not found");
@@ -127,6 +131,20 @@ public class MyBookService {
 
     private MyBook getUserBook(Long bookId, MyUser user) {
         Optional<MyBook> book = bookRepository.findById(bookId);
-        return book.filter(it -> it.getShelf().getUser().getId().equals(user.getId())).orElseThrow(() -> new MyUserDoesNotHaveBookException("user does not have a book"));
+        return book.filter(it -> it.getShelf().getUser().getId().equals(user.getId()))
+                .orElseThrow(() -> new MyUserDoesNotHaveBookException("user does not have a book"));
+    }
+
+
+    public MyBookResponseDTO updateTitle(Long bookId, String newTitle, MyUser user) {
+        if(newTitle==null||newTitle.isEmpty()){
+            throw new MyInvalidArgumentsException("Title cannot be empty");
+        }
+
+        MyBook book = getUserBook(bookId, user);
+
+        book.setTitle(newTitle);
+        return mapper.mapToBookDTO(bookRepository.save(book));
+
     }
 }
