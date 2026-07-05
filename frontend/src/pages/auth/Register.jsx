@@ -25,7 +25,7 @@ const Register = ({ onLoginSuccess, onNavigateToWelcome }) => {
       if (token) {
         // Передаем токен в App.jsx.
         // Это автоматически сохранит его в localStorage и перенаправит на полку!
-        onLoginSuccess(token);
+        onLoginSuccess(token, username);
       } else {
         setError('Сервер не вернул токен после регистрации.');
       }

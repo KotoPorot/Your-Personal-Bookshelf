@@ -3,7 +3,7 @@ package com.yourbookshelf.yourbookshelf.controller;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfRequestDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
-import com.yourbookshelf.yourbookshelf.service.MyShelfService;
+import com.yourbookshelf.yourbookshelf.service.entity_service.MyShelfService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,21 +28,15 @@ public class MyShelfController {
     public ResponseEntity<MyShelfResponseDTO> createShelf(@AuthenticationPrincipal MyUserPrincipal principal,
                                                           @RequestBody MyShelfRequestDTO shelfRequest) {
 
-        MyShelfResponseDTO response = shelfService.saveShelf(shelfRequest.getShelfName(), principal.getUser());
+        return ResponseEntity.status(HttpStatus.CREATED).body(shelfService.saveShelf(shelfRequest.getShelfName(), principal.getUser()));
 
-        if (response != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping("/deleteShelf/{id}")
     public ResponseEntity<Void> deleteShelf(@AuthenticationPrincipal MyUserPrincipal principal,
-                                              @PathVariable Long id){
-        if(shelfService.deleteShelf(id, principal.getUser())){
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                                            @PathVariable Long id) {
+        shelfService.deleteShelf(id, principal.getUser());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/updateShelfName/{id}")
@@ -50,11 +44,7 @@ public class MyShelfController {
                                                               @PathVariable Long id,
                                                               @RequestBody MyShelfRequestDTO newName) {
 
-       MyShelfResponseDTO response =  shelfService.updateShelfName(id, principal.getUser(), newName.getShelfName());
-        if (response!=null){
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.ok(shelfService.updateShelfName(id, principal.getUser(), newName.getShelfName()));
 
     }
 

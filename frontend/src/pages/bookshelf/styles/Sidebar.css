@@ -1,0 +1,90 @@
+/* Настоящий сайдбар */
+.bookshelf-sidebar {
+    width: 280px;
+    background-color: #ffffff;
+    border-right: 1px solid #dee2e6;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sidebar-top h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #34495e;
+}
+
+.create-shelf-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.create-shelf-btn:hover {
+    background-color: #2980b9;
+}
+
+/* Список полок */
+.shelf-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.shelf-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #fdfdfd;
+    border: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.shelf-item:hover {
+    background-color: #f1f2f6;
+    border-color: #dcdde1;
+}
+
+.shelf-item.active {
+    background-color: #e8f4fd;
+    color: #2980b9;
+    border-color: #3498db;
+    font-weight: bold;
+}
+
+/* Кнопки действий на полках */
+.shelf-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background 0.1s;
+}
+
+.action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}

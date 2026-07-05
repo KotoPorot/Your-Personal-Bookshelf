@@ -64,6 +64,7 @@ public class SecurityConfiguration {
         allowedMethods.add("PUT");
         allowedMethods.add("DELETE");
         allowedMethods.add("OPTIONS");
+        allowedMethods.add("PATCH");
 
         allowedHeaders.add("*");
 
