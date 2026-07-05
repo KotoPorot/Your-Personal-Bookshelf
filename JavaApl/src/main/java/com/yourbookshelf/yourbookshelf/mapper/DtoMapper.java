@@ -34,8 +34,6 @@ public class DtoMapper {
         MyBook myBook = new MyBook();
         myBook.setTitle(metadata.getTitle());
         myBook.setAuthor(metadata.getAuthor());
-        myBook.setFilePath(metadata.getFilePath());
-        myBook.setCoverPath(metadata.getCoverPath());
         return myBook;
     }
 }

@@ -3,7 +3,7 @@ package com.yourbookshelf.yourbookshelf.controller;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfRequestDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
-import com.yourbookshelf.yourbookshelf.service.MyShelfService;
+import com.yourbookshelf.yourbookshelf.service.entity_service.MyShelfService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

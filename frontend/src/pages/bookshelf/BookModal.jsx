@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
+    const [isMovingShelf, setIsMovingShelf] = useState(false);
 
     // Закрываем меню шестерёнки при клике вне его области
     useEffect(() => {
@@ -16,6 +17,13 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
         }
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showMenu]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setIsMovingShelf(false); // Сбрасываем вид при закрытии
+            setShowMenu(false);      // Сбрасываем меню при закрытии
+        }
+    }, [isOpen]);
 
     if (!isOpen || !book) return null;
 
@@ -43,17 +51,7 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
     };
 
     const handleMoveShelf = () => {
-        const shelfOptions = shelves
-            .map((s, idx) => `${idx + 1}. ${s.name}`)
-            .join('\n');
-
-        const choice = prompt(`Выберите номер полки для перемещения:\n\n${shelfOptions}`);
-        const selectedIndex = parseInt(choice, 10) - 1;
-
-        if (selectedIndex >= 0 && selectedIndex < shelves.length) {
-            const targetShelf = shelves[selectedIndex];
-            onUpdateBook({ ...book, shelfId: targetShelf.id });
-        }
+        setIsMovingShelf(true);
         setShowMenu(false);
     };
 
@@ -95,6 +93,60 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
 
                 {/* Основной контент (Информационный) */}
                 <div className="modal-body">
+                    {isMovingShelf ? (
+                            // Вид выбора полки
+                            <div className="shelf-selection-view">
+                                <div className="selection-header" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                                    <button
+                                        onClick={() => setIsMovingShelf(false)}
+                                        style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer' }}
+                                    >
+                                        ← Назад
+                                    </button>
+                                    <h3 style={{ margin: 0 }}>Переместить на полку:</h3>
+                                </div>
+
+                                <div className="shelf-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {(shelves || [])
+                                        // Сортируем: текущая полка всегда идет первой (-1)
+                                        .sort((a, b) => {
+                                            if (Number(a.id) === Number(book.shelfId)) return -1;
+                                            if (Number(b.id) === Number(book.shelfId)) return 1;
+                                            return 0;
+                                        })
+                                        .map(shelf => {
+                                            const isCurrent = Number(shelf.id) === Number(book.shelfId);
+                                            return (
+                                                <button
+                                                    key={shelf.id}
+                                                    className="shelf-option-item"
+                                                    disabled={isCurrent} // Делаем кнопку неактивной
+                                                    onClick={() => {
+                                                        onUpdateBook({ ...book, shelfId: shelf.id });
+                                                        setIsMovingShelf(false);
+                                                    }}
+                                                    style={{
+                                                        padding: '10px',
+                                                        textAlign: 'left',
+                                                        borderRadius: '6px',
+                                                        border: '1px solid #ddd',
+                                                        // Стили для текущей полки (серая и некликабельная)
+                                                        opacity: isCurrent ? 0.6 : 1,
+                                                        cursor: isCurrent ? 'not-allowed' : 'pointer',
+                                                        backgroundColor: isCurrent ? '#f9f9f9' : 'white',
+                                                        color: isCurrent ? '#888' : 'black'
+                                                    }}
+                                                >
+                                                    {isCurrent ? '📁 ' + shelf.shelfName + ' (текущая)' : '📁 ' + shelf.shelfName}
+                                                </button>
+                                            );
+                                        })
+                                    }
+                                </div>
+                            </div>
+                  ) : (
+
+                      <>
                     <h2 className="book-modal-title">{book.title}</h2>
 
                     <div className="book-info-grid">
@@ -133,9 +185,13 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
                             <span className="info-value">{readingHours} ч.</span>
                         </div>
                     </div>
+                    </>
+                    )}
                 </div>
 
+
                 {/* Подвал с будущими фичами */}
+                {!isMovingShelf && (
                 <div className="modal-footer">
                     <button
                         className="btn btn-secondary notes-btn"
@@ -150,6 +206,7 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
                         📖 Читать
                     </button>
                 </div>
+                )}
 
             </div>
         </div>

@@ -6,7 +6,6 @@ import com.yourbookshelf.yourbookshelf.customException.MyUserAlreadyExistsExcept
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.repository.UserRepository;
-import com.yourbookshelf.yourbookshelf.service.MyShelfService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
