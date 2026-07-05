@@ -3,21 +3,26 @@ import Auth from './pages/auth/Auth.jsx';
 import Bookshelf from './pages/bookshelf/Bookshelf.jsx';
 import WelcomePage from './pages/auth/Welcome-page.jsx';
 import Register from './pages/auth/Register.jsx';
+import ReaderPage from './pages/reader/ReaderPage.jsx'; // Не забудьте создать этот файл
 import './App.css';
 
 function App() {
-  // 1. Проверяем токен в localStorage
-  const [token, setToken] = useState(localStorage.getItem('token')||null);
-  const [username, setUsername] = useState(localStorage.getItem('username')||'Гость');
+  // 1. Состояния аутентификации
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
+  const [username, setUsername] = useState(localStorage.getItem('username') || 'Гость');
 
-  // 2. Новое состояние для навигации между экранами 'welcome' или 'login'
+  // 2. Состояние навигации между экранами
   const [currentScreen, setCurrentScreen] = useState('welcome');
+
+  // 3. Состояние для читалки (ID книги)
+  const [activeBookId, setActiveBookId] = useState(null);
 
   const handleLoginSuccess = (receivedToken, username) => {
     setToken(receivedToken);
     localStorage.setItem('token', receivedToken);
     setUsername(username);
     localStorage.setItem('username', username);
+    setCurrentScreen('bookshelf'); // Переход на полку после входа
   };
 
   const handleLogout = () => {
@@ -25,39 +30,62 @@ function App() {
     setUsername('');
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    setCurrentScreen('welcome'); // После выхода возвращаем на приветственную страницу
+    setCurrentScreen('welcome');
   };
 
-  // ЕСЛИ ПОЛЬЗОВАТЕЛЬ АВТОРИЗОВАН — сразу пускаем в приложение
+  // Функция для открытия читалки
+  const handleOpenReader = (bookId) => {
+    setActiveBookId(bookId);
+    setCurrentScreen('reader');
+  };
+
+  // --- ЛОГИКА ОТОБРАЖЕНИЯ ЭКРАНОВ ---
+
+  // 1. Если пользователь авторизован
   if (token) {
-    return <Bookshelf token={token} username={username} onLogout={handleLogout} />;
-  }
+    // Если активен экран читалки — показываем её
+    if (currentScreen === 'reader') {
+      return (
+        <ReaderPage
+          bookId={activeBookId}
+          onBack={() => setCurrentScreen('bookshelf')}
+        />
+      );
+    }
 
-  // ЕСЛИ НЕ АВТОРИЗОВАН — смотрим, на какой кнопке он находится
-  return (
-      <div className="app-container">
-        {/* Если экран welcome — показываем приветствие и кнопки входа/регистрации */}
-        {currentScreen === 'welcome' && (
-          <WelcomePage
-            onNavigateToLogin={() => setCurrentScreen('login')}
-            onNavigateToRegister={() => setCurrentScreen('register')}
-          />
-        )}
-
-        {/* Если экран login — показываем форму авторизации */}
-        {currentScreen === 'login' && (
-          <Auth onLoginSuccess={handleLoginSuccess} />
-        )}
-
-        {/* Если экран register — показываем форму регистрации */}
-        {currentScreen === 'register' && (
-          <Register
-            onLoginSuccess={handleLoginSuccess} // Передаем ту же функцию, чтобы сразу авторизовать юзера
-            onNavigateToWelcome={() => setCurrentScreen('welcome')}
-          />
-        )}
-      </div>
+    // В остальных случаях — показываем библиотеку
+    return (
+      <Bookshelf
+        token={token}
+        username={username}
+        onLogout={handleLogout}
+        onOpenReader={handleOpenReader} // Пробрасываем функцию для открытия книги
+      />
     );
   }
 
-  export default App;
+  // 2. Если НЕ авторизован — показываем экраны авторизации
+  return (
+    <div className="app-container">
+      {currentScreen === 'welcome' && (
+        <WelcomePage
+          onNavigateToLogin={() => setCurrentScreen('login')}
+          onNavigateToRegister={() => setCurrentScreen('register')}
+        />
+      )}
+
+      {currentScreen === 'login' && (
+        <Auth onLoginSuccess={handleLoginSuccess} />
+      )}
+
+      {currentScreen === 'register' && (
+        <Register
+          onLoginSuccess={handleLoginSuccess}
+          onNavigateToWelcome={() => setCurrentScreen('welcome')}
+        />
+      )}
+    </div>
+  );
+}
+
+export default App;

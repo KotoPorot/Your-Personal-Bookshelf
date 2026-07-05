@@ -8,7 +8,7 @@ import AddBookModal from './AddBookModal';
 import { handleRequestError } from '../../utils/apiErrorHandler.js';
 import './styles/Bookshelf.css';
 
-const Bookshelf = ({ token, username, onLogout }) => {
+const Bookshelf = ({ token, username, onLogout, onOpenReader }) => {
     const [shelves, setShelves] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeShelfId, setActiveShelfId] = useState(null);
@@ -286,6 +286,7 @@ const handleDeleteBook = async (bookId) => {
                                 }
                             }}
                     onDeleteBook={handleDeleteBook}
+                    onOpenReader={onOpenReader}
                 />
             )}
 

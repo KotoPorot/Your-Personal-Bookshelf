@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook }) => {
+const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook, onOpenReader }) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
     const [isMovingShelf, setIsMovingShelf] = useState(false);
@@ -201,7 +201,10 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook 
                     </button>
                     <button
                         className="btn btn-primary read-btn"
-                        onClick={() => alert('Фича "Читалка" в разработке')}
+                        onClick={() => {
+                            onOpenReader(book.id);
+                            onClose();
+                            }}
                     >
                         📖 Читать
                     </button>
