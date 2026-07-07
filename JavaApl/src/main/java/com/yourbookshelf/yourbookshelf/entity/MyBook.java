@@ -19,6 +19,9 @@ public class MyBook {
     @JoinColumn(name = "shelf_id", nullable = false)
     private MyShelf shelf;
 
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MyBookProgress bookProgress;
+
     @Column(name = "title", nullable = false)
     private String title;
 
