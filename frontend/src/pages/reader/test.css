@@ -270,3 +270,54 @@
     border-left: 4px solid #28a745;
     padding-left: 41px; /* Коррекция из-за появления border-left */
 }
+
+/* Состояние размытия контейнера с книгой */
+.blur-mode {
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
+    transition: filter 0.3s ease, -webkit-filter 0.3s ease;
+    pointer-events: none; /* Чтобы сквозь размытые страницы нельзя было случайно кликать по ссылкам книги */
+}
+
+/* Слой-подложка для вывода уведомления по центру заблюренного экрана */
+.idle-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 99;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Карточка "Вы здесь?" */
+.idle-message {
+    background: #ffffff;
+    padding: 25px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    border: 1px solid #eaeaea;
+}
+
+.idle-message h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+    color: #2c3e50;
+}
+
+.idle-message p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
