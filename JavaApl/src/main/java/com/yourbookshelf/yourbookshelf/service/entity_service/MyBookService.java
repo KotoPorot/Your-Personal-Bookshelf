@@ -1,6 +1,7 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
+import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
@@ -12,6 +13,7 @@ import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
 import lombok.AllArgsConstructor;
 import nl.siegmann.epublib.domain.Book;
+import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -109,7 +110,7 @@ public class MyBookService {
         }
     }
 
-    private MyBook getUserBook(Long bookId, MyUser user) {
+    public MyBook getUserBook(Long bookId, MyUser user) {
         Optional<MyBook> book = bookRepository.findById(bookId);
         return book.filter(it -> it.getShelf().getUser().getId().equals(user.getId()))
                 .orElseThrow(() -> new MyUserDoesNotHaveBookException("user does not have a book"));
@@ -157,4 +158,6 @@ public class MyBookService {
                 +path.getFileName().toString()+"\"")
                 .body(resource);
     }
+
+
 }

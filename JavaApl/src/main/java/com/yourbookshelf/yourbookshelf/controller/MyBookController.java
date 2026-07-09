@@ -1,5 +1,6 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
+import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
@@ -27,7 +28,7 @@ public class MyBookController {
     @PostMapping("/addBook/{shelfId}")
     public ResponseEntity<MyBookResponseDTO> addBook(@AuthenticationPrincipal MyUserPrincipal principal,
                                                      @PathVariable Long shelfId,
-                                                     @RequestParam("file") MultipartFile file){
+                                                     @RequestParam("file") MultipartFile file) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(bookService.addBook(file, shelfId, principal.getUser()));
 
@@ -35,41 +36,40 @@ public class MyBookController {
 
     @GetMapping("/getCoverImage/{bookId}")
     public ResponseEntity<Resource> getCoverImage(@AuthenticationPrincipal MyUserPrincipal principal,
-                                                  @PathVariable Long bookId){
+                                                  @PathVariable Long bookId) {
         return bookService.getCoverImage(bookId, principal.getUser());
     }
 
     @GetMapping("/getBook/{bookId}")
-    public ResponseEntity<Resource> getBook (@AuthenticationPrincipal MyUserPrincipal principal,
-                                             @PathVariable Long bookId){
+    public ResponseEntity<Resource> getBook(@AuthenticationPrincipal MyUserPrincipal principal,
+                                            @PathVariable Long bookId) {
         return bookService.getFileBook(bookId, principal.getUser());
     }
 
 
-
-
     @GetMapping("/getBooks/{shelfId}")
-    public ResponseEntity<List<MyBookResponseDTO>> getBooks (@AuthenticationPrincipal MyUserPrincipal principal,
-                                                             @PathVariable Long shelfId){
+    public ResponseEntity<List<MyBookResponseDTO>> getBooks(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                            @PathVariable Long shelfId) {
         return ResponseEntity.ok(bookService.getBooks(principal.getUser(), shelfId));
     }
 
     @DeleteMapping("/deleteBook/{bookId}")
-    public ResponseEntity<Void> deleteBook (@AuthenticationPrincipal MyUserPrincipal principal,
-                                            @PathVariable Long bookId){
+    public ResponseEntity<Void> deleteBook(@AuthenticationPrincipal MyUserPrincipal principal,
+                                           @PathVariable Long bookId) {
         bookService.deleteBook(bookId, principal.getUser());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     public record BookTitleUpdate(@NotBlank(
             message = "Title cannot be empty")
-            String newTitle
-    ){
+                                  String newTitle
+    ) {
     }
+
     @PatchMapping("/rename/{bookId}")
-    public ResponseEntity<MyBookResponseDTO> renameBook (@AuthenticationPrincipal MyUserPrincipal principal,
-                                                         @PathVariable Long bookId,
-                                                         @Valid @RequestBody BookTitleUpdate request ){
+    public ResponseEntity<MyBookResponseDTO> renameBook(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                        @PathVariable Long bookId,
+                                                        @Valid @RequestBody BookTitleUpdate request) {
 
         return ResponseEntity.ok(bookService.updateTitle(bookId, request.newTitle, principal.getUser()));
     }
@@ -78,14 +78,15 @@ public class MyBookController {
             @NotNull(message = "Shelf ID cannot be null")
             @Positive(message = "Shelf Id must be greater thank 0")
             Long newShelfId
-    ){}
+    ) {
+    }
+
     @PatchMapping("/changeShelf/{bookId}")
     public ResponseEntity<MyBookResponseDTO> updateBookShelf(@AuthenticationPrincipal MyUserPrincipal principal,
                                                              @PathVariable Long bookId,
-                                                             @Valid @RequestBody BookShelfUpdate request ){
+                                                             @Valid @RequestBody BookShelfUpdate request) {
 
         return ResponseEntity.ok(bookService.updateShelf(bookId, request.newShelfId, principal.getUser()));
     }
-
 
 }
