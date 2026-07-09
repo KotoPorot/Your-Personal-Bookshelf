@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -42,7 +40,6 @@ public class MyBookProgress {
     @Column(name = "number_of_chapters_in_section")
     private Integer numberOfChaptersInSection;
 
-    @UpdateTimestamp
     @Column(name = "timestamp")
     private LocalDateTime timestamp;
 }

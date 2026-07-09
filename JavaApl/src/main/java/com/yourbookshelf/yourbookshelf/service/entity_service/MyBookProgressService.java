@@ -1,7 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
-import com.yourbookshelf.yourbookshelf.customException.MyProgressNotFoundException;
 import com.yourbookshelf.yourbookshelf.customException.MyTimeStampIsNotValidException;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;
@@ -34,7 +33,7 @@ public class MyBookProgressService {
         if(progressOptional.isEmpty()){
             MyBookProgress newProgress = mapper.mapToMyBookProgress(request);
             newProgress.setBook(book);
-            newProgress.setId(book.getId());
+            newProgress.setTimestamp(request.getTimestamp());
             return mapper.mapToProgressDTO(progressRepository.save(newProgress));
         }
         MyBookProgress progress = progressOptional.get();
@@ -50,6 +49,7 @@ public class MyBookProgressService {
         progress.setCurrentChapterInSection(request.getCurrentChapterInSection());
         progress.setNumberOfSections(request.getNumberOfSections());
         progress.setNumberOfChaptersInSection(request.getNumberOfChaptersInSection());
+        progress.setTimestamp(request.getTimestamp());
         return mapper.mapToProgressDTO(progressRepository.save(progress));
     }
 
