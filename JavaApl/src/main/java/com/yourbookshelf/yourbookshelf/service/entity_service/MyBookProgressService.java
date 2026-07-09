@@ -1,6 +1,7 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
 import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
+import com.yourbookshelf.yourbookshelf.customException.MyProgressNotFoundException;
 import com.yourbookshelf.yourbookshelf.customException.MyTimeStampIsNotValidException;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;
@@ -12,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -49,5 +51,19 @@ public class MyBookProgressService {
         progress.setNumberOfSections(request.getNumberOfSections());
         progress.setNumberOfChaptersInSection(request.getNumberOfChaptersInSection());
         return mapper.mapToProgressDTO(progressRepository.save(progress));
+    }
+
+    @Transactional(readOnly = true)
+    public @Nullable MyBookProgressDTO getBookProgress(Long bookId, MyUser user) {
+        MyBook book = bookService.getUserBook(bookId, user);
+
+        return progressRepository.findById(bookId).map(mapper::mapToProgressDTO).orElseGet(()-> {
+            MyBookProgressDTO defaultDto = new MyBookProgressDTO();
+            defaultDto.setTimestamp(LocalDateTime.now());
+            defaultDto.setProgress(0.0f);
+            defaultDto.setReadingTime(0);
+            defaultDto.setBookId(bookId);
+            return defaultDto;
+        });
     }
 }
