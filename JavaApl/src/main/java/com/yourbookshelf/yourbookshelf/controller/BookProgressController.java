@@ -7,10 +7,7 @@ import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookProgressServ
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -23,6 +20,11 @@ public class BookProgressController {
                                                                   @RequestBody MyBookProgressDTO request){
 
         return ResponseEntity.ok(progressService.updateBookProgress(request, principal.getUser()));
+    }
 
+    @GetMapping("/get/{bookId}")
+    public ResponseEntity<MyBookProgressDTO> getProgress(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                         @PathVariable Long bookId){
+        return ResponseEntity.ok(progressService.getBookProgress(bookId, principal.getUser()));
     }
 }

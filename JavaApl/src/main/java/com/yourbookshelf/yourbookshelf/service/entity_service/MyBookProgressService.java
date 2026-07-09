@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -32,7 +33,7 @@ public class MyBookProgressService {
         if(progressOptional.isEmpty()){
             MyBookProgress newProgress = mapper.mapToMyBookProgress(request);
             newProgress.setBook(book);
-            newProgress.setId(book.getId());
+            newProgress.setTimestamp(request.getTimestamp());
             return mapper.mapToProgressDTO(progressRepository.save(newProgress));
         }
         MyBookProgress progress = progressOptional.get();
@@ -48,6 +49,21 @@ public class MyBookProgressService {
         progress.setCurrentChapterInSection(request.getCurrentChapterInSection());
         progress.setNumberOfSections(request.getNumberOfSections());
         progress.setNumberOfChaptersInSection(request.getNumberOfChaptersInSection());
+        progress.setTimestamp(request.getTimestamp());
         return mapper.mapToProgressDTO(progressRepository.save(progress));
+    }
+
+    @Transactional(readOnly = true)
+    public @Nullable MyBookProgressDTO getBookProgress(Long bookId, MyUser user) {
+        MyBook book = bookService.getUserBook(bookId, user);
+
+        return progressRepository.findById(bookId).map(mapper::mapToProgressDTO).orElseGet(()-> {
+            MyBookProgressDTO defaultDto = new MyBookProgressDTO();
+            defaultDto.setTimestamp(LocalDateTime.now());
+            defaultDto.setProgress(0.0f);
+            defaultDto.setReadingTime(0);
+            defaultDto.setBookId(bookId);
+            return defaultDto;
+        });
     }
 }
