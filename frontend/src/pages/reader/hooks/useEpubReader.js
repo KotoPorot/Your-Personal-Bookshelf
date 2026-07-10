@@ -208,7 +208,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 book.ready.then(async () => {
                     if (!isMounted) return;
                     try {
-                        await book.locations.generate(150);
+                        await book.locations.generate(1000);
                         const currentLoc = renditionRef.current?.currentLocation?.();
                         if (currentLoc && isMounted) {
                             setProgressPercent(book.locations.percentageFromCfi(currentLoc.start.cfi) || 0);

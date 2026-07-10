@@ -15,6 +15,24 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
     const viewerRef = useRef(null);
     const [isTocOpen, setIsTocOpen] = useState(false);
 
+    const cleanPercent = initialData.progress;
+    console.log('Clean Percent: ', cleanPercent);
+
+    const [displayedProgress, setDisplayedProgress] = useState(cleanPercent||0);
+
+    const [displayedNav, setDisplayedNav] = useState({
+           currentSection: initialData.currentSection || 1,
+           totalSections: initialData.numberOfSections || 1,
+           currentChapter: initialData.currentChapterInSection || 1,
+           totalChapters: initialData.numberOfChaptersInSection || 1
+    });
+
+
+     const [isLiveProgress, setIsLiveProgress] = useState(false);
+
+   console.log('displayedProgress: ', displayedProgress);
+
+
     // 1. ИНИЦИАЛИЗИРУЕМ ТАЙМЕР
     // Вместо старого initialData.totalTimeSpent используем имя поля из бэка: readingTime
     const {
@@ -48,7 +66,15 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
 
         // Просто сохраняем свежий CFI в реф
         currentCfiRef.current = cfi;
-    }, [startPage]);
+
+        if(percent===0&&cleanPercent>0){
+            return;
+            }
+
+        setDisplayedProgress(percent);
+        setIsLiveProgress(true);
+        console.log('updated percent from reader: ', percent)
+    }, [startPage, cleanPercent]);
 
 
     // 3. ПОДКЛЮЧАЕМ ЧИТАЛКУ EPUB
@@ -58,6 +84,12 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
         handleTocNavigation, handlePrevPage, handleNextPage
     } = useEpubReader(bookId, viewerRef, initialData.currentCfi, handleLocationChange);
 
+    useEffect(() => {
+            if (navigationData && navigationData.totalSections > 1) {
+                setDisplayedNav(navigationData);
+            }
+        }, [navigationData]);
+
 
     // 4. СИНХРОНИЗАТОР СОСТОЯНИЯ (Ключевое изменение)
     // Каждый раз, когда тикает секунда времени (totalSecondsSpent) или меняется страница,
@@ -65,27 +97,29 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
     // Так как reportLiveProgress внутри себя просто перезаписывает useRef,
     // этот эффект НЕ вызывает повторных рендеров интерфейса! Логика работает бесшумно.
     useEffect(() => {
+        if (loading) return;
+
         reportLiveProgress({
             currentCfi: currentCfiRef.current,
-            progress: progressPercent,
-            readingTime: totalSecondsSpent,
-            currentSection: navigationData.currentSection,
-            numberOfSections: navigationData.totalSections,        // Маппинг total -> numberOf
-            currentChapterInSection: navigationData.currentChapter, // Маппинг под бэк
-            numberOfChaptersInSection: navigationData.totalChapters // Маппинг total -> numberOfChapters
+                        progress: displayedProgress,
+                        readingTime: totalSecondsSpent,
+                        currentSection: displayedNav.currentSection,
+                        numberOfSections: displayedNav.totalSections,
+                        currentChapterInSection: displayedNav.currentChapter,
+                        numberOfChaptersInSection: displayedNav.totalChapters
         });
-    }, [totalSecondsSpent, progressPercent, navigationData, reportLiveProgress]);
-
+    }, [totalSecondsSpent, displayedProgress, displayedNav, reportLiveProgress]);
 
     return (
     <div className="reader-container">
         <ReaderSidebar
-            onBack={onBack}
-            onToggleToc={() => setIsTocOpen(!isTocOpen)}
-            totalSecondsSpent={totalSecondsSpent}
-            progressPercent={progressPercent}
-            navigationData={navigationData}
-        />
+                onBack={onBack}
+                onToggleToc={() => setIsTocOpen(!isTocOpen)}
+                totalSecondsSpent={totalSecondsSpent}
+                progressPercent={displayedProgress}
+                navigationData={displayedNav}
+                isLiveProgress={isLiveProgress}
+                    />
 
         {/* Убрали отсюда blur-mode, чтобы не ломать контекст окна */}
         <div className="reader-main" onClick={resetIdle}>

@@ -5,7 +5,8 @@ const ReaderSidebar = ({
     onToggleToc,
     totalSecondsSpent,
     progressPercent,
-    navigationData
+    navigationData,
+    isLiveProgress
 }) => {
     const { currentSection, totalSections, currentChapter, totalChapters } = navigationData;
 
@@ -22,19 +23,21 @@ const ReaderSidebar = ({
 
     return (
         <aside className="reader-sidebar">
-            <button className="sidebar-btn" onClick={onBack}>⬅ Назад</button>
+        <div className="sidebar-actions">
+            <button className="sidebar-btn back-btn" onClick={onBack}>⬅ Назад</button>
             <button className="sidebar-btn">📝 Заметки</button>
             <button className="sidebar-btn" onClick={onToggleToc}>📖 Оглавление</button>
+        </div>
 
-            <div className="meta-panel">
-                <h3>Статистика</h3>
-                <div className="meta-item">
+                `<div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
+                    <h3>Статистика</h3>
+`                <div className="meta-item">
                     <span className="meta-label">Времени в книге:</span>
-                    <span className="meta-value">{formatTime(totalSecondsSpent)}</span>
+                    <span className="meta-value time-value">{formatTime(totalSecondsSpent)}</span>
                 </div>
                 <div className="meta-item">
                     <span className="meta-label">Прогресс:</span>
-                    <span className="meta-value">
+                    <span className="meta-value progress-value">
                         {isNaN(progressPercent) ? '0.0%' : `${(progressPercent * 100).toFixed(1)}%`}
                     </span>
                 </div>

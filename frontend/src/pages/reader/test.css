@@ -45,6 +45,13 @@
 /* ==========================================================================
    2. КНОПКИ НАВИГАЦИИ И СЕРВИСНЫЕ СООБЩЕНИЯ
    ========================================================================== */
+/* Обёртка для кнопок из нового JSX сайдбара */
+.sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .sidebar-btn {
     padding: 12px;
     background: #34495e;
@@ -53,11 +60,21 @@
     cursor: pointer;
     text-align: left;
     border-radius: 4px;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
 }
 
 .sidebar-btn:hover {
     background: #46627f;
+}
+
+/* Выделяем кнопку "Назад" визуально, чтобы она гармонировала с темой */
+.sidebar-btn.back-btn {
+    background: #34495e;
+    border-left: 3px solid #e74c3c; /* Красный акцент слева */
+}
+
+.sidebar-btn.back-btn:hover {
+    background: #3d566e;
 }
 
 .reader-footer {
@@ -121,10 +138,30 @@
     color: #bdc3c7;
 }
 
+/* Убрали фиксированный цвет, добавили плавную анимацию смены цвета */
 .meta-value {
     font-size: 1rem;
     font-weight: bold;
+    transition: color 0.5s ease;
+}
+
+/* -------------------------------------------------------------------------
+   ДИНАМИЧЕСКИЕ СТАТУСЫ ИСТОЧНИКА ДАННЫХ
+   ------------------------------------------------------------------------- */
+
+/* Состояние: Горят данные из БЭКЕНДА (Красивый сочный желтый цвет FlatUI) */
+.meta-panel.status-backend .meta-value {
+    color: #f1c40f;
+}
+
+/* Состояние: Включилась ЧИТАЛКА (Твой классический изумрудно-зеленый цвет) */
+.meta-panel.status-live .meta-value {
     color: #2ecc71;
+}
+
+/* Оставляем таймер "Времени в книге" нейтрально белым, чтобы он не отвлекал */
+.meta-panel .time-value {
+    color: #ffffff !important;
 }
 
 /* ==========================================================================
@@ -250,7 +287,7 @@
     text-align: left;
     background: none;
     border: none;
-    padding: 10px 20px 10px 45px; /* Сдвиг вправо для красивой иерархии */
+    padding: 10px 20px 10px 45px;
     font-size: 0.95rem;
     color: #495057;
     cursor: pointer;
@@ -268,7 +305,7 @@
     color: #28a745;
     background-color: #e8f5e9;
     border-left: 4px solid #28a745;
-    padding-left: 41px; /* Коррекция из-за появления border-left */
+    padding-left: 41px;
 }
 
 /* Состояние размытия контейнера с книгой */
@@ -276,7 +313,7 @@
     filter: blur(8px);
     -webkit-filter: blur(8px);
     transition: filter 0.3s ease, -webkit-filter 0.3s ease;
-    pointer-events: none; /* Чтобы сквозь размытые страницы нельзя было случайно кликать по ссылкам книги */
+    pointer-events: none;
 }
 
 /* Слой-подложка для вывода уведомления по центру заблюренного экрана */
