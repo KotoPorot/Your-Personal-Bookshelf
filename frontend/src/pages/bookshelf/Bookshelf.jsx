@@ -271,6 +271,7 @@ const handleDeleteBook = async (bookId) => {
                     isOpen={true}
                     book={selectedBook}
                     shelves={shelves}
+                    token={token}
                     onClose={() => setSelectedBook(null)}
                     onUpdateBook={async(updatedData) => {
                                 // Эта логика связывает универсальный onUpdateBook из модалки с конкретными API

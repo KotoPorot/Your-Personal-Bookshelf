@@ -31,7 +31,7 @@ const ReaderSidebar = ({
 
                 `<div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
                     <h3>Статистика</h3>
-`                <div className="meta-item">
+                <div className="meta-item">
                     <span className="meta-label">Времени в книге:</span>
                     <span className="meta-value time-value">{formatTime(totalSecondsSpent)}</span>
                 </div>

@@ -1,9 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useBookProgress } from './hooks/useBookProgress';
 
-const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook, onOpenReader }) => {
+const BookModal = ({ isOpen, onClose, book, shelves, token, onUpdateBook, onDeleteBook, onOpenReader}) => {
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef(null);
     const [isMovingShelf, setIsMovingShelf] = useState(false);
+
+    const {progressData, loading} = useBookProgress(book.id, token);
+
+    const formatTime = (readingTime) => {
+        const hours = Math.floor(readingTime / 3600);
+        const minutes = Math.floor((readingTime % 3600) / 60);
+        const seconds = readingTime % 60;
+        return [
+                hours.toString().padStart(2, '0'),
+                minutes.toString().padStart(2, '0'),
+                seconds.toString().padStart(2, '0')
+            ].join(':');
+        };
 
     // Закрываем меню шестерёнки при клике вне его области
     useEffect(() => {
@@ -27,13 +41,15 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook,
 
     if (!isOpen || !book) return null;
 
-    // Имитируем новые поля, если их пока нет в объекте книги (для тестов)
-    const readPages = book.readPages || 0;
-    const totalPages = book.pages || 0;
-    const readingHours = book.readingHours || 0;
+    const {
+            progressPercent,
+            readingTime,
+            currentSection,
+            numberOfSections,
+            currentChapterInSection,
+            numberOfChaptersInSection
+        } = progressData;
 
-    // Расчет прогресса в процентах
-    const progressPercent = totalPages > 0 ? Math.round((readPages / totalPages) * 100) : 0;
 
     // Находим название полки по её ID
     const currentShelf = shelves.find(s => Number(s.id) === Number(book.shelfId));
@@ -161,13 +177,17 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook,
                         </div>
 
                         <div className="info-row">
-                            <span className="info-label">Всего страниц:</span>
-                            <span className="info-value">{totalPages}</span>
+                            <span className="info-label">Раздел:</span>
+                            <span className="info-value">
+                                {loading ? '...' : `${currentSection} из ${numberOfSections}`}
+                                </span>
                         </div>
 
                         <div className="info-row">
-                            <span className="info-label">Прочитано страниц:</span>
-                            <span className="info-value">{readPages}</span>
+                            <span className="info-label">Глава в разделе:</span>
+                            <span className="info-value">
+                                {loading ? '...' : `${currentChapterInSection} из ${numberOfChaptersInSection}`}
+                                </span>
                         </div>
 
                         <div className="info-row">
@@ -182,7 +202,7 @@ const BookModal = ({ isOpen, onClose, book, shelves, onUpdateBook, onDeleteBook,
 
                         <div className="info-row">
                             <span className="info-label">Время в чтении:</span>
-                            <span className="info-value">{readingHours} ч.</span>
+                            <span className="info-value">{formatTime(readingTime)}</span>
                         </div>
                     </div>
                     </>
