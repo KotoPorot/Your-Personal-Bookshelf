@@ -42,7 +42,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated())
-                .headers(headers->headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+                .headers(headers->headers.contentSecurityPolicy(
+                        csp ->csp.policyDirectives("frame-ancestors 'self' http://localhost:5173")));
         return httpSecurity
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtConfiguration, UsernamePasswordAuthenticationFilter.class)
