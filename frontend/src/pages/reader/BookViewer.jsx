@@ -17,9 +17,16 @@ const BookViewer = memo(forwardRef(({ loading, error, onPrev, onNext }, ref) => 
                 }}
             />
 
-            {/* ВОЗВРАЩАЕМ СИНИЕ КНОПКИ: Они рендерятся только когда книга загружена */}
+            {/* СИНХРОНИЗИРОВАННЫЕ КНОПКИ НАВИГАЦИИ */}
             {!loading && !error && (
-                <div className="nav-controls" style={{ display: 'flex', justifyContent: 'center', gap: '20px', padding: '15px 0', background: '#f5f5f5' }}>
+                <div className="nav-controls" style={{
+                    display: 'flex',
+                    justifyContent: 'space-between', // 🔥 Раздвигаем кнопки по краям
+                    alignItems: 'center',
+                    gap: '20px',
+                    padding: '15px 30px', // 🔥 Добавили 30px отступов слева и справа
+                    background: '#f5f5f5'
+                }}>
                     <button
                         onClick={onPrev}
                         className="btn-nav-blue"
