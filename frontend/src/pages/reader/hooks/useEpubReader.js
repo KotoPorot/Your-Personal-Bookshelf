@@ -104,6 +104,101 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 });
                 renditionRef.current = rendition;
 
+
+                //выделение текста
+                let activeHighlightCfi = null;
+                let isMouseDown = false;
+                let pendingSelection = null;
+                let lastSelectionTime = 0;     // Таймштамп для фильтрации ложных кликов после долгого зажатия
+
+                const handleSelectionActual = (cfiRange, contents) => {
+                    if (!isMounted) return;
+
+                    const selection = contents.window.getSelection();
+                    if (!selection || selection.rangeCount === 0) return;
+
+                    const range = selection.getRangeAt(0);
+                    const text = range.toString().trim();
+
+                    if (!text) return;
+
+                    const rect = range.getBoundingClientRect();
+                    const iframeRect = contents.window.frameElement.getBoundingClientRect();
+                    const top = rect.top + iframeRect.top - 45;
+                    const left = rect.left + iframeRect.left + (rect.width / 2);
+
+                    if (activeHighlightCfi) {
+                        rendition.annotations.remove(activeHighlightCfi, 'highlight');
+                    }
+
+                    rendition.annotations.add('highlight', cfiRange, {}, null, 'tmp-selection-highlight', {
+                        fill: '#007bff',
+                        'fill-opacity': '0.3',
+                        'mix-blend-mode': 'multiply'
+                    });
+
+                    activeHighlightCfi = cfiRange;
+                    lastSelectionTime = Date.now(); // Фиксируем точное время успешного выделения
+
+                    if (onLocationChangeRef.current) {
+                        onLocationChangeRef.current({
+                            type: 'selection',
+                            cfi: cfiRange,
+                            text,
+                            top,
+                            left
+                        });
+                    }
+                    selection.removeAllRanges();
+                };
+
+                rendition.hooks.content.register((contents) => {
+                    const doc = contents.document;
+
+                    doc.addEventListener('mousedown', () => {
+                        isMouseDown = true;
+                        pendingSelection = null;
+                    });
+
+                    doc.addEventListener('mouseup', () => {
+                        isMouseDown = false;
+                        if (pendingSelection) {
+                            handleSelectionActual(pendingSelection.cfiRange, pendingSelection.contents);
+                            pendingSelection = null;
+                        }
+                    });
+                });
+
+                rendition.on('selected', (cfiRange, contents) => {
+                    if (isMouseDown) {
+                        pendingSelection = { cfiRange, contents };
+                    } else {
+                        handleSelectionActual(cfiRange, contents);
+                    }
+                });
+
+                rendition.on('click', () => {
+                    if (!isMounted) return;
+
+                    // КЛЮЧЕВОЙ ФИКС: Если клик произошел сразу после mouseup медленного выделения (меньше 250мс),
+                    // игнорируем его, чтобы не закрывать свежесозданное меню и не стирать подсветку текста.
+                    if (Date.now() - lastSelectionTime < 250) {
+                        return;
+                    }
+
+                    pendingSelection = null;
+                    isMouseDown = false;
+
+                    if (activeHighlightCfi) {
+                        rendition.annotations.remove(activeHighlightCfi, 'highlight');
+                        activeHighlightCfi = null;
+                    }
+
+                    if (onLocationChangeRef.current) {
+                        onLocationChangeRef.current({ type: 'click' });
+                    }
+                });
+                // =========================================================================
                 rendition.on('relocated', (location) => {
                     if (!isMounted) return;
                     const calculatedPercent = updateNavigationProgress(location);
