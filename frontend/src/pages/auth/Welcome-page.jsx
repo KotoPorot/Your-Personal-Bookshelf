@@ -1,7 +1,10 @@
 import React from 'react';
+import { useAuth } from '../../context/AuthContext'; // Укажи правильный путь к контексту
 import './Welcome-page.css';
 
-const WelcomePage = ({ onNavigateToLogin, onNavigateToRegister }) => {
+const WelcomePage = () => {
+  const { setCurrentScreen } = useAuth();
+
   return (
     <div className="welcome-wrapper">
       <div className="welcome-card">
@@ -9,13 +12,11 @@ const WelcomePage = ({ onNavigateToLogin, onNavigateToRegister }) => {
         <p>Удобный трекер для организации ваших книг и книжных полок.</p>
 
         <div className="welcome-actions">
-          {/* При клике переключаем экран на форму входа */}
-          <button className="welcome-btn login-btn" onClick={onNavigateToLogin}>
+          <button className="welcome-btn login-btn" onClick={() => setCurrentScreen('login')}>
             Войти
           </button>
 
-          {/* Эту кнопку пока оставляем заглушкой, как ты просил */}
-          <button className="welcome-btn register-btn" onClick={onNavigateToRegister}>
+          <button className="welcome-btn register-btn" onClick={() => setCurrentScreen('register')}>
             Зарегистрироваться
           </button>
         </div>
