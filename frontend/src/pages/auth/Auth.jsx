@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext'; // Укажи правильный путь к контексту
+import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
 const Auth = () => {
@@ -22,7 +22,6 @@ const Auth = () => {
       const token = response.data;
 
       if (token) {
-        // Вызываем метод авторизации из контекста
         login(token, username);
       } else {
         setError('Сервер не вернул токен доступа.');
@@ -39,7 +38,7 @@ const Auth = () => {
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Вход в Bookshelf</h2>
 
-        {error && <div className="error-message" style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+        {error && <div className="error-message">{error}</div>}
 
         <div className="input-group">
           <label>Логин</label>
@@ -50,6 +49,7 @@ const Auth = () => {
             required
           />
         </div>
+
         <div className="input-group">
           <label>Пароль</label>
           <input
@@ -62,7 +62,7 @@ const Auth = () => {
 
         <button type="submit" className="auth-btn">Войти</button>
 
-        <div className="auth-links" style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className="auth-links">
           <button type="button" onClick={() => setCurrentScreen('welcome')} className="link-btn">
             Назад
           </button>
