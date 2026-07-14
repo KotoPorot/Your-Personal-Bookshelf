@@ -17,14 +17,22 @@ public class MyNote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String bookAuthor;
-    private Instant createdAt;
-    private String noteText;
-
-    private String selectedText;
+    @Column(name = "book_title", nullable = false)
     private String bookTitle;
-    private String cfi;
+    @Column(name = "book_author")
+    private String bookAuthor;
 
+    @Column(name = "note_text", columnDefinition = "TEXT")
+    private String noteText;
+    @Column(name = "selected_text",columnDefinition = "TEXT", nullable = false)
+    private String selectedText;
+
+    @Column(name = "cfi",columnDefinition = "TEXT", nullable = false)
+    private String cfi;
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+    @Column(name = "book_id", nullable = false)
     private Long bookId;
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 }
