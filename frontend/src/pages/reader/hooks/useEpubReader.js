@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
 import ePub from 'epubjs';
+import { useAuth } from '../../../context/AuthContext'; // <-- Подключаем контекст авторизации
+import { handleRequestError } from '../../../utils/apiErrorHandler'; // <-- Унифицированная обработка ошибок
 
 export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) => {
+    const { token, logout } = useAuth(); // <-- Достаем токен и метод выхода
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [navigationData, setNavigationData] = useState({
@@ -62,14 +66,15 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 setLoading(true);
                 isBookReadyRef.current = false;
 
-                const token = localStorage.getItem('token');
-                if (!token) throw new Error('Нет токена');
+                if (!token) throw new Error('Нет токена доступа');
 
-                const response = await fetch(`http://localhost:8080/api/v1/books/getBook/${bookId}`, {
+                // Перевели на Axios с указанием responseType для бинарных файлов (EPUB)
+                const response = await axios.get(`http://localhost:8080/api/v1/books/getBook/${bookId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
+                    responseType: 'arraybuffer'
                 });
-                if (!response.ok) throw new Error('Ошибка сети');
-                const arrayBuffer = await response.arrayBuffer();
+
+                const arrayBuffer = response.data;
 
                 if (!isMounted) return;
 
@@ -104,12 +109,11 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 });
                 renditionRef.current = rendition;
 
-
-                //выделение текста
+                // Выделение текста
                 let activeHighlightCfi = null;
                 let isMouseDown = false;
                 let pendingSelection = null;
-                let lastSelectionTime = 0;     // Таймштамп для фильтрации ложных кликов после долгого зажатия
+                let lastSelectionTime = 0; // Таймштамп для фильтрации ложных кликов после долгого зажатия
 
                 const handleSelectionActual = (cfiRange, contents) => {
                     if (!isMounted) return;
@@ -198,7 +202,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                         onLocationChangeRef.current({ type: 'click' });
                     }
                 });
-                // =========================================================================
+
                 rendition.on('relocated', (location) => {
                     if (!isMounted) return;
                     const calculatedPercent = updateNavigationProgress(location);
@@ -256,11 +260,10 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                             setTimeout(() => {
                                 if (!isMounted || !renditionRef.current) return;
                                 try {
-                                    // Корректируем внутренние размеры epub.js под реальный открывшийся DOM
+                                    // Корректируем размеры epub.js под реальный открывшийся DOM
                                     renditionRef.current.resize();
 
                                     // === КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Насильно перерисовываем текущую страницу ===
-                                    // Это заставит epub.js пересчитать текст под новые недеформированные размеры контейнера
                                     const currentLoc = renditionRef.current.currentLocation?.();
                                     if (currentLoc?.start?.cfi) {
                                         renditionRef.current.display(currentLoc.start.cfi).then(() => {
@@ -315,6 +318,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 if (isMounted) {
                     setError('Ошибка при загрузке книги');
                     setLoading(false);
+                    handleRequestError(err, logout); // <-- Наш глобальный обработчик (например, при 401 разлогинит)
                 }
             } finally {
                 isInitializing.current = false;
@@ -328,7 +332,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
             if (renditionRef.current) renditionRef.current.destroy();
             if (bookRef.current) bookRef.current.destroy();
         };
-    }, [bookId]);
+    }, [bookId, token, logout, viewerRef]); // <-- Добавили стабильные зависимости
 
     useEffect(() => {
         const handleKeyPress = (e) => {
