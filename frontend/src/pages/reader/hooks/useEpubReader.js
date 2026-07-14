@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
 import ePub from 'epubjs';
+import { useAuth } from '../../../context/AuthContext'; // <-- Подключаем контекст авторизации
+import { handleRequestError } from '../../../utils/apiErrorHandler'; // <-- Унифицированная обработка ошибок
 
 export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) => {
+    const { token, logout } = useAuth(); // <-- Достаем токен и метод выхода
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [navigationData, setNavigationData] = useState({
@@ -62,14 +66,15 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 setLoading(true);
                 isBookReadyRef.current = false;
 
-                const token = localStorage.getItem('token');
-                if (!token) throw new Error('Нет токена');
+                if (!token) throw new Error('Нет токена доступа');
 
-                const response = await fetch(`http://localhost:8080/api/v1/books/getBook/${bookId}`, {
+                // Перевели на Axios с указанием responseType для бинарных файлов (EPUB)
+                const response = await axios.get(`http://localhost:8080/api/v1/books/getBook/${bookId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
+                    responseType: 'arraybuffer'
                 });
-                if (!response.ok) throw new Error('Ошибка сети');
-                const arrayBuffer = await response.arrayBuffer();
+
+                const arrayBuffer = response.data;
 
                 if (!isMounted) return;
 
@@ -103,6 +108,100 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                     width: '100%', height: '100%', flow: 'paginated', manager: 'default', allowScriptedContent: true
                 });
                 renditionRef.current = rendition;
+
+                // Выделение текста
+                let activeHighlightCfi = null;
+                let isMouseDown = false;
+                let pendingSelection = null;
+                let lastSelectionTime = 0; // Таймштамп для фильтрации ложных кликов после долгого зажатия
+
+                const handleSelectionActual = (cfiRange, contents) => {
+                    if (!isMounted) return;
+
+                    const selection = contents.window.getSelection();
+                    if (!selection || selection.rangeCount === 0) return;
+
+                    const range = selection.getRangeAt(0);
+                    const text = range.toString().trim();
+
+                    if (!text) return;
+
+                    const rect = range.getBoundingClientRect();
+                    const iframeRect = contents.window.frameElement.getBoundingClientRect();
+                    const top = rect.top + iframeRect.top - 45;
+                    const left = rect.left + iframeRect.left + (rect.width / 2);
+
+                    if (activeHighlightCfi) {
+                        rendition.annotations.remove(activeHighlightCfi, 'highlight');
+                    }
+
+                    rendition.annotations.add('highlight', cfiRange, {}, null, 'tmp-selection-highlight', {
+                        fill: '#007bff',
+                        'fill-opacity': '0.3',
+                        'mix-blend-mode': 'multiply'
+                    });
+
+                    activeHighlightCfi = cfiRange;
+                    lastSelectionTime = Date.now(); // Фиксируем точное время успешного выделения
+
+                    if (onLocationChangeRef.current) {
+                        onLocationChangeRef.current({
+                            type: 'selection',
+                            cfi: cfiRange,
+                            text,
+                            top,
+                            left
+                        });
+                    }
+                    selection.removeAllRanges();
+                };
+
+                rendition.hooks.content.register((contents) => {
+                    const doc = contents.document;
+
+                    doc.addEventListener('mousedown', () => {
+                        isMouseDown = true;
+                        pendingSelection = null;
+                    });
+
+                    doc.addEventListener('mouseup', () => {
+                        isMouseDown = false;
+                        if (pendingSelection) {
+                            handleSelectionActual(pendingSelection.cfiRange, pendingSelection.contents);
+                            pendingSelection = null;
+                        }
+                    });
+                });
+
+                rendition.on('selected', (cfiRange, contents) => {
+                    if (isMouseDown) {
+                        pendingSelection = { cfiRange, contents };
+                    } else {
+                        handleSelectionActual(cfiRange, contents);
+                    }
+                });
+
+                rendition.on('click', () => {
+                    if (!isMounted) return;
+
+                    // КЛЮЧЕВОЙ ФИКС: Если клик произошел сразу после mouseup медленного выделения (меньше 250мс),
+                    // игнорируем его, чтобы не закрывать свежесозданное меню и не стирать подсветку текста.
+                    if (Date.now() - lastSelectionTime < 250) {
+                        return;
+                    }
+
+                    pendingSelection = null;
+                    isMouseDown = false;
+
+                    if (activeHighlightCfi) {
+                        rendition.annotations.remove(activeHighlightCfi, 'highlight');
+                        activeHighlightCfi = null;
+                    }
+
+                    if (onLocationChangeRef.current) {
+                        onLocationChangeRef.current({ type: 'click' });
+                    }
+                });
 
                 rendition.on('relocated', (location) => {
                     if (!isMounted) return;
@@ -161,11 +260,10 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                             setTimeout(() => {
                                 if (!isMounted || !renditionRef.current) return;
                                 try {
-                                    // Корректируем внутренние размеры epub.js под реальный открывшийся DOM
+                                    // Корректируем размеры epub.js под реальный открывшийся DOM
                                     renditionRef.current.resize();
 
                                     // === КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Насильно перерисовываем текущую страницу ===
-                                    // Это заставит epub.js пересчитать текст под новые недеформированные размеры контейнера
                                     const currentLoc = renditionRef.current.currentLocation?.();
                                     if (currentLoc?.start?.cfi) {
                                         renditionRef.current.display(currentLoc.start.cfi).then(() => {
@@ -220,6 +318,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
                 if (isMounted) {
                     setError('Ошибка при загрузке книги');
                     setLoading(false);
+                    handleRequestError(err, logout); // <-- Наш глобальный обработчик (например, при 401 разлогинит)
                 }
             } finally {
                 isInitializing.current = false;
@@ -233,7 +332,7 @@ export const useEpubReader = (bookId, viewerRef, initialCfi, onLocationChange) =
             if (renditionRef.current) renditionRef.current.destroy();
             if (bookRef.current) bookRef.current.destroy();
         };
-    }, [bookId]);
+    }, [bookId, token, logout, viewerRef]); // <-- Добавили стабильные зависимости
 
     useEffect(() => {
         const handleKeyPress = (e) => {

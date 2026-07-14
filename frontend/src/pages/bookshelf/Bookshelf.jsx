@@ -1,307 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import BookGrid from './BookGrid';
 import BookModal from './BookModal';
 import AddBookModal from './AddBookModal';
-import { handleRequestError } from '../../utils/apiErrorHandler.js';
+import { useAuth } from '../../context/AuthContext';
+import { useBooks } from '../../context/BookContext';
 import './styles/Bookshelf.css';
 
-const Bookshelf = ({ token, username, onLogout, onOpenReader }) => {
-    const [shelves, setShelves] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [activeShelfId, setActiveShelfId] = useState(null);
+const Bookshelf = () => {
+  // 1. Данные авторизации
+  const { token, username, logout, openReader } = useAuth();
 
-    const [books, setBooks] = useState([]);
+  // 2. Данные библиотеки и методы API
+  const {
+    shelves, books, activeShelfId, loading,
+    selectShelf, createShelf, editShelfName, deleteShelf,
+    addBookToState, renameBook, changeBookShelf, deleteBook
+  } = useBooks();
 
-    // -- API useEffects
-    useEffect(() => {
-            const fetchShelves = async () => {
-                try {
-                    const response = await axios.get('http://localhost:8080/api/v1/shelves/getAll', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                const data = response.data;
-                    setShelves(data);
-                    if (data.length > 0) {
-                                    // Пытаемся взять ID из localStorage
-                                    const savedShelfId = localStorage.getItem('lastSelectedShelfId');
+  // 3. Чисто локальное состояние UI окон
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-                                    // Проверяем, существует ли полка с таким ID в полученных данных
-                                    const exists = data.find(s => s.id === Number(savedShelfId));
+  // --- Легковесные обработчики UI (промпты и конфирмы остаются здесь) ---
 
-                                    if (exists) {
-                                        setActiveShelfId(exists.id);
-                                    } else {
-                                        // Если ID нет или его нет в списке (например, удалили полку), берем первую
-                                        setActiveShelfId(data[0].id);
-                                        localStorage.setItem('lastSelectedShelfId', data[0].id);
-                                    }
-                                }
-
-                  }catch (err) {
-                    handleRequestError(err, onLogout);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (token) { // Хорошая практика: проверять, есть ли токен
-                fetchShelves();
-            }
-        }, [token]);
-
-    useEffect(() => {
-        const fetchBooks = async () => {
-            if (!activeShelfId) return; // Не грузим, если полка еще не выбрана
-
-            try {
-                setLoading(true); // Можно включить лоадер, если есть
-                const response = await axios.get(`http://localhost:8080/api/v1/books/getBooks/${activeShelfId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                setBooks(response.data); // Обновляем список книг полученными данными
-            } catch (err) {
-                handleRequestError(err, onLogout);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (token && activeShelfId!==null) {
-            fetchBooks();
-        }
-    }, [token, activeShelfId]);
-
-    // Разделяем управление окнами
-    const [selectedBook, setSelectedBook] = useState(null); // Для просмотра/редактирования (объект или null)
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false); // Для загрузки файлов (true/false)
-
-    // Управление полками
-    const handleCreateShelf = async () => {
-        const shelfName = prompt('Введите название новой полки:');
-
-        if (shelfName && shelfName.trim() !== '') {
-            try {
-                // Отправляем POST-запрос
-                // Предполагаю, что контроллер принимает объект { shelfName: "..." }
-                const response = await axios.post('http://localhost:8080/api/v1/shelves/createShelf',
-                    { shelfName: shelfName.trim() },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-
-                // Обновляем список полок, добавив новую, полученную с сервера
-                // (response.data должен содержать объект созданной полки с новым ID)
-                setShelves([...shelves, response.data]);
-
-                // Опционально: делаем новую полку активной
-                setActiveShelfId(response.data.id);
-
-            } catch (err) {
-                handleRequestError(err, onLogout);
-            }
-        }
-    };
-
-    const handleEditShelf = async (id) => {
-        const currentShelf = shelves.find(s => s.id === id);
-        const newName = prompt('Изменить название полки:', currentShelf.shelfName);
-
-        if (newName && newName.trim() !== '' && newName.trim() !== currentShelf.shelfName) {
-            try {
-                // Отправляем PUT запрос
-                const response = await axios.put(
-                    `http://localhost:8080/api/v1/shelves/updateShelfName/${id}`,
-                    { shelfName: newName.trim() }, // Тело запроса (DTO)
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
-
-                // Обновляем состояние, используя данные, которые вернул бэкенд
-                setShelves(shelves.map(s => s.id === id ? response.data : s));
-
-            } catch (err) {
-                handleRequestError(err, onLogout);
-            }
-        }
-    };
-
-    const handleDeleteShelf = async (id) => {
-        // Находим полку для подтверждения в диалоговом окне
-        const currentShelf = shelves.find(s => s.id === id);
-        if (!currentShelf) return;
-
-        if (window.confirm(`Вы уверены, что хотите удалить полку "${currentShelf.shelfName}"?`)) {
-            try {
-                // Отправляем DELETE запрос
-                await axios.delete(`http://localhost:8080/api/v1/shelves/deleteShelf/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                // Если запрос успешен (сервер ответил 204), обновляем стейт
-                const updatedShelves = shelves.filter(s => s.id !== id);
-                setShelves(updatedShelves);
-
-                // Если удалили активную полку, переключаем на первую доступную
-                if (activeShelfId === id) {
-                    if (updatedShelves.length > 0) {
-                        setActiveShelfId(updatedShelves[0].id);
-                    } else {
-                        setActiveShelfId(null); // Или другое значение, если полок больше нет
-                    }
-                }
-            } catch (err) {
-                handleRequestError(err, onLogout);
-            }
-        }
-    };
-
-    // Сохранение отредактированной книги
-    const handleBookClick = (book) => {
-        setSelectedBook(book); // Устанавливаем книгу, чтобы модалка знала, что показывать
-    };
-
-    // Добавление новой загруженной книги
-    const handleAddBook = (newBook) => {
-        setBooks([...books, newBook]);
-        setIsAddModalOpen(false); // Закрываем окно загрузки
-    };
-
-// Переименование книги (использует @PatchMapping /rename/{bookId})
-const handleRenameBook = async (bookId, newTitle) => {
-    try {
-        const response = await axios.patch(
-            `http://localhost:8080/api/v1/books/rename/${bookId}`,
-            { newTitle: newTitle }, // Соответствует рекорду BookTitleUpdate
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-        // Обновляем состояние: заменяем книгу на обновленную от сервера
-        setBooks(books.map(b => b.id === bookId ? response.data : b));
-    } catch (err) {
-        handleRequestError(err, onLogout);
+  const handleCreateShelf = () => {
+    const shelfName = prompt('Введите название новой полки:');
+    if (shelfName && shelfName.trim() !== '') {
+      createShelf(shelfName.trim());
     }
-};
+  };
 
-// Изменение полки книги (использует @PatchMapping /changeShelf/{bookId})
-const handleChangeBookShelf = async (bookId, newShelfId) => {
-    try {
-        const response = await axios.patch(
-            `http://localhost:8080/api/v1/books/changeShelf/${bookId}`,
-            { newShelfId: newShelfId }, // Соответствует рекорду BookShelfUpdate
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-        // Если книга улетела на другую полку, убираем её из текущего вида
-        setBooks(books.filter(b => b.id !== bookId));
-    } catch (err) {
-        handleRequestError(err, onLogout);
+  const handleEditShelf = (id) => {
+    const currentShelf = shelves.find(s => s.id === id);
+    const newName = prompt('Изменить название полки:', currentShelf?.shelfName);
+    if (newName && newName.trim() !== '' && newName.trim() !== currentShelf?.shelfName) {
+      editShelfName(id, newName.trim());
     }
-};
+  };
 
-// Удаление книги (использует @DeleteMapping /deleteBook/{bookId})
-const handleDeleteBook = async (bookId) => {
-    try {
-        await axios.delete(`http://localhost:8080/api/v1/books/deleteBook/${bookId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        // Удаляем из стейта
-        setBooks(books.filter(b => b.id !== bookId));
-    } catch (err) {
-        handleRequestError(err, onLogout);
+  const handleDeleteShelf = (id) => {
+    const currentShelf = shelves.find(s => s.id === id);
+    if (currentShelf && window.confirm(`Вы уверены, что хотите удалить полку "${currentShelf.shelfName}"?`)) {
+      deleteShelf(id);
     }
-};
+  };
 
+  const handleBookClick = (book) => {
+    setSelectedBook(book);
+  };
 
-    return (
-        <div className="bookshelf-layout">
-            <Header username={username} onLogout={onLogout} />
+  const handleAddBook = (newBook) => {
+    addBookToState(newBook);
+    setIsAddModalOpen(false);
+  };
 
-            <div className="bookshelf-main">
-                <Sidebar
-                    shelves={shelves}
-                    activeShelfId={activeShelfId}
-                    onSelectShelf={setActiveShelfId}
-                    onCreateShelf={handleCreateShelf}
-                    onEditShelf={handleEditShelf}
-                    onDeleteShelf={handleDeleteShelf}
-                />
+  return (
+    <div className="bookshelf-layout">
+      <Header username={username} onLogout={logout} />
 
-                <main className="bookshelf-content">
-                    <div className="content-header">
-                        <h2 className="shelf-title">
-                            {shelves.find(s => s.id === activeShelfId)?.shelfName || 'Полка не выбрана'}
-                        </h2>
-                        {activeShelfId && (
-                            <button
-                                className="add-book-btn"
-                                onClick={() => setIsAddModalOpen(true)} // Открываем окно загрузки файлов
-                            >
-                                ➕ Добавить книгу
-                            </button>
-                        )}
-                    </div>
+      <div className="bookshelf-main">
+        <Sidebar
+          shelves={shelves}
+          activeShelfId={activeShelfId}
+          onSelectShelf={selectShelf}
+          onCreateShelf={handleCreateShelf}
+          onEditShelf={handleEditShelf}
+          onDeleteShelf={handleDeleteShelf}
+        />
 
-                    <BookGrid
-                        books={books}
-                        activeShelfId={activeShelfId}
-                        onBookClick={handleBookClick}
-                        token={token}
-                    />
-                </main>
-            </div>
-
-            {/* Окно 1: Просмотр и редактирование существующей книги */}
-            {selectedBook !== null && (
-                <BookModal
-                    isOpen={true}
-                    book={selectedBook}
-                    shelves={shelves}
-                    token={token}
-                    onClose={() => setSelectedBook(null)}
-                    onUpdateBook={async(updatedData) => {
-                                // Эта логика связывает универсальный onUpdateBook из модалки с конкретными API
-                                if (updatedData.title !== selectedBook.title) {
-                                    await handleRenameBook(selectedBook.id, updatedData.title);
-                                    setSelectedBook(updatedData);
-                                }
-                                if (updatedData.shelfId !== selectedBook.shelfId) {
-                                   await handleChangeBookShelf(selectedBook.id, updatedData.shelfId);
-                                    setActiveShelfId(updatedData.shelfId);
-                                    localStorage.setItem('lastSelectedShelfId', updatedData.shelfId);
-                                    setSelectedBook(null);
-                                }
-                            }}
-                    onDeleteBook={handleDeleteBook}
-                    onOpenReader={onOpenReader}
-                />
+        <main className="bookshelf-content">
+          <div className="content-header">
+            <h2 className="shelf-title">
+              {shelves.find(s => s.id === activeShelfId)?.shelfName || 'Полка не выбрана'}
+            </h2>
+            {activeShelfId && (
+              <button
+                className="add-book-btn"
+                onClick={() => setIsAddModalOpen(true)}
+              >
+                ➕ Добавить книгу
+              </button>
             )}
+          </div>
 
-            {/* Окно 2: Загрузка нового файла */}
-            {isAddModalOpen && (
-                <AddBookModal
-                    token={token}
-                    activeShelfId={activeShelfId}
-                    onClose={() => setIsAddModalOpen(false)}
-                    onUpload={handleAddBook}
-                />
-            )}
-        </div>
-    );
+          {loading ? (
+            <div className="loader">Загрузка...</div>
+          ) : (
+            <BookGrid
+              books={books}
+              activeShelfId={activeShelfId}
+              onBookClick={handleBookClick}
+              token={token}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* Окно 1: Просмотр и редактирование существующей книги */}
+      {selectedBook !== null && (
+        <BookModal
+          isOpen={true}
+          book={selectedBook}
+          shelves={shelves}
+          token={token}
+          onClose={() => setSelectedBook(null)}
+          onUpdateBook={async (updatedData) => {
+            if (updatedData.title !== selectedBook.title) {
+              const updatedBook = await renameBook(selectedBook.id, updatedData.title);
+              setSelectedBook(updatedBook || updatedData);
+            }
+            if (updatedData.shelfId !== selectedBook.shelfId) {
+              await changeBookShelf(selectedBook.id, updatedData.shelfId);
+              setSelectedBook(null);
+            }
+          }}
+          onDeleteBook={deleteBook}
+          onOpenReader={() => openReader(selectedBook)}
+        />
+      )}
+
+      {/* Окно 2: Загрузка нового файла */}
+      {isAddModalOpen && (
+        <AddBookModal
+          token={token}
+          activeShelfId={activeShelfId}
+          onClose={() => setIsAddModalOpen(false)}
+          onUpload={handleAddBook}
+        />
+      )}
+    </div>
+  );
 };
 
 export default Bookshelf;

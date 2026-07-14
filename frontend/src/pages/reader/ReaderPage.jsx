@@ -1,17 +1,26 @@
 import React, { useRef, useCallback } from 'react';
+import { useAuth } from '../../context/AuthContext'; // <-- Импортируем наш контекст
 import { useBookProgress } from './hooks/useBookProgress';
 import { useReadingTimer } from './hooks/useReadingTimer';
 import { useEpubReader } from './hooks/useEpubReader';
-import { useReaderManager } from './hooks/useReaderManager'; // Импортируем наш хук
+import { useReaderManager } from './hooks/useReaderManager';
+import { useTextSelection } from './hooks/useTextSelection';
 
 import ReaderSidebar from './components/ReaderSidebar';
 import ReaderBottomBar from './components/ReaderBottomBar';
-import BookViewer from './BookViewer';
-import TocModal from './TocModal';
-import './test.css';
+import SelectionMenu from './components/SelectionMenu';
+import CreateNoteModal from './components/CreateNoteModal';
+import BookViewer from './components/BookViewer';
+import TocModal from './components/TocModal';
+import './ReaderPage.css';
 
-const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) => {
+// =========================================================================
+// ИНТЕРФЕЙС ЧИТАЛКИ (внутренний компонент)
+// =========================================================================
+const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
+    const { closeReader } = useAuth(); // <-- Достаем функцию закрытия читалки напрямую
     const viewerRef = useRef(null);
+    const handleLocationChangeRef = useRef(null);
 
     // 1. ИНИЦИАЛИЗИРУЕМ ТАЙМЕР
     const {
@@ -21,13 +30,25 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
         resetIdle
     } = useReadingTimer(initialData.readingTime || 0);
 
+    const textSelection = useTextSelection({ bookId });
+
     // Паттерн моста для обратного вызова из асинхронного EpubJS без нарушения порядка хуков
-    const handleLocationChangeRef = useRef(null);
     const stableHandleLocationChange = useCallback((params) => {
-        if (handleLocationChangeRef.current) {
+        if (!params) return;
+
+        // Если пришло событие выделения текста
+        if (params.type === 'selection') {
+            textSelection.handleTextSelected(params);
+        }
+        // Если пришел клик по тексту книги (скрываем контекстное меню)
+        else if (params.type === 'click') {
+            textSelection.closeSelectionMenu();
+        }
+        // В остальных случаях — это стандартное перелистывание страниц
+        else if (handleLocationChangeRef.current) {
             handleLocationChangeRef.current(params);
         }
-    }, []);
+    }, [textSelection]);
 
     // 2. ПОДКЛЮЧАЕМ ЧИТАЛКУ EPUB
     const {
@@ -54,7 +75,7 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
     return (
         <div className="reader-container">
             <ReaderSidebar
-                onBack={onBack}
+                onBack={closeReader} // <-- Используем метод из контекста вместо пропса
                 onToggleToc={() => manager.setIsTocOpen(!manager.isTocOpen)}
                 totalSecondsSpent={totalSecondsSpent}
                 progressPercent={manager.displayedProgress}
@@ -99,6 +120,24 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
                 currentChapter={manager.displayedNav.currentChapter}
                 onNavigate={manager.handleJumpToChapter}
             />
+
+            <SelectionMenu
+                visible={textSelection.selectionMenu.visible}
+                top={textSelection.selectionMenu.top}
+                left={textSelection.selectionMenu.left}
+                onCreateNote={textSelection.openNoteModal}
+                onTranslate={() => alert('Функция перевода будет доступна позже!')}
+            />
+
+            {/* Модалка ввода текста заметки */}
+            <CreateNoteModal
+                isOpen={textSelection.isNoteModalOpen}
+                onClose={textSelection.closeNoteModal}
+                selectedText={textSelection.selectionMenu.text}
+                noteComment={textSelection.noteComment}
+                setNoteComment={textSelection.setNoteComment}
+                onSave={textSelection.handleSaveNote}
+            />
         </div>
     );
 };
@@ -106,10 +145,21 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
 // =========================================================================
 // ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ (просто загружает данные и вызывает интерфейс)
 // =========================================================================
-const ReaderPage = ({ bookId, onBack }) => {
+const ReaderPage = () => {
+    // Достаем активную книгу из контекста авторизации
+    const { activeBook } = useAuth();
+
+    // Если по какой-то причине книги нет в стейте (например, прямой переход по ссылке),
+    // берем ID из localStorage в качестве фоллбека, либо выводим заглушку.
+    const bookId = activeBook?.id || JSON.parse(localStorage.getItem('activeBook'))?.id;
+
     const { initialData, loadingProgress, reportLiveProgress } = useBookProgress(bookId);
 
     console.log(`%c⏳ [ReaderPage Render] loadingProgress: ${loadingProgress}`, "color: #6c757d;");
+
+    if (!bookId) {
+        return <div className="reader-loading">Книга не выбрана...</div>;
+    }
 
     if (loadingProgress) {
         console.log("%c⏳ [ReaderPage] Возврат экрана загрузки...", "color: #6c757d;");
@@ -119,7 +169,6 @@ const ReaderPage = ({ bookId, onBack }) => {
     return (
         <ReaderInterface
             bookId={bookId}
-            onBack={onBack}
             initialData={initialData}
             reportLiveProgress={reportLiveProgress}
         />

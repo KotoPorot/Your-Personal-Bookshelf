@@ -24,9 +24,7 @@ export const useReaderManager = ({
     // Флаг того, что экран и реальная точка чтения разошлись
     const [isDiverged, setIsDiverged] = useState(false);
 
-    // ==========================================
-    // ЛОГИ МОНТИРОВАНИЯ И ИЗМЕНЕНИЯ СОСТОЯНИЯ
-    // ==========================================
+    // Логи монтирования
     useEffect(() => {
         console.log("%c🟢 [ReaderInterface] Компонент смонтирован (Mounted)", "color: #28a745; font-weight: bold;");
         return () => {
@@ -37,7 +35,6 @@ export const useReaderManager = ({
     useEffect(() => {
         console.log(`%c🔄 [ReaderInterface State] Стейт isDiverged изменился на: ${isDiverged}`, "color: #ffc107; font-weight: bold;");
     }, [isDiverged]);
-    // ==========================================
 
     // Объект для хранения истинной точки чтения (то, что улетит в базу)
     const [savedLocation, setSavedLocation] = useState({
@@ -51,20 +48,19 @@ export const useReaderManager = ({
         }
     });
 
-    // Маркер источника перехода: 'normal' (кнопки листания) или 'jump' (оглавление/ссылки)
     const navigationSourceRef = useRef('normal');
-    // Дубликат флага расхождения в ref, чтобы handleLocationChange видел его без перезапуска коллбека
     const isDivergedRef = useRef(false);
-
-    // Дубликат навигации в ref, чтобы использовать свежие данные внутри useCallback
     const displayedNavRef = useRef(displayedNav);
-    const initialProgressRef = useRef(initialData.progress || 0);
 
     useEffect(() => { displayedNavRef.current = displayedNav; }, [displayedNav]);
 
     const [isLiveProgress, setIsLiveProgress] = useState(false);
-    // Реф для хранения самого актуального CFI страницы.
     const currentCfiRef = useRef(initialData.currentCfi || null);
+
+    // Рефы для контроля частоты сетевых запросов
+    const lastReportedTimeRef = useRef(0);
+    const lastReportedCfiRef = useRef(null);
+    const lastReportedDivergedRef = useRef(false);
 
     // ОБРАБОТЧИК СМЕНЫ СТРАНИЦ (для epub.js)
     const handleLocationChange = useCallback(({ cfi, percent, charCount }) => {
@@ -73,18 +69,13 @@ export const useReaderManager = ({
         const finalTimeLimit = Math.max(30, Math.round(estimatedTime));
 
         console.log(
-            `%c[Epubjs -> Расчет Лимита]%c Текст отрисован. Символов на странице: %c${charCount}%c. Скорость чтения: ${CHARS_PER_SECOND} симв/сек. Выделено времени до проверки активности: %c${finalTimeLimit} сек.%c`,
+            `%c[Epubjs -> Расчет Лимита]%c Текст отрисован. Символов на странице: %c${charCount}%c. Скорость чтения: ${CHARS_PER_SECOND} симв/сек. Выделено времени до проверки активности: %c${finalTimeLimit} ...`,
             'color: #007bff; font-weight: bold;', 'color: inherit;',
             'color: #007bff; font-weight: bold;', 'color: inherit;',
             'color: #28a745; font-weight: bold; font-size: 11px;', 'color: inherit;'
         );
 
-        console.log(`%c📱 [handleLocationChange] Сработал. Источник: "${navigationSourceRef.current}", Текущий isDivergedRef: ${isDivergedRef.current}`, "color: #17a2b8;");
-
-        // Настраиваем таймер неактивности под новую страницу
         startPage(finalTimeLimit);
-
-        // Просто сохраняем свежий CFI в реф
         currentCfiRef.current = cfi;
 
         if (percent !== 0) {
@@ -93,20 +84,15 @@ export const useReaderManager = ({
         }
 
         if (isDivergedRef.current) {
-            console.log("➡️ [handleLocationChange] Пропуск: расхождение уже зафиксировано (isDivergedRef.current === true)");
             return;
         }
 
-        // ПРОВЕРКА: Если сработал переход, но это был НЕ клик по нижним кнопкам навигации
         if (navigationSourceRef.current !== 'normal') {
-            console.log("⚠️ [handleLocationChange] Источник не 'normal'! Включаем расхождение (setIsDiverged(true))");
             setIsDiverged(true);
             isDivergedRef.current = true;
             return;
         }
 
-        // Если это обычное листание — обновляем сохраненную точку чтения вслед за экраном
-        console.log("✅ [handleLocationChange] Обычное листание. Синхронизируем точку savedLocation.");
         setSavedLocation({
             cfi: cfi,
             progress: percent,
@@ -118,59 +104,45 @@ export const useReaderManager = ({
             }
         });
 
-    }, [startPage, initialData.progress]);
+    }, [startPage]);
 
     // Синхронизация данных навигации из книги
     useEffect(() => {
         if (navigationData && navigationData.totalSections > 1) {
-            console.log("📋 [useEpubReader Effect] Получены новые navigationData:", navigationData);
             setDisplayedNav(navigationData);
         }
     }, [navigationData]);
 
-    // Обертки над стандартным перелистыванием страниц
     const handleNormalNext = () => {
-        console.log("➡️ Вызвана handleNormalNext (Клик Вперед)");
-        navigationSourceRef.current = 'normal'; // явно говорим, что это обычное листание
+        navigationSourceRef.current = 'normal';
         handleNextPage();
     };
 
     const handleNormalPrev = () => {
-        console.log("⬅️ Вызвана handleNormalPrev (Клик Назад)");
         navigationSourceRef.current = 'normal';
         handlePrevPage();
     };
 
-    // Действие для кнопки "Вернуться к чтению"
     const handleReturnToReading = () => {
-        console.log("🔄 Вызвана handleReturnToReading");
-        navigationSourceRef.current = 'normal'; // возвращаем обычный режим
+        navigationSourceRef.current = 'normal';
         setIsDiverged(false);
         isDivergedRef.current = false;
-        handleTocNavigation(savedLocation.cfi); // даем команду epub.js прыгнуть на CFI закладки
+        handleTocNavigation(savedLocation.cfi);
     };
 
-    // Действие для кнопки "Читать здесь" (сохранить точку)
     const handleConfirmReadingHere = () => {
-        console.log("📌 Вызвана handleConfirmReadingHere");
         setSavedLocation({
             cfi: currentCfiRef.current,
             progress: displayedProgress,
             nav: { ...displayedNav }
         });
         navigationSourceRef.current = 'normal';
-
         setIsDiverged(false);
         isDivergedRef.current = false;
     };
 
-    // Действие для клика по главе оглавления
     const handleJumpToChapter = (href) => {
-        console.log(`%c🎯 [TocModal -> onNavigate] Клик по главе: ${href}`, "color: #dc3545; font-weight: bold;");
-
-        // Если мы совершаем прыжок впервые, фиксируем текущее положение экрана как сохраненную точку
         if (!isDivergedRef.current) {
-            console.log("🎯 [TocModal -> onNavigate] Фиксация начальной точки перед прыжком в savedLocation");
             setSavedLocation({
                 cfi: currentCfiRef.current,
                 progress: displayedProgress,
@@ -178,7 +150,6 @@ export const useReaderManager = ({
             });
         }
 
-        // Переключаем маркеры в режим прыжка
         navigationSourceRef.current = 'jump';
         setIsDiverged(true);
         isDivergedRef.current = true;
@@ -187,14 +158,21 @@ export const useReaderManager = ({
         setIsTocOpen(false);
     };
 
-    // СИНХРОНИЗАТОР СОСТОЯНИЯ (Синхронизация с БД)
+    // Оптимизированный синхронизатор с бэкендом
     useEffect(() => {
         if (loading) return;
 
-        console.log(`%c✉️ [reportLiveProgress Effect] Срабатывание. Вызов reportLiveProgress. Текущий стейт isDiverged: ${isDiverged}`, "color: #6f42c1;");
+        const timePassed = totalSecondsSpent - lastReportedTimeRef.current;
+        const cfiChanged = currentCfiRef.current !== lastReportedCfiRef.current;
+        const divergedChanged = isDiverged !== lastReportedDivergedRef.current;
 
-        if (isDiverged) {
-            reportLiveProgress({
+        // Триггерим отправку на бэкенд только если:
+        // 1. Сменился CFI (перелистнули страницу)
+        // 2. Сменилось состояние diverged (зашли/вышли из режима просмотра оглавления)
+        // 3. Прошло более 15 секунд чтения на одной странице (периодическое сохранение времени)
+        if (cfiChanged || divergedChanged || timePassed >= 15) {
+
+            const payload = isDiverged ? {
                 currentCfi: savedLocation.cfi,
                 progress: savedLocation.progress,
                 readingTime: totalSecondsSpent,
@@ -202,10 +180,7 @@ export const useReaderManager = ({
                 numberOfSections: savedLocation.nav.totalSections,
                 currentChapterInSection: savedLocation.nav.currentChapter,
                 numberOfChaptersInSection: savedLocation.nav.totalChapters
-            });
-        } else {
-            // Если расхождений нет — отправляем живые координаты с экрана
-            reportLiveProgress({
+            } : {
                 currentCfi: currentCfiRef.current,
                 progress: displayedProgress,
                 readingTime: totalSecondsSpent,
@@ -213,7 +188,15 @@ export const useReaderManager = ({
                 numberOfSections: displayedNav.totalSections,
                 currentChapterInSection: displayedNav.currentChapter,
                 numberOfChaptersInSection: displayedNav.totalChapters
-            });
+            };
+
+            console.log(`%c✉️ [reportLiveProgress] Отправка данных на сервер... Секунд прочитано: ${totalSecondsSpent}`, "color: #6f42c1; font-weight: bold;");
+            reportLiveProgress(payload);
+
+            // Фиксируем контрольные точки отправки
+            lastReportedTimeRef.current = totalSecondsSpent;
+            lastReportedCfiRef.current = currentCfiRef.current;
+            lastReportedDivergedRef.current = isDiverged;
         }
     }, [totalSecondsSpent, displayedProgress, displayedNav, isDiverged, savedLocation, reportLiveProgress, loading]);
 
