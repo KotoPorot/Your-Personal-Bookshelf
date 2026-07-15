@@ -23,7 +23,7 @@ public class MyNote {
     private String bookAuthor;
 
     @Column(name = "note_text", columnDefinition = "TEXT")
-    private String noteText;
+    private String userNote;
     @Column(name = "selected_text",columnDefinition = "TEXT", nullable = false)
     private String selectedText;
 
@@ -33,6 +33,7 @@ public class MyNote {
     private Instant createdAt;
     @Column(name = "book_id", nullable = false)
     private Long bookId;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 }
