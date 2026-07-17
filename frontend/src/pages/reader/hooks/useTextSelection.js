@@ -58,14 +58,15 @@ export const useTextSelection = ({ bookId }) => {
             bookId: Number(bookId),
             cfi: selectionMenu.cfi,
             selectedText: selectionMenu.text,
-            noteText: noteComment,
+            //TODO rename to userComment
+            userNote: noteComment,
             bookTitle: activeBook?.title || 'Unknown Title',
             bookAuthor: activeBook?.author || 'Unknown Author',
             createdAt: new Date().toISOString()
         };
 
         try {
-            await axios.post('http://localhost:8080/api/v1/notes/save', notePayload, {
+            await axios.post('http://localhost:8080/api/v1/notes/create', notePayload, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
