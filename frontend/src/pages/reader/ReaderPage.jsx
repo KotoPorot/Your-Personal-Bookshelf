@@ -1,10 +1,13 @@
 import React, { useRef, useCallback } from 'react';
-import { useAuth } from '../../context/AuthContext'; // <-- Импортируем наш контекст
+import { useAuth } from '../../context/AuthContext';
+import { BookNotesProvider } from '../../context/BookNotesContext';
+
 import { useBookProgress } from './hooks/useBookProgress';
 import { useReadingTimer } from './hooks/useReadingTimer';
 import { useEpubReader } from './hooks/useEpubReader';
 import { useReaderManager } from './hooks/useReaderManager';
 import { useTextSelection } from './hooks/useTextSelection';
+import { useBookNotesManager } from './hooks/useBookNotesManager';
 
 import ReaderSidebar from './components/ReaderSidebar';
 import ReaderBottomBar from './components/ReaderBottomBar';
@@ -12,6 +15,9 @@ import SelectionMenu from './components/SelectionMenu';
 import CreateNoteModal from './components/CreateNoteModal';
 import BookViewer from './components/BookViewer';
 import TocModal from './components/TocModal';
+import BookNotesModal from './components/BookNotesModal';
+import NoteDetailModal from './components/NoteDetailModal';
+
 import './ReaderPage.css';
 
 // =========================================================================
@@ -72,11 +78,15 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
     // Связываем мост с актуальной функцией менеджера
     handleLocationChangeRef.current = manager.handleLocationChange;
 
+    // 4. ПОДКЛЮЧАЕМ ХУК УПРАВЛЕНИЯ ЗАМЕТКАМИ
+     const notesManager = useBookNotesManager(bookId, manager.handleJumpToChapter);
+
     return (
         <div className="reader-container">
             <ReaderSidebar
-                onBack={closeReader} // <-- Используем метод из контекста вместо пропса
+                onBack={closeReader}
                 onToggleToc={() => manager.setIsTocOpen(!manager.isTocOpen)}
+                onToggleNotes={notesManager.handleToggleNotesList}
                 totalSecondsSpent={totalSecondsSpent}
                 progressPercent={manager.displayedProgress}
                 navigationData={manager.displayedNav}
@@ -138,6 +148,21 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
                 setNoteComment={textSelection.setNoteComment}
                 onSave={textSelection.handleSaveNote}
             />
+            <BookNotesModal
+                isOpen={notesManager.isNotesListOpen}
+                onClose={notesManager.handleCloseNotesList}
+                notes={notesManager.bookNotes}
+                loading={notesManager.loadingNotes}
+                onNoteClick={notesManager.setActiveDetailNote}
+                activeNoteId={notesManager.activeDetailNote?.noteId}
+            />
+            <NoteDetailModal
+                isOpen={!!notesManager.activeDetailNote}
+                onClose={notesManager.handleCloseDetailNote}
+                note={notesManager.activeDetailNote}
+                onNavigate={notesManager.handleJumpToNote}
+                onDelete={notesManager.handleDeleteNote}
+            />
         </div>
     );
 };
@@ -167,11 +192,14 @@ const ReaderPage = () => {
     }
 
     return (
+        <BookNotesProvider>
         <ReaderInterface
             bookId={bookId}
             initialData={initialData}
             reportLiveProgress={reportLiveProgress}
         />
+        </BookNotesProvider>
+
     );
 };
 
