@@ -32,7 +32,7 @@ const NoteDetailModal = ({ isOpen, onClose, note, onNavigate, onDelete }) => {
 
                 <div className="note-detail-actions">
                     <button className="btn-navigate" onClick={() => onNavigate(note.cfi)}>
-                        🚀 Перейти к книге
+                        🚀 Перейти к заметке
                     </button>
                     <button className="btn-delete" onClick={() => onDelete(note.noteId)}>
                         🗑 Удалить

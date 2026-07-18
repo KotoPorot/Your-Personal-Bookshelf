@@ -27,6 +27,7 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
     const { closeReader } = useAuth(); // <-- Достаем функцию закрытия читалки напрямую
     const viewerRef = useRef(null);
     const handleLocationChangeRef = useRef(null);
+    const handleJumpToChapterRef = useRef(null);
 
     // 1. ИНИЦИАЛИЗИРУЕМ ТАЙМЕР
     const {
@@ -35,6 +36,16 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
         startPage,
         resetIdle
     } = useReadingTimer(initialData.readingTime || 0);
+
+    // Стабильная обертка для прыжка по главам
+    const stableHandleJumpToChapter = useCallback((href) => {
+        if (handleJumpToChapterRef.current) {
+            handleJumpToChapterRef.current(href);
+        }
+    }, []);
+
+    // 4. ПОДКЛЮЧАЕМ ХУК УПРАВЛЕНИЯ ЗАМЕТКАМИ
+     const notesManager = useBookNotesManager(bookId, stableHandleJumpToChapter);
 
     const textSelection = useTextSelection({ bookId });
 
@@ -60,7 +71,14 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
     const {
         loading, error, navigationData, progressPercent, toc,
         handleTocNavigation, handlePrevPage, handleNextPage
-    } = useEpubReader(bookId, viewerRef, initialData.currentCfi, stableHandleLocationChange);
+    } = useEpubReader(
+        bookId,
+        viewerRef,
+        initialData.currentCfi,
+        stableHandleLocationChange,
+        notesManager.bookNotes,
+        notesManager.setActiveDetailNote
+        );
 
     // 3. ПОДКЛЮЧАЕМ ВЫДЕЛЕННЫЙ МЕНЕДЖЕР ЛОГИКИ ЧИТАЛКИ
     const manager = useReaderManager({
@@ -77,9 +95,9 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
 
     // Связываем мост с актуальной функцией менеджера
     handleLocationChangeRef.current = manager.handleLocationChange;
+    handleJumpToChapterRef.current = manager.handleJumpToChapter;
 
-    // 4. ПОДКЛЮЧАЕМ ХУК УПРАВЛЕНИЯ ЗАМЕТКАМИ
-     const notesManager = useBookNotesManager(bookId, manager.handleJumpToChapter);
+
 
     return (
         <div className="reader-container">

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useBookNotes } from '../../../context/BookNotesContext'; // подправь путь при необходимости
+import { useBookNotes } from '../../../context/BookNotesContext';
 
 export const useBookNotesManager = (bookId, jumpToCfi) => {
     const { bookNotes, loadingNotes, fetchNotes, deleteNote } = useBookNotes();

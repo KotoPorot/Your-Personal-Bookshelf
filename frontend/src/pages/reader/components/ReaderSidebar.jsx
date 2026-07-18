@@ -30,7 +30,7 @@ const ReaderSidebar = ({
             <button className="sidebar-btn" onClick={onToggleToc}>📖 Оглавление</button>
         </div>
 
-                `<div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
+                <div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
                     <h3>Статистика</h3>
                 <div className="meta-item">
                     <span className="meta-label">Времени в книге:</span>
