@@ -7,6 +7,7 @@ import { useReadingTimer } from './hooks/useReadingTimer';
 import { useEpubReader } from './hooks/useEpubReader';
 import { useReaderManager } from './hooks/useReaderManager';
 import { useTextSelection } from './hooks/useTextSelection';
+import { useNoteCreate } from './hooks/useNoteCreate';
 import { useBookNotesManager } from './hooks/useBookNotesManager';
 
 import ReaderSidebar from './components/ReaderSidebar';
@@ -47,25 +48,43 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
     // 4. ПОДКЛЮЧАЕМ ХУК УПРАВЛЕНИЯ ЗАМЕТКАМИ
      const notesManager = useBookNotesManager(bookId, stableHandleJumpToChapter);
 
-    const textSelection = useTextSelection({ bookId });
+    // 🔥 Вызываем чистый UI-хук выделения через деструктуризацию
+    const {
+        selectionMenu,
+        handleTextSelected,
+        closeSelectionMenu,
+        clearBrowserSelection
+    } = useTextSelection({ viewerRef });
+
+
+    const {
+        isNoteModalOpen,
+        noteComment,
+        setNoteComment,
+        openNoteModal,
+        closeNoteModal,
+        handleSaveNote
+    } = useNoteCreate({
+        bookId,
+        selectionMenu,
+        closeSelectionMenu,
+        clearBrowserSelection
+    });
 
     // Паттерн моста для обратного вызова из асинхронного EpubJS без нарушения порядка хуков
     const stableHandleLocationChange = useCallback((params) => {
         if (!params) return;
 
-        // Если пришло событие выделения текста
         if (params.type === 'selection') {
-            textSelection.handleTextSelected(params);
+            handleTextSelected(params);
         }
-        // Если пришел клик по тексту книги (скрываем контекстное меню)
         else if (params.type === 'click') {
-            textSelection.closeSelectionMenu();
+            closeSelectionMenu();
         }
-        // В остальных случаях — это стандартное перелистывание страниц
         else if (handleLocationChangeRef.current) {
             handleLocationChangeRef.current(params);
         }
-    }, [textSelection]);
+    }, [handleTextSelected, closeSelectionMenu]);
 
     // 2. ПОДКЛЮЧАЕМ ЧИТАЛКУ EPUB
     const {
@@ -150,21 +169,21 @@ const ReaderInterface = ({ bookId, initialData, reportLiveProgress }) => {
             />
 
             <SelectionMenu
-                visible={textSelection.selectionMenu.visible}
-                top={textSelection.selectionMenu.top}
-                left={textSelection.selectionMenu.left}
-                onCreateNote={textSelection.openNoteModal}
+                visible={selectionMenu.visible}
+                top={selectionMenu.top}
+                left={selectionMenu.left}
+                onCreateNote={openNoteModal}
                 onTranslate={() => alert('Функция перевода будет доступна позже!')}
             />
 
             {/* Модалка ввода текста заметки */}
             <CreateNoteModal
-                isOpen={textSelection.isNoteModalOpen}
-                onClose={textSelection.closeNoteModal}
-                selectedText={textSelection.selectionMenu.text}
-                noteComment={textSelection.noteComment}
-                setNoteComment={textSelection.setNoteComment}
-                onSave={textSelection.handleSaveNote}
+                isOpen={isNoteModalOpen}
+                onClose={closeNoteModal}
+                selectedText={selectionMenu.text}
+                noteComment={noteComment}
+                setNoteComment={setNoteComment}
+                onSave={handleSaveNote}
             />
             <BookNotesModal
                 isOpen={notesManager.isNotesListOpen}

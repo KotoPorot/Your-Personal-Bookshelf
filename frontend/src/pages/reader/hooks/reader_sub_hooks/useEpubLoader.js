@@ -1,4 +1,3 @@
-// src/pages/reader/hooks/sub-hooks/useEpubLoader.js
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ePub from 'epubjs';

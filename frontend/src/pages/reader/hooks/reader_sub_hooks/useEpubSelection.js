@@ -1,4 +1,3 @@
-// src/pages/reader/hooks/sub-hooks/useEpubSelection.js
 import { useEffect, useRef } from 'react';
 
 export const useEpubSelection = (renditionRef, onLocationChangeRef, bookLoaded) => {

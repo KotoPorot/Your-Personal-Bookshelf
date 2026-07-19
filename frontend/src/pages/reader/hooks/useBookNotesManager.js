@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useBookNotes } from '../../../context/BookNotesContext';
 
 export const useBookNotesManager = (bookId, jumpToCfi) => {
@@ -7,13 +7,19 @@ export const useBookNotesManager = (bookId, jumpToCfi) => {
     const [isNotesListOpen, setIsNotesListOpen] = useState(false);
     const [activeDetailNote, setActiveDetailNote] = useState(null);
 
+    useEffect(() => {
+            if (bookId) {
+                console.log(`[useBookNotesManager] Авто-загрузка заметок для книги ${bookId} при старте`);
+                fetchNotes(bookId);
+            }
+        }, [bookId, fetchNotes]);
+
     // Открытие/закрытие списка заметок с автозагрузкой данных
     const handleToggleNotesList = useCallback(() => {
-        if (!isNotesListOpen) {
-            fetchNotes(bookId);
-        } else {
-            // Если закрываем весь список кнопкой из сайдбара — сбрасываем и открытые детали
+        if (isNotesListOpen) {
             setActiveDetailNote(null);
+        } else {
+            fetchNotes(bookId);
         }
         setIsNotesListOpen((prev) => !prev);
     }, [isNotesListOpen, fetchNotes, bookId]);
