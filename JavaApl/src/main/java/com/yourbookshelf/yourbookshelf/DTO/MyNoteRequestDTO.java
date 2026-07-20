@@ -20,6 +20,7 @@ public class MyNoteRequestDTO {
     private String selectedText;
 
     private String bookAuthor;
+    //TODO rename to userComment
     private String userNote;
 
     @NotNull
