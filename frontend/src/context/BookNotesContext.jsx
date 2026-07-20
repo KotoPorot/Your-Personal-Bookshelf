@@ -30,7 +30,8 @@ export const BookNotesProvider = ({ children }) => {
             });
 
             // Данные от сервера уже лежат в response.data в виде готового массива/объекта
-            setBookNotes(response.data);
+            console.log("👉 СЕЙЧАС С СЕРВЕРА ПРИХОДИТ(notes):", response.data);
+            setBookNotes(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             // Axios инкапсулирует ответ сервера с ошибкой в error.response
             console.error("Ошибка при загрузке заметок:", error.response?.data || error.message);

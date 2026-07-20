@@ -14,7 +14,7 @@ export const useEpubNotes = (
     const syncNotesDiff = useCallback(() => {
         if (!isBookReadyRef.current || loading) return;
 
-        const currentNotes = bookNotes;
+        const currentNotes = Array.isArray(bookNotes) ? bookNotes : [];
         const currentCfis = new Set(currentNotes.map(n => n.cfi).filter(Boolean));
 
         console.log(`[useEpubNotes] 🔍 Анализ изменений заметок. Всего в базе: ${currentNotes.length}, Подсвечено в DOM: ${activeHighlights.size}`);
@@ -69,7 +69,9 @@ export const useEpubNotes = (
         let restoredCount = 0;
         let activeCount = 0;
 
-        bookNotes.forEach(note => {
+        const safeNotes = Array.isArray(bookNotes) ? bookNotes : [];
+
+        safeNotes.forEach(note => {
             if (!note.cfi) return;
 
             if (!activeHighlights.has(note.cfi)) {

@@ -90,8 +90,8 @@ export const ReaderProvider = ({ bookId, initialData, reportLiveProgress, childr
         viewerRef,
         initialData.currentCfi,
         stableHandleLocationChange,
-        bookNotes,
-        setActiveDetailNote
+        setActiveDetailNote,
+        bookNotes
     );
 
     // 7. Инициализируем главный менеджер синхронизации
