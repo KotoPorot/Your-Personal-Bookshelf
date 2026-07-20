@@ -3,6 +3,7 @@ import React from 'react';
 const ReaderSidebar = ({
     onBack,
     onToggleToc,
+    onToggleNotes,
     totalSecondsSpent,
     progressPercent,
     navigationData,
@@ -25,11 +26,11 @@ const ReaderSidebar = ({
         <aside className="reader-sidebar">
         <div className="sidebar-actions">
             <button className="sidebar-btn back-btn" onClick={onBack}>⬅ Назад</button>
-            <button className="sidebar-btn">📝 Заметки</button>
+            <button className="sidebar-btn" onClick = {onToggleNotes}>📝 Заметки</button>
             <button className="sidebar-btn" onClick={onToggleToc}>📖 Оглавление</button>
         </div>
 
-                `<div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
+                <div className={`meta-panel ${isLiveProgress ? 'status-live' : 'status-backend'}`}>
                     <h3>Статистика</h3>
                 <div className="meta-item">
                     <span className="meta-label">Времени в книге:</span>

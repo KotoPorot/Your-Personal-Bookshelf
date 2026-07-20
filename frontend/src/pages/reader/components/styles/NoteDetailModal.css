@@ -1,0 +1,183 @@
+/* Дополнительная правая панель деталей заметки */
+.note-detail-drawer {
+    position: absolute;
+    top: 0;
+    left: 380px; /* Встает ровно справа от основной панели заметок (380px) */
+    bottom: 0;
+    width: 380px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 940; /* Чуть ниже первой панели, чтобы красиво выезжать из-за неё */
+    animation: slideInFromLeftDetail 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.note-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.note-detail-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.note-detail-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.note-detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.note-detail-label {
+    color: #7f8c8d;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.note-detail-quote {
+    background: rgba(255, 213, 79, 0.15);
+    padding: 12px 16px;
+    border-radius: 6px;
+    border-left: 4px solid #ffd54f;
+    margin: 0;
+    font-style: italic;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.note-detail-comment {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.note-detail-date {
+    font-size: 0.8rem;
+    color: #bdc3c7;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.note-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-navigate {
+    flex: 1;
+    padding: 11px;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.92rem;
+}
+
+.btn-navigate:hover {
+    background-color: #0056b3;
+}
+
+.btn-navigate:active {
+    transform: scale(0.98);
+}
+
+.btn-delete {
+    padding: 11px 16px;
+    background-color: #e74c3c;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.92rem;
+}
+
+.btn-delete:hover {
+    background-color: #c0392b;
+}
+
+.btn-delete:active {
+    transform: scale(0.98);
+}
+
+@keyframes slideInFromLeftDetail {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+.note-detail-drawer {
+    position: absolute;
+    top: 0;
+    left: 380px; /* Встает ровно справа от основной панели */
+    bottom: 0;
+    width: 380px;
+    background-color: rgba(255, 255, 255, 0.97); /* Чуть плотнее, чтобы выделяться */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 960; /* Выше, чем затухающий список заметок */
+    animation: slideInFromLeftDetail 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInFromLeftDetail {
+    from {
+        transform: translateX(-15%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
