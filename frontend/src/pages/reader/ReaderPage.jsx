@@ -1,81 +1,49 @@
-import React, { useRef, useCallback } from 'react';
-import { useBookProgress } from './hooks/useBookProgress';
-import { useReadingTimer } from './hooks/useReadingTimer';
-import { useEpubReader } from './hooks/useEpubReader';
-import { useReaderManager } from './hooks/useReaderManager'; // Импортируем наш хук
+import React from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { BookNotesProvider } from '../../context/BookNotesContext';
+
+// Импортируем созданный контекст фичи
+import { ReaderProvider, useReader } from './context/ReaderContext';
+
+import { useBookProgress } from './hooks/progress/useBookProgress';
 
 import ReaderSidebar from './components/ReaderSidebar';
 import ReaderBottomBar from './components/ReaderBottomBar';
-import BookViewer from './BookViewer';
-import TocModal from './TocModal';
-import './test.css';
+import SelectionMenu from './components/SelectionMenu';
+import CreateNoteModal from './components/CreateNoteModal';
+import BookViewer from './components/BookViewer';
+import TocModal from './components/TocModal';
+import BookNotesModal from './components/BookNotesModal';
+import NoteDetailModal from './components/NoteDetailModal';
 
-const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) => {
-    const viewerRef = useRef(null);
+import './ReaderPage.css';
 
-    // 1. ИНИЦИАЛИЗИРУЕМ ТАЙМЕР
-    const {
-        totalSecondsSpent,
-        isIdle,
-        startPage,
-        resetIdle
-    } = useReadingTimer(initialData.readingTime || 0);
-
-    // Паттерн моста для обратного вызова из асинхронного EpubJS без нарушения порядка хуков
-    const handleLocationChangeRef = useRef(null);
-    const stableHandleLocationChange = useCallback((params) => {
-        if (handleLocationChangeRef.current) {
-            handleLocationChangeRef.current(params);
-        }
-    }, []);
-
-    // 2. ПОДКЛЮЧАЕМ ЧИТАЛКУ EPUB
-    const {
-        loading, error, navigationData, progressPercent, toc,
-        handleTocNavigation, handlePrevPage, handleNextPage
-    } = useEpubReader(bookId, viewerRef, initialData.currentCfi, stableHandleLocationChange);
-
-    // 3. ПОДКЛЮЧАЕМ ВЫДЕЛЕННЫЙ МЕНЕДЖЕР ЛОГИКИ ЧИТАЛКИ
-    const manager = useReaderManager({
-        initialData,
-        reportLiveProgress,
-        totalSecondsSpent,
-        startPage,
-        loading,
-        navigationData,
-        handleNextPage,
-        handlePrevPage,
-        handleTocNavigation
-    });
-
-    // Связываем мост с актуальной функцией менеджера
-    handleLocationChangeRef.current = manager.handleLocationChange;
+// =========================================================================
+// ИНТЕРФЕЙС ЧИТАЛКИ (внутренний компонент)
+// =========================================================================
+const ReaderInterface = () => {
+    // Достаем абсолютно всё управление из локального контекста фичи
+    const { viewerRef, state, actions } = useReader();
 
     return (
         <div className="reader-container">
-            <ReaderSidebar
-                onBack={onBack}
-                onToggleToc={() => manager.setIsTocOpen(!manager.isTocOpen)}
-                totalSecondsSpent={totalSecondsSpent}
-                progressPercent={manager.displayedProgress}
-                navigationData={manager.displayedNav}
-                isLiveProgress={manager.isLiveProgress}
-            />
+            {/* Панель полностью автономна и берет данные напрямую из useReader */}
+            <ReaderSidebar />
 
-            <div className="reader-main" onClick={resetIdle}>
+            <div className="reader-main" onClick={actions.resetIdle}>
                 {/* Обертка для книги, которая будет блюриться ОГРАНИЧЕННО */}
-                <div className={`viewer-blur-container ${isIdle ? 'blur-mode' : ''}`} style={{ width: '100%', height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div className={`viewer-blur-container ${state.isIdle ? 'blur-mode' : ''}`} style={{ width: '100%', height: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <BookViewer
                         ref={viewerRef}
-                        loading={loading}
-                        error={error}
-                        onPrev={manager.handleNormalPrev}
-                        onNext={manager.handleNormalNext}
+                        loading={state.loading}
+                        error={state.error}
+                        onPrev={actions.handleNormalPrev}
+                        onNext={actions.handleNormalNext}
                     />
                 </div>
 
-                {/* Оверлей теперь лежит отдельно, он ВСЕГДА будет четким и поверх всего */}
-                {isIdle && (
+                {/* Оверлей простоя */}
+                {state.isIdle && (
                     <div className="idle-overlay" style={{ zIndex: 100 }}>
                         <div className="idle-message">
                             <h4>Вы здесь?</h4>
@@ -84,45 +52,46 @@ const ReaderInterface = ({ bookId, onBack, initialData, reportLiveProgress }) =>
                     </div>
                 )}
 
-                <ReaderBottomBar
-                    isDiverged={manager.isDiverged}
-                    onReturnToReading={manager.handleReturnToReading}
-                    onConfirmReadingHere={manager.handleConfirmReadingHere}
-                />
+                {/* Панель возврата позиции тоже отвязана от пропсов */}
+                <ReaderBottomBar />
             </div>
 
-            <TocModal
-                isOpen={manager.isTocOpen}
-                onClose={() => manager.setIsTocOpen(false)}
-                toc={toc}
-                currentSection={manager.displayedNav.currentSection}
-                currentChapter={manager.displayedNav.currentChapter}
-                onNavigate={manager.handleJumpToChapter}
-            />
+            <TocModal/>
+            <SelectionMenu/>
+            <CreateNoteModal/>
+            <BookNotesModal/>
+            <NoteDetailModal/>
         </div>
     );
 };
 
 // =========================================================================
-// ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ (просто загружает данные и вызывает интерфейс)
+// ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ
 // =========================================================================
-const ReaderPage = ({ bookId, onBack }) => {
+const ReaderPage = () => {
+    const { activeBook } = useAuth();
+    const bookId = activeBook?.id || JSON.parse(localStorage.getItem('activeBook'))?.id;
+
     const { initialData, loadingProgress, reportLiveProgress } = useBookProgress(bookId);
 
-    console.log(`%c⏳ [ReaderPage Render] loadingProgress: ${loadingProgress}`, "color: #6c757d;");
+    if (!bookId) {
+        return <div className="reader-loading">Книга не выбрана...</div>;
+    }
 
     if (loadingProgress) {
-        console.log("%c⏳ [ReaderPage] Возврат экрана загрузки...", "color: #6c757d;");
         return <div className="reader-loading">Загрузка прогресса чтения...</div>;
     }
 
     return (
-        <ReaderInterface
-            bookId={bookId}
-            onBack={onBack}
-            initialData={initialData}
-            reportLiveProgress={reportLiveProgress}
-        />
+        <BookNotesProvider>
+            <ReaderProvider
+                bookId={bookId}
+                initialData={initialData}
+                reportLiveProgress={reportLiveProgress}
+            >
+                <ReaderInterface />
+            </ReaderProvider>
+        </BookNotesProvider>
     );
 };
 

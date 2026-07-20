@@ -41,5 +41,6 @@ public class MyBookProgress {
     private Integer numberOfChaptersInSection;
 
     @Column(name = "timestamp")
+    //TODO change to Instant
     private LocalDateTime timestamp;
 }

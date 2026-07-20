@@ -1,0 +1,126 @@
+/* Центрируем карточку по вертикали и горизонтали на весь экран */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f6f9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+/* Стили самой карточки формы */
+.auth-form {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Заголовок формы */
+.auth-form h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: #1a1a1a;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* Контейнеры для инпутов */
+.input-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+/* Метки (Логин / Пароль) */
+.input-group label {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* Поля ввода */
+.input-group input {
+  padding: 12px 14px;
+  font-size: 16px;
+  border: 1px solid #ccd1d9;
+  border-radius: 8px;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Плавный фокус на инпуте */
+.input-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+/* Главная кнопка "Войти" */
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  margin-top: 10px;
+}
+
+.auth-btn:hover {
+  background-color: #0056b3;
+}
+
+.auth-btn:active {
+  transform: scale(0.98);
+}
+
+/* Блок ссылок/кнопок внизу */
+.auth-links {
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Кнопки, мимикрирующие под ссылки */
+.link-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.link-btn:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Блок с ошибкой */
+.error-message {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: left;
+}

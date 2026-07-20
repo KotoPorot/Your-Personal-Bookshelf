@@ -1,11 +1,9 @@
 package com.yourbookshelf.yourbookshelf.mapper;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
-import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;
+import com.yourbookshelf.yourbookshelf.entity.MyNote;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -63,6 +61,31 @@ public class DtoMapper {
         dto.setNumberOfChaptersInSection(myBookProgress.getNumberOfChaptersInSection());
         dto.setBookId(myBookProgress.getId());
         dto.setTimestamp(myBookProgress.getTimestamp());
+        return dto;
+    }
+
+    public MyNote mapRequestToNote(MyNoteRequestDTO input) {
+        MyNote note = new MyNote();
+        note.setSelectedText(input.getSelectedText());
+        note.setUserNote(input.getUserNote());
+        note.setCfi(input.getCfi());
+        note.setBookAuthor(input.getBookAuthor());
+        note.setBookTitle(input.getBookTitle());
+        note.setCreatedAt(input.getCreatedAt());
+        return note;
+    }
+
+    public MyNoteResponseDTO mapToNoteResponseDTO(MyNote input) {
+        MyNoteResponseDTO dto = new MyNoteResponseDTO();
+        dto.setSelectedText(input.getSelectedText());
+        dto.setUserNote(input.getUserNote());
+        dto.setCfi(input.getCfi());
+        dto.setBookAuthor(input.getBookAuthor());
+        dto.setBookTitle(input.getBookTitle());
+        dto.setCreatedAt(input.getCreatedAt());
+
+        dto.setNoteId(input.getId());
+        dto.setBookId(input.getBookId());
         return dto;
     }
 }

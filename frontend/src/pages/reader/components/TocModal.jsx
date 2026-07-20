@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from 'react';
+import { useReader } from '../context/ReaderContext';
 
-const TocModal = ({ isOpen, onClose, toc, currentSection, currentChapter, onNavigate }) => {
+const TocModal = () => {
+    const { state, actions } = useReader();
+    const { isTocOpen, toc, displayedNav } = state;
+    const { currentSection, currentChapter } = displayedNav;
+
     // Храним индекс раскрытого раздела сборника
     const [expandedSection, setExpandedSection] = useState(null);
 
     // Автоматически раскрываем текущий читаемый раздел при открытии оглавления
     useEffect(() => {
-        if (isOpen && currentSection) {
+        if (isTocOpen && currentSection) {
             setExpandedSection(currentSection - 1);
         }
-    }, [isOpen, currentSection]);
+    }, [isTocOpen, currentSection]);
 
-    if (!isOpen) return null;
+    if (!isTocOpen) return null;
 
     const toggleSection = (idx) => {
         setExpandedSection(expandedSection === idx ? null : idx);
     };
 
+    const handleClose = () => actions.setIsTocOpen(false);
+
     return (
-        <div className="toc-overlay" onClick={onClose}>
+        <div className="toc-overlay" onClick={handleClose}>
             <div className="toc-card" onClick={(e) => e.stopPropagation()}>
                 <div className="toc-header">
                     <h3>Оглавление сборника</h3>
-                    <button className="toc-close-btn" onClick={onClose}>✕</button>
+                    <button className="toc-close-btn" onClick={handleClose}>✕</button>
                 </div>
                 <div className="toc-list-container">
                     {toc.length === 0 ? (
@@ -56,7 +63,7 @@ const TocModal = ({ isOpen, onClose, toc, currentSection, currentChapter, onNavi
                                                         <li key={cIdx} className="toc-sub-item">
                                                             <button
                                                                 className={`toc-sub-btn ${isCurrentChap ? 'active-sub-chapter' : ''}`}
-                                                                onClick={() => onNavigate(chap.href)}
+                                                                onClick={() => actions.handleJumpToChapter(chap.href)}
                                                             >
                                                                 {chap.label}
                                                             </button>

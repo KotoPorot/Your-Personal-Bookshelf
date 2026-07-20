@@ -1,36 +1,33 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Импортируем Axios для работы с сетью
+import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
-const Auth = ({ onLoginSuccess }) => {
+const Auth = () => {
+  const { login, setCurrentScreen } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // Для вывода ошибок на экран
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); // Сбрасываем старую ошибку перед новым запросом
+    setError('');
 
     try {
-      // Отправляем POST-запрос на твой Спринг-контроллер авторизации
-      // ВАЖНО: Укажи тут тот URL эндпоинта, который прописан у тебя на бэкенде для логина!
       const response = await axios.post('http://localhost:8080/api/v1/auth/login', {
         username: username,
         password: password
       });
 
-      // Предположим, твой бэкенд возвращает токен в поле "token" (например: { token: "ey..." })
-      // Если бэкенд возвращает просто строку токена, то это будет: const token = response.data;
       const token = response.data;
 
       if (token) {
-        onLoginSuccess(token, username); // Передаем настоящий токен в App.jsx
+        login(token, username);
       } else {
         setError('Сервер не вернул токен доступа.');
       }
 
     } catch (err) {
-      // Если бэкенд вернул 401 Unauthorized, 403 или упал
       console.error('Ошибка авторизации:', err);
       setError('Неверный логин или пароль');
     }
@@ -41,8 +38,7 @@ const Auth = ({ onLoginSuccess }) => {
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Вход в Bookshelf</h2>
 
-        {/* Если есть ошибка — красиво выводим её пользователю */}
-        {error && <div className="error-message" style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+        {error && <div className="error-message">{error}</div>}
 
         <div className="input-group">
           <label>Логин</label>
@@ -53,6 +49,7 @@ const Auth = ({ onLoginSuccess }) => {
             required
           />
         </div>
+
         <div className="input-group">
           <label>Пароль</label>
           <input
@@ -62,7 +59,17 @@ const Auth = ({ onLoginSuccess }) => {
             required
           />
         </div>
+
         <button type="submit" className="auth-btn">Войти</button>
+
+        <div className="auth-links">
+          <button type="button" onClick={() => setCurrentScreen('welcome')} className="link-btn">
+            Назад
+          </button>
+          <button type="button" onClick={() => setCurrentScreen('register')} className="link-btn">
+            Регистрация
+          </button>
+        </div>
       </form>
     </div>
   );
