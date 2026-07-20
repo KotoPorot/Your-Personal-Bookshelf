@@ -1,12 +1,16 @@
 import React from 'react';
+import { useReader } from '../context/ReaderContext';
 
-const SelectionMenu = ({ visible, top, left, onCreateNote, onTranslate }) => {
+const SelectionMenu = () => {
+    const { state, actions } = useReader();
+    const { visible, top, left } = state.selectionMenu;
+
     if (!visible) return null;
 
     return (
         <div
             className="selection-floating-menu"
-            onClick={(e) => e.stopPropagation()} // ДОБАВЛЕНО: Клик по меню не будет закрывать читалку или сбрасывать фокус книги
+            onClick={(e) => e.stopPropagation()}
             style={{
                 position: 'fixed',
                 top: `${top}px`,
@@ -21,15 +25,15 @@ const SelectionMenu = ({ visible, top, left, onCreateNote, onTranslate }) => {
                 boxShadow: '0px 4px 12px rgba(0,0,0,0.3)'
             }}
         >
-            <button onClick={onCreateNote} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '13px' }}>
+            <button onClick={actions.openNoteModal} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '13px' }}>
                 📝 Заметка
             </button>
             <span style={{ color: '#555' }}>|</span>
-            <button onClick={onTranslate} style={{ background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '13px' }}>
+            <button onClick={() => alert('Функция перевода будет доступна позже!')} style={{ background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', fontSize: '13px' }}>
                 🌐 Перевести (заглушка)
             </button>
         </div>
     );
 };
 
-export default SelectionMenu; // ДОБАВЛЕНО: Экспорт компонента
+export default SelectionMenu;

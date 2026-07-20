@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 
 export const useTextSelection = ({ viewerRef }) => {
-    // Состояние исключительно для плавающего тулбара над выделенным текстом
     const [selectionMenu, setSelectionMenu] = useState({
         visible: false,
         top: 0,
@@ -10,7 +9,7 @@ export const useTextSelection = ({ viewerRef }) => {
         cfi: ''
     });
 
-    // Функция для принудительного снятия синего выделения текста в браузере
+    // Безопасный сброс нативного выделения текста во всех доступных фреймах
     const clearBrowserSelection = useCallback(() => {
         console.log("[useTextSelection] Сброс нативного синего выделения текста...");
 
@@ -27,13 +26,13 @@ export const useTextSelection = ({ viewerRef }) => {
                         iframeWindow.getSelection().removeAllRanges();
                     }
                 } catch (e) {
-                    // Игнорируем cross-origin ограничения
+                    // Игнорируем cross-origin ограничения для сторонних фреймов
                 }
             });
         }
     }, [viewerRef]);
 
-    // Вызывается, когда epub.js ловит выделение текста
+    // Обработчик события выделения текста от ядра книги
     const handleTextSelected = useCallback(({ cfi, text, top, left }) => {
         console.log(`%c📝 [useTextSelection] Текст выделен. CFI: ${cfi}`, "color: #0288d1; font-weight: bold;");
         setSelectionMenu({

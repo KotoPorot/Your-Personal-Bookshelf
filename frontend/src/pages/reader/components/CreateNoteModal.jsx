@@ -1,12 +1,17 @@
 import React from 'react';
+import { useReader } from '../context/ReaderContext';
 
-const CreateNoteModal = ({ isOpen, onClose, selectedText, noteComment, setNoteComment, onSave }) => {
-    if (!isOpen) return null;
+const CreateNoteModal = () => {
+    const { state, actions } = useReader();
+    const { isNoteModalOpen, selectionMenu, noteComment } = state;
+    const { closeNoteModal, setNoteComment, handleSaveNote } = actions;
+
+    if (!isNoteModalOpen) return null;
 
     return (
         <div
             className="modal-overlay"
-            onClick={onClose} // Клик по фону закроет модалку
+            onClick={closeNoteModal}
             style={{
                 position: 'fixed',
                 top: 0,
@@ -22,7 +27,7 @@ const CreateNoteModal = ({ isOpen, onClose, selectedText, noteComment, setNoteCo
         >
             <div
                 className="modal-content"
-                onClick={(e) => e.stopPropagation()} // Предотвращаем закрытие при клике внутри самой модалки
+                onClick={(e) => e.stopPropagation()}
                 style={{
                     background: '#fff',
                     padding: '24px',
@@ -35,7 +40,7 @@ const CreateNoteModal = ({ isOpen, onClose, selectedText, noteComment, setNoteCo
                 <h3>Создать заметку</h3>
 
                 <blockquote style={{ borderLeft: '4px solid #007bff', paddingLeft: '12px', color: '#666', fontStyle: 'italic', margin: '16px 0', maxHeight: '100px', overflowY: 'auto' }}>
-                    "{selectedText}"
+                    "{selectionMenu.text}"
                 </blockquote>
 
                 <textarea
@@ -46,10 +51,10 @@ const CreateNoteModal = ({ isOpen, onClose, selectedText, noteComment, setNoteCo
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-                    <button onClick={onClose} style={{ padding: '8px 16px', background: '#e0e0e0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                    <button onClick={closeNoteModal} style={{ padding: '8px 16px', background: '#e0e0e0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                         Отмена
                     </button>
-                    <button onClick={onSave} style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
+                    <button onClick={handleSaveNote} style={{ padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>
                         Сохранить
                     </button>
                 </div>
@@ -58,4 +63,4 @@ const CreateNoteModal = ({ isOpen, onClose, selectedText, noteComment, setNoteCo
     );
 };
 
-export default CreateNoteModal; // ДОБАВЛЕНО: Экспорт компонента
+export default CreateNoteModal;

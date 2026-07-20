@@ -4,7 +4,7 @@ export const useReaderManager = ({
     initialData,
     reportLiveProgress,
     totalSecondsSpent,
-    startPage,
+    startPage, // Теперь стабильно контролируется в зависимостях
     loading,
     navigationData,
     handleNextPage,
@@ -21,10 +21,9 @@ export const useReaderManager = ({
         totalChapters: initialData.numberOfChaptersInSection || 1
     });
 
-    // Флаг того, что экран и реальная точка чтения разошлись
     const [isDiverged, setIsDiverged] = useState(false);
 
-    // Логи монтирования
+    // Логи жизненного цикла
     useEffect(() => {
         console.log("%c🟢 [ReaderInterface] Компонент смонтирован (Mounted)", "color: #28a745; font-weight: bold;");
         return () => {
@@ -36,7 +35,6 @@ export const useReaderManager = ({
         console.log(`%c🔄 [ReaderInterface State] Стейт isDiverged изменился на: ${isDiverged}`, "color: #ffc107; font-weight: bold;");
     }, [isDiverged]);
 
-    // Объект для хранения истинной точки чтения (то, что улетит в базу)
     const [savedLocation, setSavedLocation] = useState({
         cfi: initialData.currentCfi || null,
         progress: initialData.progress || 0,
@@ -57,12 +55,11 @@ export const useReaderManager = ({
     const [isLiveProgress, setIsLiveProgress] = useState(false);
     const currentCfiRef = useRef(initialData.currentCfi || null);
 
-    // Рефы для контроля частоты сетевых запросов
     const lastReportedTimeRef = useRef(0);
     const lastReportedCfiRef = useRef(null);
     const lastReportedDivergedRef = useRef(false);
 
-    // ОБРАБОТЧИК СМЕНЫ СТРАНИЦ (для epub.js)
+    // ОБРАБОТЧИК СМЕНЫ СТРАНИЦ
     const handleLocationChange = useCallback(({ cfi, percent, charCount }) => {
         const CHARS_PER_SECOND = 15;
         const estimatedTime = (charCount / CHARS_PER_SECOND) + 5;
@@ -75,6 +72,7 @@ export const useReaderManager = ({
             'color: #28a745; font-weight: bold; font-size: 11px;', 'color: inherit;'
         );
 
+        // Исправлено: теперь startPage корректно находится в замыкании
         startPage(finalTimeLimit);
         currentCfiRef.current = cfi;
 
@@ -106,7 +104,7 @@ export const useReaderManager = ({
 
     }, [startPage]);
 
-    // Синхронизация данных навигации из книги
+    // Синхронизация данных навигации
     useEffect(() => {
         if (navigationData && navigationData.totalSections > 1) {
             setDisplayedNav(navigationData);
@@ -158,7 +156,7 @@ export const useReaderManager = ({
         setIsTocOpen(false);
     };
 
-    // Оптимизированный синхронизатор с бэкендом
+    // ОПТИМИЗИРОВАННЫЙ СИНХРОНИЗАТОР С БЭКЕНДОМ
     useEffect(() => {
         if (loading) return;
 
@@ -166,12 +164,7 @@ export const useReaderManager = ({
         const cfiChanged = currentCfiRef.current !== lastReportedCfiRef.current;
         const divergedChanged = isDiverged !== lastReportedDivergedRef.current;
 
-        // Триггерим отправку на бэкенд только если:
-        // 1. Сменился CFI (перелистнули страницу)
-        // 2. Сменилось состояние diverged (зашли/вышли из режима просмотра оглавления)
-        // 3. Прошло более 15 секунд чтения на одной странице (периодическое сохранение времени)
         if (cfiChanged || divergedChanged || timePassed >= 15) {
-
             const payload = isDiverged ? {
                 currentCfi: savedLocation.cfi,
                 progress: savedLocation.progress,
@@ -193,7 +186,6 @@ export const useReaderManager = ({
             console.log(`%c✉️ [reportLiveProgress] Отправка данных на сервер... Секунд прочитано: ${totalSecondsSpent}`, "color: #6f42c1; font-weight: bold;");
             reportLiveProgress(payload);
 
-            // Фиксируем контрольные точки отправки
             lastReportedTimeRef.current = totalSecondsSpent;
             lastReportedCfiRef.current = currentCfiRef.current;
             lastReportedDivergedRef.current = isDiverged;

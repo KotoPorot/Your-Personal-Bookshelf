@@ -1,9 +1,8 @@
-// src/pages/reader/hooks/sub-hooks/useNoteCreate.js
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../../context/AuthContext';
-import { useBookNotes } from '../../../context/BookNotesContext';
-import { handleRequestError } from '../../../utils/apiErrorHandler';
+import { useAuth } from '../../../../context/AuthContext';
+import { useBookNotes } from '../../../../context/BookNotesContext';
+import { handleRequestError } from '../../../../utils/apiErrorHandler';
 
 export const useNoteCreate = ({
     bookId,
@@ -14,25 +13,42 @@ export const useNoteCreate = ({
     const { token, logout, activeBook } = useAuth();
     const { fetchNotes } = useBookNotes();
 
-    // Состояние модалки создания заметки и текста внутри неё
     const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
     const [noteComment, setNoteComment] = useState('');
 
+    // Храним актуальное значение текста в рефе для разрыва жесткой зависимости колбэка
+    const noteCommentRef = useRef(noteComment);
+    useEffect(() => {
+        noteCommentRef.current = noteComment;
+    }, [noteComment]);
+
+    // Реф для контроля асинхронного таймаута
+    const selectionTimeoutRef = useRef(null);
+
     const openNoteModal = useCallback(() => {
         setIsNoteModalOpen(true);
-        closeSelectionMenu(); // Закрываем маленькое плавающее меню при открытии полноценной модалки
+        closeSelectionMenu();
     }, [closeSelectionMenu]);
 
     const closeNoteModal = useCallback(() => {
         setIsNoteModalOpen(false);
-        setNoteComment(''); // Очищаем поле ввода при закрытии
+        setNoteComment('');
 
-        // Убираем синеву с микро-таймаутом, чтобы браузер успел переключить фокус с инпута
-        setTimeout(() => {
+        if (selectionTimeoutRef.current) clearTimeout(selectionTimeoutRef.current);
+
+        selectionTimeoutRef.current = setTimeout(() => {
             clearBrowserSelection();
         }, 50);
     }, [clearBrowserSelection]);
 
+    // Гарантированно очищаем таймаут при размонтировании хука
+    useEffect(() => {
+        return () => {
+            if (selectionTimeoutRef.current) clearTimeout(selectionTimeoutRef.current);
+        };
+    }, []);
+
+    // Оптимизировано: handleSaveNote больше не зависит от частых рендеров стейта noteComment
     const handleSaveNote = useCallback(async () => {
         console.log("%c💾 [API] Сохранение заметки в базу данных...", "color: #2e7d32; font-weight: bold;");
 
@@ -45,7 +61,7 @@ export const useNoteCreate = ({
             bookId: Number(bookId),
             cfi: selectionMenu.cfi,
             selectedText: selectionMenu.text,
-            userNote: noteComment,
+            userNote: noteCommentRef.current, // Берем свежее значение из рефа
             bookTitle: activeBook?.title || 'Unknown Title',
             bookAuthor: activeBook?.author || 'Unknown Author',
             createdAt: new Date().toISOString()
@@ -64,7 +80,7 @@ export const useNoteCreate = ({
             console.error("Не удалось сохранить заметку:", err);
             handleRequestError(err, logout);
         }
-    }, [bookId, selectionMenu, noteComment, closeNoteModal, token, logout, activeBook, fetchNotes]);
+    }, [bookId, selectionMenu, closeNoteModal, token, logout, activeBook, fetchNotes]);
 
     return {
         isNoteModalOpen,
