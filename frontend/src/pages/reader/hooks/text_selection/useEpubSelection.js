@@ -1,16 +1,20 @@
+// src/pages/reader/hooks/text_selection/useEpubSelection.js
 import { useEffect, useRef } from 'react';
 
-export const useEpubSelection = (renditionRef, onLocationChangeRef, bookLoaded) => {
+export const useEpubSelection = (
+    renditionRef,
+    onLocationChangeRef,
+    bookLoaded,
+    { setTemporarySelection, clearTemporarySelection } // Передаем методы сюда
+) => {
     const lastSelectionTimeRef = useRef(0);
     const hasBoundSelectionRef = useRef(false);
 
     useEffect(() => {
-        // Слушаем флаг bookLoaded вместо пустого рефа
         if (!bookLoaded || !renditionRef.current || hasBoundSelectionRef.current) return;
         hasBoundSelectionRef.current = true;
 
         const rendition = renditionRef.current;
-        let activeHighlightCfi = null;
         let isMouseDown = false;
         let pendingSelection = null;
 
@@ -27,17 +31,8 @@ export const useEpubSelection = (renditionRef, onLocationChangeRef, bookLoaded) 
             const top = rect.top + iframeRect.top - 45;
             const left = rect.left + iframeRect.left + (rect.width / 2);
 
-            if (activeHighlightCfi) {
-                rendition.annotations.remove(activeHighlightCfi, 'highlight');
-            }
-
-            rendition.annotations.add('highlight', cfiRange, {}, null, 'tmp-selection-highlight', {
-                fill: '#007bff',
-                'fill-opacity': '0.3',
-                'mix-blend-mode': 'multiply'
-            });
-
-            activeHighlightCfi = cfiRange;
+            // Обращаемся к единому менеджеру для создания синей подсветки
+            setTemporarySelection(cfiRange);
             lastSelectionTimeRef.current = Date.now();
 
             if (onLocationChangeRef.current) {
@@ -72,14 +67,12 @@ export const useEpubSelection = (renditionRef, onLocationChangeRef, bookLoaded) 
             pendingSelection = null;
             isMouseDown = false;
 
-            if (activeHighlightCfi) {
-                rendition.annotations.remove(activeHighlightCfi, 'highlight');
-                activeHighlightCfi = null;
-            }
+            // Стираем синее выделение через менеджер при клике в пустое место
+            clearTemporarySelection();
 
             if (onLocationChangeRef.current) {
                 onLocationChangeRef.current({ type: 'click' });
             }
         });
-    }, [bookLoaded, renditionRef, onLocationChangeRef]);
+    }, [bookLoaded, renditionRef, onLocationChangeRef, setTemporarySelection, clearTemporarySelection]);
 };

@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useBookNotes } from '../../../context/BookNotesContext';
+import { useBookNotes } from '../../../../context/BookNotesContext';
 
 export const useBookNotesManager = (bookId, jumpToCfi) => {
     const { bookNotes, loadingNotes, fetchNotes, deleteNote } = useBookNotes();
@@ -7,12 +7,13 @@ export const useBookNotesManager = (bookId, jumpToCfi) => {
     const [isNotesListOpen, setIsNotesListOpen] = useState(false);
     const [activeDetailNote, setActiveDetailNote] = useState(null);
 
+    // Авто-загрузка заметок при инициализации или смене книги
     useEffect(() => {
-            if (bookId) {
-                console.log(`[useBookNotesManager] Авто-загрузка заметок для книги ${bookId} при старте`);
-                fetchNotes(bookId);
-            }
-        }, [bookId, fetchNotes]);
+        if (bookId) {
+            console.log(`[useBookNotesManager] Авто-загрузка заметок для книги ${bookId} при старте`);
+            fetchNotes(bookId);
+        }
+    }, [bookId, fetchNotes]);
 
     // Открытие/закрытие списка заметок с автозагрузкой данных
     const handleToggleNotesList = useCallback(() => {
@@ -24,31 +25,31 @@ export const useBookNotesManager = (bookId, jumpToCfi) => {
         setIsNotesListOpen((prev) => !prev);
     }, [isNotesListOpen, fetchNotes, bookId]);
 
-    // Закрытие ВСЕГО интерфейса заметок (при клике на оверлей или крестик списка)
+    // Закрытие ВСЕГО интерфейса заметок
     const handleCloseNotesList = useCallback(() => {
         setIsNotesListOpen(false);
-        setActiveDetailNote(null); // Закрываем детали тоже
+        setActiveDetailNote(null);
     }, []);
 
-    // Закрытие ТОЛЬКО деталей заметки (при клике на крестик в деталях)
+    // Закрытие ТОЛЬКО деталей заметки
     const handleCloseDetailNote = useCallback(() => {
-        setActiveDetailNote(null); // Список заметок остается открытым
+        setActiveDetailNote(null);
     }, []);
 
     // Переход к заметке в книге
     const handleJumpToNote = useCallback((cfi) => {
-        if (jumpToCfi) {
+        if (typeof jumpToCfi === 'function') {
             jumpToCfi(cfi);
         }
         setIsNotesListOpen(false);
         setActiveDetailNote(null);
     }, [jumpToCfi]);
 
-    // Удаление заметки из детальной карточки
+    // Удаление заметки
     const handleDeleteNote = useCallback((noteId) => {
         if (window.confirm("Вы уверены, что хотите удалить эту заметку?")) {
             deleteNote(noteId);
-            setActiveDetailNote(null); // Закрываем детали после удаления
+            setActiveDetailNote(null);
         }
     }, [deleteNote]);
 
@@ -60,8 +61,8 @@ export const useBookNotesManager = (bookId, jumpToCfi) => {
         activeDetailNote,
         setActiveDetailNote,
         handleToggleNotesList,
-        handleCloseNotesList,     // <-- Новый обработчик
-        handleCloseDetailNote,    // <-- Новый обработчик
+        handleCloseNotesList,
+        handleCloseDetailNote,
         handleJumpToNote,
         handleDeleteNote
     };
