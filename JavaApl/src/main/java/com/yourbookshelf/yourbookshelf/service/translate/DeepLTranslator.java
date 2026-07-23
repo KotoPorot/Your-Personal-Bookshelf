@@ -42,7 +42,7 @@ public class DeepLTranslator implements MyTranslator {
         DeepLRequest request = new DeepLRequest(
                 List.of(message),
                 targetLanguage.toUpperCase(),
-                !contentLanguage.isBlank() ? contentLanguage.toUpperCase() : null
+                contentLanguage!=null&&!contentLanguage.isBlank() ? contentLanguage.toUpperCase() : null
         );
         DeepLResponse response = restClient.post().uri(URI)
                 .body(request)
