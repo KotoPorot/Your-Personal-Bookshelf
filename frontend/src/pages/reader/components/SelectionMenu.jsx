@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useReader } from "../context/ReaderContext";
 import { useTranslate } from "../hooks/translator/useTranslate";
 
@@ -18,20 +18,20 @@ const SelectionMenu = () => {
     reset: resetTranslation,
   } = useTranslate();
 
-  // При изменении видимости, режима или высоты проверяем, хватает ли места сверху
-  useEffect(() => {
+  // Используем useLayoutEffect, чтобы пересчитать положение ДО того, как браузер отрисует кадр
+  useLayoutEffect(() => {
     if (visible && menuRef.current) {
-      const menuHeight = menuRef.current.offsetHeight || 150; // Высота меню с запасом
-      const spaceAbove = top; // Расстояние от верха экрана до точки выделения
+      const menuHeight = menuRef.current.offsetHeight || 150;
+      const spaceAbove = top;
 
-      // Если сверху осталось меньше места, чем высота меню + отступ (20px), показываем снизу
+      // Если сверху не хватает места под текущую высоту меню (с запасом 20px) — уводим вниз
       if (spaceAbove < menuHeight + 20) {
         setPlacement("bottom");
       } else {
         setPlacement("top");
       }
     }
-  }, [visible, top, viewMode]);
+  }, [visible, top, viewMode, translatedText, isLoading]);
 
   useEffect(() => {
     if (!visible) {
@@ -44,7 +44,11 @@ const SelectionMenu = () => {
 
   const handleTranslateClick = () => {
     setViewMode("translation");
-    translate(selectedText, "EN");
+    translate(selectedText); // 👈 Берет язык строго из контекста
+  };
+
+  const handleClose = () => {
+    actions.resetSelection(); // Закрывает меню и сбрасывает выделение
   };
 
   // Динамические стили позиционирования
@@ -54,9 +58,8 @@ const SelectionMenu = () => {
     position: "fixed",
     top: `${top}px`,
     left: `${left}px`,
-    // Если сверху — сдвигаем вверх (-100%). Если снизу — опускаем вниз (0%)
     transform: isTop ? "translate(-50%, -100%)" : "translate(-50%, 0%)",
-    marginTop: isTop ? "-10px" : "25px", // Отступ от выделенного текста
+    marginTop: isTop ? "-10px" : "25px",
     zIndex: 1000,
     display: "flex",
     flexDirection: "column",
@@ -64,11 +67,11 @@ const SelectionMenu = () => {
     padding: viewMode === "menu" ? "6px 12px" : "12px",
     borderRadius: "8px",
     boxShadow: "0px 4px 12px rgba(0,0,0,0.4)",
-    minWidth: viewMode === "translation" ? "250px" : "auto",
-    maxWidth: "320px",
-    maxHeight: "200px", // Защита от слишком длинного текста
-    overflowY: "auto", // Если перевод длинный — появится скролл
-    transition: "padding 0.2s ease, width 0.2s ease",
+    minWidth: viewMode === "translation" ? "260px" : "auto",
+    maxWidth: "340px",
+    maxHeight: "220px",
+    overflowY: "auto",
+    transition: "padding 0.15s ease",
   };
 
   return (
@@ -94,11 +97,14 @@ const SelectionMenu = () => {
       {/* РЕЖИМ 2: ОТОБРАЖЕНИЕ ПЕРЕВОДА */}
       {viewMode === "translation" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          {/* Кнопка "Назад" */}
+          {/* Шапка модалки с Назад и Крестиком */}
           <div
             style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               borderBottom: "1px solid #444",
-              paddingBottom: "4px",
+              paddingBottom: "6px",
               marginBottom: "4px",
             }}
           >
@@ -112,6 +118,20 @@ const SelectionMenu = () => {
               }}
             >
               ◀ Назад
+            </button>
+
+            <button
+              onClick={handleClose}
+              style={{
+                ...btnStyle,
+                fontSize: "14px",
+                color: "#888",
+                padding: "0 4px",
+                lineHeight: 1,
+              }}
+              title="Закрыть"
+            >
+              ✕
             </button>
           </div>
 

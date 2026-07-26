@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component("myDeepLTranslator")
 public class DeepLTranslator implements MyTranslator<MyLanguage> {
-    private static final String URI_TRANSLATE = "/v3/translate";
+    private static final String URI_TRANSLATE = "/v2/translate";
     private static final String URI_LANGUAGES = "/v3/languages";
     private final RestClient restClient;
 
