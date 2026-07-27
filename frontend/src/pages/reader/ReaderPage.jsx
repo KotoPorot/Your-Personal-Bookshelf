@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
 import { BookNotesProvider } from "../../context/BookNotesContext";
+import { TranslationProvider } from "../../context/TranslationContext";
 
 // Импортируем созданный контекст фичи
 import { ReaderProvider, useReader } from "./context/ReaderContext";
@@ -94,15 +95,17 @@ const ReaderPage = () => {
   }
 
   return (
-    <BookNotesProvider>
-      <ReaderProvider
-        bookId={bookId}
-        initialData={initialData}
-        reportLiveProgress={reportLiveProgress}
-      >
-        <ReaderInterface />
-      </ReaderProvider>
-    </BookNotesProvider>
+    <TranslationProvider>
+      <BookNotesProvider>
+        <ReaderProvider
+          bookId={bookId}
+          initialData={initialData}
+          reportLiveProgress={reportLiveProgress}
+        >
+          <ReaderInterface />
+        </ReaderProvider>
+      </BookNotesProvider>
+    </TranslationProvider>
   );
 };
 

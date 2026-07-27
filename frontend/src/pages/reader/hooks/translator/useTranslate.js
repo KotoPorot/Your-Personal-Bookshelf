@@ -1,16 +1,17 @@
-// src/hooks/useTranslate.js (или где у тебя лежат хуки)
 import { useState, useCallback } from "react";
 import { useAuth } from "../../../../context/AuthContext";
-import { handleRequestError } from "../../../../utils/apiErrorHandler";
+import { useTranslationSettings } from "../../../../context/TranslationContext";
 
 export const useTranslate = () => {
   const [translatedText, setTranslatedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const { token } = useAuth();
+  const { sourceLanguage, targetLanguage } = useTranslationSettings();
 
   const translate = useCallback(
-    async (text, targetLanguage = "EN", contentLanguage = null) => {
+    async (text) => {
       if (!text) return;
 
       if (!token) {
@@ -22,21 +23,10 @@ export const useTranslate = () => {
       setError(null);
       setTranslatedText("");
 
-      try {
-        // Отправляем запрос на твой Spring Boot API
-        const response = await fetch("http://localhost:8080/api/v1/translate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            message: text,
-            targetLanguage: targetLanguage,
-            contentLanguage: contentLanguage, // можно передать null, DeepL сам определит
-          }),
-        });
+      const contentLanguage = sourceLanguage === "AUTO" ? null : sourceLanguage;
+      const payload = { message: text, targetLanguage, contentLanguage };
 
+      try {
         console.log(
           "%c💬 [API] Запрос на перевод отправлен",
           "color: #1565c0; font-weight: bold;",
@@ -44,12 +34,18 @@ export const useTranslate = () => {
         console.log(
           "%c💬 [API] Тело запроса:",
           "color: #1565c0; font-weight: bold;",
-          {
-            message: text,
-            targetLanguage: targetLanguage,
-            contentLanguage: contentLanguage,
-          },
+          payload,
         );
+
+        const response = await fetch("http://localhost:8080/api/v1/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
         console.log(
           "%c💬 [API] Ответ сервера:",
           "color: #1565c0; font-weight: bold;",
@@ -60,20 +56,18 @@ export const useTranslate = () => {
           throw new Error("Ошибка при получении перевода");
         }
 
-        // Допустим, твой бэкенд возвращает простую строку.
-        // Если он возвращает JSON (например, { "response": "Привет" }), поменяй на await response.json()
         const data = await response.json();
         setTranslatedText(data.response || "");
       } catch (err) {
+        console.error("Ошибка перевода:", err);
         setError(err.message || "Не удалось перевести текст");
       } finally {
         setIsLoading(false);
       }
     },
-    [token],
+    [token, sourceLanguage, targetLanguage],
   );
 
-  // Функция для сброса состояния (когда окно закрывается)
   const reset = useCallback(() => {
     setTranslatedText("");
     setIsLoading(false);
