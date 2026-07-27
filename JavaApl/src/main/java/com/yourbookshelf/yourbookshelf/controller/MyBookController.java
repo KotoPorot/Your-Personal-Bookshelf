@@ -71,7 +71,7 @@ public class MyBookController {
                                                         @PathVariable Long bookId,
                                                         @Valid @RequestBody BookTitleUpdate request) {
 
-        return ResponseEntity.ok(bookService.updateTitle(bookId, request.newTitle, principal.getUser()));
+        return ResponseEntity.ok(bookService.updateTitle(bookId, request.newTitle(), principal.getUser()));
     }
 
     public record BookShelfUpdate(
@@ -86,7 +86,7 @@ public class MyBookController {
                                                              @PathVariable Long bookId,
                                                              @Valid @RequestBody BookShelfUpdate request) {
 
-        return ResponseEntity.ok(bookService.updateShelf(bookId, request.newShelfId, principal.getUser()));
+        return ResponseEntity.ok(bookService.updateShelf(bookId, request.newShelfId(), principal.getUser()));
     }
 
 }
