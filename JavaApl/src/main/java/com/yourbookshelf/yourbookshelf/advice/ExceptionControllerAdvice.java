@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.advice;
 
-import com.yourbookshelf.yourbookshelf.DTO.ExceptionResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.exception.ExceptionResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

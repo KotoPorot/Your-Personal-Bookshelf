@@ -1,8 +1,8 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookProgressDTO;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookProgressService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;

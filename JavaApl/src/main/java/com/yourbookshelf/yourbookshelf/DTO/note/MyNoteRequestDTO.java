@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.DTO;
+package com.yourbookshelf.yourbookshelf.DTO.note;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

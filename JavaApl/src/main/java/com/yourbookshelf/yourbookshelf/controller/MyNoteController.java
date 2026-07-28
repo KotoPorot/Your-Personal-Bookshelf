@@ -1,8 +1,8 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyNoteRequestDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyNoteResponseDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyNoteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

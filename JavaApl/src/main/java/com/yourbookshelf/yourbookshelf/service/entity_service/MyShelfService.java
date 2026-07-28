@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.shelf.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyShelfAlreadyExistsException;
 import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveShelfException;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;

@@ -1,19 +1,13 @@
 package com.yourbookshelf.yourbookshelf.service.parser;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookMetadata;
 import nl.siegmann.epublib.domain.Author;
 import nl.siegmann.epublib.domain.Book;
-import nl.siegmann.epublib.domain.Resource;
 import nl.siegmann.epublib.epub.EpubReader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 @Service
 public class EpubService {

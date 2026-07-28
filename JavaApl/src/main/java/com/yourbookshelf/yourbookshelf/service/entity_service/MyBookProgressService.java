@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookProgressDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyTimeStampIsNotValidException;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;

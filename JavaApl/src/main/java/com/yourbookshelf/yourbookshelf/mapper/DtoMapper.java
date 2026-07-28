@@ -1,6 +1,11 @@
 package com.yourbookshelf.yourbookshelf.mapper;
 
-import com.yourbookshelf.yourbookshelf.DTO.*;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookMetadata;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookProgressDTO;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.shelf.MyShelfResponseDTO;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;
 import com.yourbookshelf.yourbookshelf.entity.MyNote;
