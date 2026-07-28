@@ -17,7 +17,7 @@ import BookViewer from "./components/BookViewer";
 import TocModal from "./components/TocModal";
 import BookNotesModal from "./components/BookNotesModal";
 import NoteDetailModal from "./components/NoteDetailModal";
-import CreateFlashcardModal from "./components/CreateFlashcardModal";
+import CreateFlashcardModal from "./components/flashcard/CreateFlashcardModal";
 
 import "./ReaderPage.css";
 
