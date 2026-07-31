@@ -1,0 +1,120 @@
+.selection-floating-menu {
+  position: fixed;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #222;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+  max-width: 340px;
+  max-height: 220px;
+  overflow-y: auto;
+  transition: padding 0.15s ease;
+
+  /* Кастомный тонкий скроллбар */
+  scrollbar-width: thin;
+  scrollbar-color: #444 #222;
+}
+
+.selection-floating-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.selection-floating-menu::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+/* Состояния позиционирования относительно выделения */
+.selection-floating-menu.placement-top {
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+}
+
+.selection-floating-menu.placement-bottom {
+  transform: translate(-50%, 0%);
+  margin-top: 25px;
+}
+
+/* Модификаторы размеров для режимов */
+.selection-floating-menu.mode-menu {
+  padding: 6px 12px;
+  min-width: auto;
+}
+
+.selection-floating-menu.mode-translation {
+  padding: 12px;
+  min-width: 260px;
+}
+
+/* Блоки содержимого */
+.selection-menu-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.selection-menu-divider {
+  color: #555;
+}
+
+.selection-translation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Шапка режима перевода */
+.selection-translation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+}
+
+/* Стандартная кнопка */
+.selection-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px;
+  transition: opacity 0.15s ease;
+}
+
+.selection-btn:hover {
+  opacity: 0.8;
+}
+
+.selection-btn-back {
+  font-size: 11px;
+  color: #888;
+  padding: 0;
+}
+
+.selection-btn-close {
+  font-size: 14px;
+  color: #888;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Статусы и текст перевода */
+.selection-translation-loading {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.selection-translation-error {
+  color: #ff6b6b;
+  font-size: 13px;
+}
+
+.selection-translation-result {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+}
