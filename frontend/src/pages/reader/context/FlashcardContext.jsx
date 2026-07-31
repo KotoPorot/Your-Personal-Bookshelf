@@ -7,14 +7,15 @@ export const FlashcardProvider = ({ children }) => {
   const [modalState, setModalState] = useState({
     isOpen: false,
     selectedText: "",
+    contextText: "",
   });
 
-  const openModalWithSelection = useCallback((selectedText) => {
-    setModalState({ isOpen: true, selectedText });
+  const openModalWithSelection = useCallback((selectedText, contextText) => {
+    setModalState({ isOpen: true, selectedText, contextText });
   }, []);
 
   const closeModal = useCallback(() => {
-    setModalState({ isOpen: false, selectedText: "" });
+    setModalState({ isOpen: false, selectedText: "", contextText: "" });
   }, []);
 
   return (
@@ -22,6 +23,7 @@ export const FlashcardProvider = ({ children }) => {
       value={{
         isOpen: modalState.isOpen,
         selectedText: modalState.selectedText,
+        contextText: modalState.contextText,
         openModalWithSelection,
         closeModal,
       }}
