@@ -1,8 +1,7 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookMetadata;
-import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookMetadata;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
@@ -13,7 +12,6 @@ import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
 import lombok.AllArgsConstructor;
 import nl.siegmann.epublib.domain.Book;
-import org.jspecify.annotations.Nullable;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;

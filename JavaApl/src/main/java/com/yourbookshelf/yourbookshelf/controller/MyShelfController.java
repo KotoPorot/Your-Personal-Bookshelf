@@ -1,8 +1,8 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyShelfRequestDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyShelfResponseDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.DTO.shelf.MyShelfRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.shelf.MyShelfResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyShelfService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
