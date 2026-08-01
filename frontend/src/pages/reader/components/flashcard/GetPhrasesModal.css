@@ -223,3 +223,58 @@
   color: #888;
   cursor: not-allowed;
 }
+/* Контейнер каждой карточки фразы */
+.flashcard-phrase-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #2a2d34; /* Или ваш темный фон */
+  border: 1px solid #3f444e;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* Выделенный фрагмент можно выделить рамкой или фоном */
+.flashcard-phrase-card.main-text-card {
+  border-color: #4a90e2;
+  background-color: #212836;
+}
+
+/* Блок с текстом и переводом */
+.flashcard-phrase-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.flashcard-phrase-text {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.flashcard-phrase-translation {
+  color: #a0a6b1;
+  font-size: 0.85rem;
+}
+
+/* Кнопка "Создать карточку" */
+.flashcard-create-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.flashcard-create-btn:hover {
+  background-color: #1d4ed8;
+}

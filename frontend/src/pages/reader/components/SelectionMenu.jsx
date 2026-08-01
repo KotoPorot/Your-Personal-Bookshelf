@@ -6,7 +6,13 @@ import "./styles/SelectionMenu.css";
 
 const SelectionMenu = () => {
   const { state, actions } = useReader();
-  const { visible, top, left, text: selectedText } = state.selectionMenu;
+  const {
+    visible,
+    top,
+    left,
+    text: selectedText,
+    contextText,
+  } = state.selectionMenu;
 
   // 👈 2. Берём метод открытия из FlashcardContext
   const { openModalWithSelection } = useFlashcard();
@@ -53,7 +59,11 @@ const SelectionMenu = () => {
   // 👈 3. Создаём обработчик для карточки
   const handleCreateFlashcardClick = () => {
     // Передаем выбранный текст в FlashcardContext
-    openModalWithSelection(selectedText);
+    openModalWithSelection(selectedText, contextText);
+
+    console.log(
+      `[SelectionMenu] Создание карточки для выделенного текста: "${selectedText}" с контекстом: "${contextText}"`,
+    );
 
     // Сбрасываем меню выделения в ReaderContext
     actions.closeSelectionMenu();

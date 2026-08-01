@@ -17,7 +17,7 @@ import BookViewer from "./components/BookViewer";
 import TocModal from "./components/TocModal";
 import BookNotesModal from "./components/BookNotesModal";
 import NoteDetailModal from "./components/NoteDetailModal";
-import CreateFlashcardModal from "./components/flashcard/CreateFlashcardModal";
+import GetPhrasesModal from "./components/flashcard/GetPhrasesModal";
 
 import "./ReaderPage.css";
 
@@ -71,7 +71,7 @@ const ReaderInterface = () => {
       <TocModal />
       <SelectionMenu />
       <CreateNoteModal />
-      <CreateFlashcardModal />
+      <GetPhrasesModal />
       <BookNotesModal />
       <NoteDetailModal />
     </div>
