@@ -30,7 +30,11 @@ public enum MyPrompts {
 
     ### ФОРМАТ JSON:
     {format}
-    """);
+    """),
+    //TODO
+    GENERATE_EXAMPLE("""
+    prompt
+""");
 
     private final String template;
 

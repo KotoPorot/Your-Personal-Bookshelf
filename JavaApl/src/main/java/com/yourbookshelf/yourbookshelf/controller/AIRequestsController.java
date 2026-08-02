@@ -1,7 +1,9 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
+import com.yourbookshelf.yourbookshelf.DTO.ai.SimpleExample;
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimplePhrase;
 import com.yourbookshelf.yourbookshelf.service.ai.MyAIService;
+import com.yourbookshelf.yourbookshelf.service.ai.MyPrompts;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -23,11 +25,41 @@ public class AIRequestsController {
                                  @NotBlank String targetLang,
                                  String context){}
 
-    @PostMapping("phrases")
+    @PostMapping("/phrases")
     public ResponseEntity<List<SimplePhrase>> generatePhrases (@Valid @RequestBody PhraseRequest request){
         List<SimplePhrase> phrases = aiService.generatePhrases (request.selectedText(), request.targetLang(),
                 request.context());
         return ResponseEntity.ok(phrases);
     }
 
+    public record SimpleRequest(@NotBlank String text,
+                                @NotBlank String targetLang){}
+
+
+    //TODO
+    @PostMapping("/examples")
+    public ResponseEntity<List<SimpleExample>> generateExamples (@Valid @RequestBody SimpleRequest request){
+
+        return ResponseEntity.ok(aiService.generateExamples(request.text(), request.targetLang(),
+                MyPrompts.GENERATE_EXAMPLE.toPromptTemplate()));
+    }
+    public record MyDefinition(@NotBlank String defenition){}
+
+    //TODO
+    @PostMapping("/definition")
+    public ResponseEntity<MyDefinition> generateDefinition(@Valid @RequestBody SimpleRequest request){
+        return ResponseEntity.ok().build();
+    }
+
+    //TODO
+    @PostMapping("regenerate-example")
+    public ResponseEntity<SimpleExample> regenerateExample (@Valid @RequestBody SimpleRequest request){
+        return ResponseEntity.ok().build();
+    }
+
+    //TODO
+    @PostMapping("regenerate-definition")
+    public ResponseEntity<MyDefinition> regenerateDefinition (@Valid @RequestBody SimpleRequest request){
+        return ResponseEntity.ok().build();
+    }
 }
