@@ -36,13 +36,14 @@ public class AIRequestsController {
                                 @NotBlank String targetLang){}
 
 
-    //TODO
     @PostMapping("/examples")
     public ResponseEntity<List<SimpleExample>> generateExamples (@Valid @RequestBody SimpleRequest request){
 
         return ResponseEntity.ok(aiService.generateExamples(request.text(), request.targetLang(),
                 MyPrompts.GENERATE_EXAMPLE.toPromptTemplate()));
     }
+
+
     public record MyDefinition(@NotBlank String defenition){}
 
     //TODO

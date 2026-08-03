@@ -40,24 +40,6 @@ public class MyAIService {
         return phrases;
     }
 
-    public List<SimplePhrase> generatePhrasesTESTPROMPT(String selectedText, String targetLang,
-                                                        String context, PromptTemplate template) {
-        var converter = createConverter(new ParameterizedTypeReference<List<SimplePhrase>>() {
-        });
-
-        Prompt prompt = template.create(Map.of(
-                "targetLang", targetLang,
-                "selectedText", selectedText,
-                "context", context,
-                "format", converter.getFormat()));
-
-        List<SimplePhrase> phrases = client.prompt(prompt).call().
-                entity(new ParameterizedTypeReference<List<SimplePhrase>>() {
-                });
-
-        return phrases;
-    }
-
     public List<SimpleExample> generateExamples(@NotBlank String phrase, @NotBlank String lang,
                                                 PromptTemplate template) {
         var converter = createConverter(new ParameterizedTypeReference<List<SimpleExample>>() {
