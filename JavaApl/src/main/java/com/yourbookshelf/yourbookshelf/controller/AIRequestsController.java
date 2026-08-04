@@ -44,12 +44,14 @@ public class AIRequestsController {
     }
 
 
-    public record MyDefinition(@NotBlank String defenition){}
+    public record MyDefinition(@NotBlank String definition){}
 
-    //TODO
     @PostMapping("/definition")
     public ResponseEntity<MyDefinition> generateDefinition(@Valid @RequestBody SimpleRequest request){
-        return ResponseEntity.ok().build();
+        String definition = aiService.generateDefinition(request.text(), request.targetLang(),
+                MyPrompts.GENERATE_DEFINITION.toPromptTemplate());
+
+        return ResponseEntity.ok(new MyDefinition(definition));
     }
 
     //TODO
