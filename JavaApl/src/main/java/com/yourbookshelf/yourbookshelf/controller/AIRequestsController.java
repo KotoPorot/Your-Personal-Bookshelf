@@ -21,48 +21,58 @@ import java.util.List;
 public class AIRequestsController {
     private final MyAIService aiService;
 
-    public record PhraseRequest (@NotBlank String selectedText,
-                                 @NotBlank String targetLang,
-                                 String context){}
+    public record PhraseRequest(@NotBlank String selectedText,
+                                @NotBlank String targetLang,
+                                String context) {
+    }
 
     @PostMapping("/phrases")
-    public ResponseEntity<List<SimplePhrase>> generatePhrases (@Valid @RequestBody PhraseRequest request){
-        List<SimplePhrase> phrases = aiService.generatePhrases (request.selectedText(), request.targetLang(),
+    public ResponseEntity<List<SimplePhrase>> generatePhrases(@Valid @RequestBody PhraseRequest request) {
+        List<SimplePhrase> phrases = aiService.generatePhrases(request.selectedText(), request.targetLang(),
                 request.context());
         return ResponseEntity.ok(phrases);
     }
 
-    public record SimpleRequest(@NotBlank String text,
-                                @NotBlank String targetLang){}
+    public record SimpleRequest(@NotBlank String phrase,
+                                @NotBlank String targetLang) {
+    }
 
 
     @PostMapping("/examples")
-    public ResponseEntity<List<SimpleExample>> generateExamples (@Valid @RequestBody SimpleRequest request){
+    public ResponseEntity<List<SimpleExample>> generateExamples(@Valid @RequestBody SimpleRequest request) {
 
-        return ResponseEntity.ok(aiService.generateExamples(request.text(), request.targetLang(),
+        return ResponseEntity.ok(aiService.generateExamples(request.phrase(), request.targetLang(),
                 MyPrompts.GENERATE_EXAMPLE.toPromptTemplate()));
     }
 
 
-    public record MyDefinition(@NotBlank String definition){}
+    public record MyDefinition(@NotBlank String definition) {
+    }
 
     @PostMapping("/definition")
-    public ResponseEntity<MyDefinition> generateDefinition(@Valid @RequestBody SimpleRequest request){
-        String definition = aiService.generateDefinition(request.text(), request.targetLang(),
+    public ResponseEntity<MyDefinition> generateDefinition(@Valid @RequestBody SimpleRequest request) {
+        String definition = aiService.generateDefinition(request.phrase(), request.targetLang(),
                 MyPrompts.GENERATE_DEFINITION.toPromptTemplate());
 
         return ResponseEntity.ok(new MyDefinition(definition));
     }
 
-    //TODO
-    @PostMapping("regenerate-example")
-    public ResponseEntity<SimpleExample> regenerateExample (@Valid @RequestBody SimpleRequest request){
-        return ResponseEntity.ok().build();
+    public record RegenerateRequest(@NotBlank String phrase,
+                                    @NotBlank String targetLang,
+                                    @NotBlank String oldValue) {
     }
 
-    //TODO
+    @PostMapping("regenerate-example")
+    public ResponseEntity<SimpleExample> regenerateExample(@Valid @RequestBody RegenerateRequest request) {
+                return ResponseEntity.ok(aiService.regenerateExample(request.phrase(),
+                request.targetLang(), request.oldValue(), MyPrompts.REGENERATE_EXAMPLE.toPromptTemplate()));
+    }
+
     @PostMapping("regenerate-definition")
-    public ResponseEntity<MyDefinition> regenerateDefinition (@Valid @RequestBody SimpleRequest request){
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MyDefinition> regenerateDefinition(@Valid @RequestBody RegenerateRequest request) {
+        MyDefinition response = new MyDefinition(aiService.regenerateDefinition(request.phrase(), request.targetLang(),
+                request.oldValue(), MyPrompts.REGENERATE_DEFINITION.toPromptTemplate()));
+
+        return ResponseEntity.ok(response);
     }
 }
