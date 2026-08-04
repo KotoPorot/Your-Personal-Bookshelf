@@ -2,7 +2,9 @@ package com.yourbookshelf.yourbookshelf.service.ai;
 
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimpleExample;
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimplePhrase;
+import com.yourbookshelf.yourbookshelf.controller.AIRequestsController;
 import jakarta.validation.constraints.NotBlank;
+import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -64,6 +66,34 @@ public class MyAIService {
         Prompt prompt = template.create(Map.of(
                 "phrase", phrase,
                 "lang", lang
+        ));
+        return client.prompt(prompt).call().content();
+    }
+
+    public SimpleExample regenerateExample(@NotBlank String phrase, @NotBlank String lang,
+                                           @NotBlank String oldValue, PromptTemplate template) {
+        var converter = createConverter(new ParameterizedTypeReference<SimpleExample>() {
+        });
+
+        Prompt prompt = template.create(Map.of(
+                "phrase", phrase,
+                "lang", lang,
+                "oldValue", oldValue,
+                "oldPrompt", MyPrompts.GENERATE_EXAMPLE,
+                "format", converter.getFormat()
+        ));
+
+        return client.prompt(prompt).call().entity(new ParameterizedTypeReference<SimpleExample>() {
+        });
+    }
+
+    public String regenerateDefinition(@NotBlank String phrase, @NotBlank String lang,
+                                       @NotBlank String oldValue, PromptTemplate template) {
+        Prompt prompt = template.create(Map.of(
+                "phrase", phrase,
+                "lang", lang,
+                "oldValue", oldValue,
+                "oldPrompt", MyPrompts.GENERATE_DEFINITION
         ));
         return client.prompt(prompt).call().content();
     }
