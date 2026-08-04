@@ -59,5 +59,44 @@ public class MyAIService {
         return new BeanOutputConverter<>(typeRef);
     }
 
+    public String generateDefinition(@NotBlank String phrase, @NotBlank String lang,
+                                     PromptTemplate template) {
+        Prompt prompt = template.create(Map.of(
+                "phrase", phrase,
+                "lang", lang
+        ));
+        return client.prompt(prompt).call().content();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
