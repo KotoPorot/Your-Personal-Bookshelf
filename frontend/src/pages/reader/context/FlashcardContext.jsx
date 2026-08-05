@@ -4,28 +4,69 @@ import React, { createContext, useContext, useState, useCallback } from "react";
 const FlashcardContext = createContext(null);
 
 export const FlashcardProvider = ({ children }) => {
-  const [modalState, setModalState] = useState({
+  // 1. Состояние модалки анализа текста (GetPhrasesModal)
+  const [phrasesModalState, setPhrasesModalState] = useState({
     isOpen: false,
     selectedText: "",
     contextText: "",
   });
 
-  const openModalWithSelection = useCallback((selectedText, contextText) => {
-    setModalState({ isOpen: true, selectedText, contextText });
-  }, []);
+  // 2. Состояние модалки создания карточки (CreateCardModal)
+  const [createCardModalState, setCreateCardModalState] = useState({
+    isOpen: false,
+    cardData: null, // Сюда передаем выбранную фразу { sourceText, translation }
+  });
+
+  // --- Методы для GetPhrasesModal ---
+  const openModalWithSelection = useCallback(
+    (selectedText, contextText = "") => {
+      setPhrasesModalState({
+        isOpen: true,
+        selectedText,
+        contextText: contextText || selectedText,
+      });
+    },
+    [],
+  );
 
   const closeModal = useCallback(() => {
-    setModalState({ isOpen: false, selectedText: "", contextText: "" });
+    setPhrasesModalState({
+      isOpen: false,
+      selectedText: "",
+      contextText: "",
+    });
+  }, []);
+
+  // --- Методы для CreateCardModal ---
+  const openCreateCardModal = useCallback((cardData) => {
+    setCreateCardModalState({
+      isOpen: true,
+      cardData,
+    });
+  }, []);
+
+  const closeCreateCardModal = useCallback(() => {
+    setCreateCardModalState({
+      isOpen: false,
+      cardData: null,
+    });
   }, []);
 
   return (
     <FlashcardContext.Provider
       value={{
-        isOpen: modalState.isOpen,
-        selectedText: modalState.selectedText,
-        contextText: modalState.contextText,
+        // Поля для GetPhrasesModal
+        isOpen: phrasesModalState.isOpen,
+        selectedText: phrasesModalState.selectedText,
+        contextText: phrasesModalState.contextText,
         openModalWithSelection,
         closeModal,
+
+        // Поля для CreateCardModal
+        isCreateCardOpen: createCardModalState.isOpen,
+        createCardData: createCardModalState.cardData,
+        openCreateCardModal,
+        closeCreateCardModal,
       }}
     >
       {children}
