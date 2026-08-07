@@ -1,0 +1,280 @@
+/* src/pages/reader/components/flashcard/CreateCardModal.css */
+
+/* 1. Полноэкранный темный оверлей по центру */
+.card-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* Перекрывает всё окно ридера */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* 2. Контейнер модального окна */
+.card-modal-container {
+  background-color: #1a1a22;
+  border: 1px solid #2e2e3a;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 980px; /* Фиксированная комфортная ширина */
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  color: #e5e7eb;
+}
+
+/* 3. Хедер модалки */
+.card-modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #2e2e3a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e1e28;
+}
+
+.card-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.card-close-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.card-close-btn:hover {
+  color: #ffffff;
+}
+
+/* 4. Единый скроллируемый корпус */
+.card-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.card-modal-body::-webkit-scrollbar-thumb {
+  background-color: #3f3f4e;
+  border-radius: 4px;
+}
+
+/* 5. Верхняя сетка (Определение + Фраза) */
+.card-top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.card-top-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-side-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.badge-front {
+  color: #3b82f6;
+}
+
+.badge-back {
+  color: #10b981;
+}
+
+.card-phrase-header {
+  background-color: #242430;
+  border: 1px solid #323242;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.card-phrase-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.card-phrase-subtranslation {
+  font-size: 14px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.card-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-label {
+  font-size: 13px;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+/* 6. Примеры парными рядами */
+.card-examples-header-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  border-top: 1px solid #2e2e3a;
+  padding-top: 16px;
+}
+
+.card-examples-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-example-pair-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.card-example-item {
+  background-color: #242430;
+  border: 1px solid #323242;
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-example-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-controls-right {
+  display: flex;
+  gap: 6px;
+}
+
+.card-ex-num {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.card-back-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 7. Текстовые поля без микро-скроллбаров */
+.card-textarea {
+  width: 100%;
+  background-color: #1a1a22;
+  border: 1px solid #3a3a4c;
+  border-radius: 6px;
+  color: #ffffff;
+  padding: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 60px; /* Достаточная высота для полного текста */
+}
+
+.card-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.translation-textarea {
+  color: #9ca3af;
+}
+
+.card-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 2px;
+}
+.card-icon-btn:hover {
+  opacity: 1;
+}
+
+/* 8. Футер */
+.card-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #2e2e3a;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background-color: #1e1e28;
+}
+
+.card-btn-secondary {
+  background: transparent;
+  border: 1px solid #3f3f4e;
+  color: #d1d5db;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.card-btn-secondary:hover {
+  background-color: #2a2a36;
+}
+
+.card-btn-primary {
+  background-color: #3b82f6;
+  border: none;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.card-btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.card-skeleton {
+  color: #6b7280;
+  font-style: italic;
+  font-size: 13px;
+  padding: 12px;
+}
