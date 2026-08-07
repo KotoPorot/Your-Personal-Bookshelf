@@ -5,7 +5,14 @@ import { usePhrasesBuilder } from "../../hooks/flashcards/usePhrasesBuilder";
 import "./GetPhrasesModal.css";
 
 const GetPhrasesModal = () => {
-  const { isOpen, closeModal, selectedText, contextText } = useFlashcard();
+  const {
+    isOpen,
+    closeModal,
+    selectedText,
+    contextText,
+    openCreateCardModal,
+    isCreateCardOpen,
+  } = useFlashcard();
   const { targetLanguage } = useTranslationSettings();
 
   const { loading, error, phrases, handleCreateCard } = usePhrasesBuilder(
@@ -21,8 +28,16 @@ const GetPhrasesModal = () => {
   // Остальные фразы — ключевые слова и идиомы
   const idiomsList = phrases.slice(1);
 
+  const handleCardClick = (phrase) => {
+    openCreateCardModal(phrase);
+  };
+
   return (
-    <div className="flashcard-modal-overlay" onClick={closeModal}>
+    <div
+      className="flashcard-modal-overlay"
+      onClick={closeModal}
+      style={{ display: isCreateCardOpen ? "none" : "flex" }} // 👈 2. Временно скрываем overlay, когда открыта карточка
+    >
       <div
         className="flashcard-modal-container"
         onClick={(e) => e.stopPropagation()}
@@ -85,7 +100,7 @@ const GetPhrasesModal = () => {
                         <button
                           type="button"
                           className="flashcard-create-btn"
-                          onClick={() => handleCreateCard(phrase)}
+                          onClick={() => handleCardClick(phrase)}
                         >
                           Создать карточку
                         </button>
