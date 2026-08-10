@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.security;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.repository.UserRepository;
 import lombok.AllArgsConstructor;

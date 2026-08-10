@@ -1,5 +1,6 @@
-package com.yourbookshelf.yourbookshelf.DTO;
+package com.yourbookshelf.yourbookshelf.DTO.shelf;
 
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
 import lombok.Data;
 
 import java.util.List;

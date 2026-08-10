@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.DTO;
+package com.yourbookshelf.yourbookshelf.DTO.user;
 
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import lombok.AllArgsConstructor;

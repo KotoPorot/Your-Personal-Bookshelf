@@ -14,7 +14,6 @@ const BookGrid = ({ books, activeShelfId, onBookClick, token }) => {
                     <BookCard
                         key={book.id}
                         book={book}
-                        // КРИТИЧЕСКИ ВАЖНО: передаем функцию клика дальше в карточку!
                         onBookClick={onBookClick}
                         token = {token}
                     />

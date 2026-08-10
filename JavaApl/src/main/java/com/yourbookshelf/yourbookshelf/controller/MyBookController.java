@@ -1,8 +1,7 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyBookProgressDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyBookResponseDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

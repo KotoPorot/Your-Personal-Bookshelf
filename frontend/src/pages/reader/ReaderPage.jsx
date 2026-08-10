@@ -5,6 +5,7 @@ import { TranslationProvider } from "../../context/TranslationContext";
 
 // Импортируем созданный контекст фичи
 import { ReaderProvider, useReader } from "./context/ReaderContext";
+import { FlashcardProvider } from "./context/FlashcardContext";
 
 import { useBookProgress } from "./hooks/progress/useBookProgress";
 
@@ -16,6 +17,8 @@ import BookViewer from "./components/BookViewer";
 import TocModal from "./components/TocModal";
 import BookNotesModal from "./components/BookNotesModal";
 import NoteDetailModal from "./components/NoteDetailModal";
+import GetPhrasesModal from "./components/flashcards/GetPhrasesModal";
+import CreateCardModal from "./components/flashcards/CreateCardModal";
 
 import "./ReaderPage.css";
 
@@ -69,6 +72,8 @@ const ReaderInterface = () => {
       <TocModal />
       <SelectionMenu />
       <CreateNoteModal />
+      <GetPhrasesModal />
+      <CreateCardModal />
       <BookNotesModal />
       <NoteDetailModal />
     </div>
@@ -97,13 +102,15 @@ const ReaderPage = () => {
   return (
     <TranslationProvider>
       <BookNotesProvider>
-        <ReaderProvider
-          bookId={bookId}
-          initialData={initialData}
-          reportLiveProgress={reportLiveProgress}
-        >
-          <ReaderInterface />
-        </ReaderProvider>
+        <FlashcardProvider>
+          <ReaderProvider
+            bookId={bookId}
+            initialData={initialData}
+            reportLiveProgress={reportLiveProgress}
+          >
+            <ReaderInterface />
+          </ReaderProvider>
+        </FlashcardProvider>
       </BookNotesProvider>
     </TranslationProvider>
   );

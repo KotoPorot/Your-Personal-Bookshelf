@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.DTO;
+package com.yourbookshelf.yourbookshelf.DTO.exception;
 
 import lombok.*;
 

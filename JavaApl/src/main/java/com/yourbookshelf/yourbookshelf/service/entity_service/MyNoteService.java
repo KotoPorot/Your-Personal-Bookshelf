@@ -1,8 +1,7 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyNoteRequestDTO;
-import com.yourbookshelf.yourbookshelf.DTO.MyNoteResponseDTO;
-import com.yourbookshelf.yourbookshelf.customException.MyInvalidCredentialsException;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyPermissionException;
 import com.yourbookshelf.yourbookshelf.customException.MyResourceNotFoundException;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
@@ -10,13 +9,11 @@ import com.yourbookshelf.yourbookshelf.entity.MyNote;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyNoteRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

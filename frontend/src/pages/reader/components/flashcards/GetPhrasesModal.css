@@ -1,0 +1,280 @@
+.flashcard-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.flashcard-modal-container {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 540px;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: #e0e0e0;
+  overflow: hidden;
+}
+
+.flashcard-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+}
+
+.flashcard-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #fff;
+}
+
+.flashcard-close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.flashcard-close-btn:hover {
+  color: #fff;
+}
+
+.flashcard-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flashcard-section-label {
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Элементы шага 1 */
+.flashcard-phrase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flashcard-phrase-item {
+  background: #282828;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.flashcard-phrase-item:hover {
+  border-color: #555;
+}
+
+.flashcard-phrase-item.selected {
+  border-color: #1565c0;
+  background: #1a2a3a;
+}
+
+.flashcard-phrase-item input[type="checkbox"] {
+  margin-top: 3px;
+  cursor: pointer;
+}
+
+.flashcard-phrase-text {
+  font-weight: 600;
+  color: #fff;
+}
+
+.flashcard-phrase-translation {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+.flashcard-input-field {
+  width: 100%;
+  background: #282828;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  color: #fff;
+  padding: 10px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.flashcard-input-field:focus {
+  border-color: #1565c0;
+}
+
+/* Элементы шага 2 (Примеры) */
+.flashcard-example-item {
+  background: #282828;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.flashcard-example-item.selected {
+  border-color: #2e7d32;
+  background: #1b2e1e;
+}
+
+.flashcard-example-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flashcard-example-front {
+  color: #fff;
+  font-size: 14px;
+}
+
+.flashcard-example-back {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.flashcard-refresh-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.flashcard-refresh-btn:hover {
+  background: #333;
+  color: #fff;
+}
+
+/* Футер модалки */
+.flashcard-modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #181818;
+}
+
+.flashcard-btn-secondary {
+  background: transparent;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.flashcard-btn-secondary:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.flashcard-btn-primary {
+  background: #1565c0;
+  border: none;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.flashcard-btn-primary:hover {
+  background: #1976d2;
+}
+
+.flashcard-btn-primary:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+/* Контейнер каждой карточки фразы */
+.flashcard-phrase-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #2a2d34; /* Или ваш темный фон */
+  border: 1px solid #3f444e;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+/* Выделенный фрагмент можно выделить рамкой или фоном */
+.flashcard-phrase-card.main-text-card {
+  border-color: #4a90e2;
+  background-color: #212836;
+}
+
+/* Блок с текстом и переводом */
+.flashcard-phrase-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.flashcard-phrase-text {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.flashcard-phrase-translation {
+  color: #a0a6b1;
+  font-size: 0.85rem;
+}
+
+/* Кнопка "Создать карточку" */
+.flashcard-create-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease;
+}
+
+.flashcard-create-btn:hover {
+  background-color: #1d4ed8;
+}

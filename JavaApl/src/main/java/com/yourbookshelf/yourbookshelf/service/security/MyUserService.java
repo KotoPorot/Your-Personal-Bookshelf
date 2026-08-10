@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.security;
 
-import com.yourbookshelf.yourbookshelf.DTO.MyUserDTO;
+import com.yourbookshelf.yourbookshelf.DTO.user.MyUserDTO;
 import com.yourbookshelf.yourbookshelf.customException.MyInvalidCredentialsException;
 import com.yourbookshelf.yourbookshelf.customException.MyUserAlreadyExistsException;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
