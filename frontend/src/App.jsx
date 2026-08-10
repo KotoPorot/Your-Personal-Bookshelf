@@ -6,6 +6,7 @@ import Bookshelf from "./pages/bookshelf/Bookshelf.jsx";
 import WelcomePage from "./pages/auth/Welcome-page.jsx";
 import Register from "./pages/auth/Register.jsx";
 import ReaderPage from "./pages/reader/ReaderPage.jsx";
+import FlashcardPage from "./pages/flashcards/FlashcardsPage.jsx";
 import "./App.css";
 
 function MainApp() {
@@ -14,6 +15,12 @@ function MainApp() {
   if (token) {
     if (currentScreen === "reader") {
       return <ReaderPage />;
+    }
+    if (currentScreen === "flashcards") {
+      return <FlashcardPage />;
+    }
+    if (currentScreen === "bookshelf") {
+      return <Bookshelf />;
     }
     return <Bookshelf />;
   }
