@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import FlashcardView from "./FlashcardView";
+import "./FlashcardModal.css";
 
 const FlashcardModal = ({
   isOpen,
@@ -9,7 +11,6 @@ const FlashcardModal = ({
   onDeleteCard,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
   const [isMovingFolder, setIsMovingFolder] = useState(false);
   const menuRef = useRef(null);
 
@@ -29,7 +30,6 @@ const FlashcardModal = ({
     if (!isOpen) {
       setIsMovingFolder(false);
       setShowMenu(false);
-      setIsFlipped(false);
     }
   }, [isOpen]);
 
@@ -56,11 +56,10 @@ const FlashcardModal = ({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="book-info-modal"
+        className="book-info-modal flashcard-modal-container"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: "650px", width: "100%" }}
       >
-        {/* Шапка модалки */}
+        {/* Шапка модального окна */}
         <div className="modal-header">
           <div className="settings-container" ref={menuRef}>
             <button
@@ -94,7 +93,7 @@ const FlashcardModal = ({
           </button>
         </div>
 
-        {/* Тело модалки */}
+        {/* Тело модального окна */}
         <div className="modal-body">
           {isMovingFolder ? (
             <div className="shelf-selection-view">
@@ -149,188 +148,18 @@ const FlashcardModal = ({
             </div>
           ) : (
             <div className="flashcard-preview-container">
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "12px",
-                }}
-              >
+              <div style={{ marginBottom: "12px" }}>
                 <span className="info-label">
                   Папка: <strong>{folderName}</strong>
                 </span>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setIsFlipped(!isFlipped)}
-                  style={{ fontSize: "0.85rem", padding: "4px 12px" }}
-                >
-                  🔄{" "}
-                  {isFlipped
-                    ? "Показать Лицевую сторону"
-                    : "Перевернуть на Обратную"}
-                </button>
               </div>
 
-              {/* Блок самой карточки */}
-              <div
-                style={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "10px",
-                  padding: "20px",
-                  backgroundColor: isFlipped ? "#f4f6f9" : "#ffffff",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                  minHeight: "220px",
-                }}
-              >
-                {!isFlipped ? (
-                  /* ЛИЦЕВАЯ СТОРОНА */
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#007bff",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Лицевая сторона
-                    </div>
+              {/* Автономная карточка */}
+              <FlashcardView card={card} />
 
-                    <div style={{ marginBottom: "16px" }}>
-                      <strong
-                        style={{
-                          color: "#555",
-                          display: "block",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        Определение:
-                      </strong>
-                      <p
-                        style={{
-                          margin: 0,
-                          fontStyle: "italic",
-                          color: "#333",
-                        }}
-                      >
-                        {card.definition}
-                      </p>
-                    </div>
-
-                    <div>
-                      <strong
-                        style={{
-                          color: "#555",
-                          display: "block",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        Примеры (с пропусками):
-                      </strong>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                        }}
-                      >
-                        {card.examples?.map((ex, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              padding: "8px 12px",
-                              backgroundColor: "#f8f9fa",
-                              borderRadius: "6px",
-                              borderLeft: "3px solid #007bff",
-                              fontSize: "0.95rem",
-                            }}
-                          >
-                            {ex.clozeSentence}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* ОБРАТНАЯ СТОРОНА */
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#28a745",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Обратная сторона
-                    </div>
-
-                    <div
-                      style={{
-                        marginBottom: "16px",
-                        paddingBottom: "12px",
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      <h2 style={{ margin: "0 0 4px 0", color: "#212529" }}>
-                        {card.phrase}
-                      </h2>
-                      <span style={{ fontSize: "1.1rem", color: "#6c757d" }}>
-                        {card.phraseTranslation}
-                      </span>
-                    </div>
-
-                    <div>
-                      <strong
-                        style={{
-                          color: "#555",
-                          display: "block",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        Полные предложения и перевод:
-                      </strong>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                        }}
-                      >
-                        {card.examples?.map((ex, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              padding: "8px 12px",
-                              backgroundColor: "#ffffff",
-                              borderRadius: "6px",
-                              border: "1px solid #e9ecef",
-                            }}
-                          >
-                            <div
-                              style={{
-                                fontWeight: "500",
-                                color: "#212529",
-                                marginBottom: "2px",
-                              }}
-                            >
-                              {ex.sentence}
-                            </div>
-                            <div
-                              style={{ fontSize: "0.88rem", color: "#6c757d" }}
-                            >
-                              {ex.translation}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <span className="flashcard-hint">
+                💡 Нажмите на карточку, чтобы перевернуть
+              </span>
             </div>
           )}
         </div>

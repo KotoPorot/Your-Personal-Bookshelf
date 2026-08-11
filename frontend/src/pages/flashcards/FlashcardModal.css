@@ -1,0 +1,144 @@
+/* FlashcardModal.css */
+
+/* Оверлей и модальное окно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.flashcard-modal-container {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 650px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+}
+
+/* Фиксированная карточка с прокруткой */
+.flashcard-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+  height: 380px;
+  overflow-y: auto;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.flashcard-box:hover {
+  border-color: #cbd5e1;
+}
+
+.flashcard-box.flipped {
+  background-color: #f8fafc;
+}
+
+/* Бейджи сторон */
+.flashcard-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.flashcard-badge.front {
+  color: #0284c7;
+}
+
+.flashcard-badge.back {
+  color: #16a34a;
+}
+
+/* Главный блок (Фраза / Определение) */
+.flashcard-main-block {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  min-height: 75px;
+}
+
+/* Единый стиль для Definition (Лицо) и Phrase (Обратная) */
+.flashcard-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.4;
+  margin: 0 0 4px 0;
+}
+
+/* Перевод фразы (Обратная) */
+.flashcard-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Заголовки секций примеров */
+.flashcard-section-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 10px;
+  display: block;
+}
+
+/* Список примеров */
+.flashcard-examples-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Единая карточка примера на обеих сторонах */
+.flashcard-example-item {
+  padding: 12px 14px;
+  background-color: #f1f5f9;
+  border-radius: 8px;
+  border-left: 4px solid #0284c7;
+  transition: border-color 0.2s ease;
+}
+
+.flashcard-box.flipped .flashcard-example-item {
+  border-left-color: #16a34a;
+}
+
+/* Единый стиль текста предложения */
+.flashcard-example-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.4;
+}
+
+/* Перевод предложения (на обратной стороне) */
+.flashcard-example-translation {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* Подсказка снизу */
+.flashcard-hint {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
