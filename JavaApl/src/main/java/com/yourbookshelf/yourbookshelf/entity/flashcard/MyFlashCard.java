@@ -24,4 +24,9 @@ public class MyFlashCard {
 
     @OneToMany
     private List<MyExample> examples;
+
+
+    @ManyToOne
+    @JoinColumn(name = "folder_id", nullable = false)
+    private MyFolder folder;
 }
