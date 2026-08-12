@@ -4,17 +4,25 @@ import FlashcardsSidebar from "./FlashcardsSidebar";
 import FlashcardGrid from "./FlashcardGrid";
 import FlashcardModal from "./FlashcardModal";
 import { useAuth } from "../../context/AuthContext";
+import { useFolder } from "../../context/FolderContext"; // <--- Подключили контекст папок
 import "../bookshelf/styles/Bookshelf.css";
 
 const FlashcardsPage = () => {
   const { username, logout } = useAuth();
 
-  const [folders, setFolders] = useState([
-    { id: 1, name: "Словарь: Глава 1" },
-    { id: 2, name: "Термины IT" },
-  ]);
-  const [activeFolderId, setActiveFolderId] = useState(1);
+  // Используем состояние папок из контекста
+  const {
+    folders,
+    activeFolderId,
+    setActiveFolderId,
+    createFolder,
+    updateFolder,
+    deleteFolder,
+    loading,
+    error,
+  } = useFolder();
 
+  // Моковые карточки пока оставляем в локальном стейте
   const [cards, setCards] = useState([
     {
       id: 101,
@@ -30,58 +38,48 @@ const FlashcardsPage = () => {
           translation:
             "Не могли бы вы говорить громче, потому что я вас не слышу?",
         },
-        {
-          sentence: "If you disagree with the decision, you must speak up now.",
-          clozeSentence:
-            "If you disagree with the decision, you must ___ ___ now.",
-          translation:
-            "Если вы не согласны с решением, вы должны высказаться сейчас.",
-        },
-        {
-          sentence:
-            "She always speaks up for her friends when they are bullied.",
-          clozeSentence:
-            "She always ___ ___ for her friends when they are bullied.",
-          translation:
-            "Она всегда заступается за своих друзей, когда над ними издеваются.",
-        },
       ],
     },
   ]);
 
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // --- Управление Папками ---
-  const handleCreateFolder = () => {
+  // --- Управление Папками с обработкой асинхронных вызовов ---
+  const handleCreateFolder = async () => {
     const name = prompt("Введите название новой папки:");
     if (name && name.trim() !== "") {
-      const newFolder = { id: Date.now(), name: name.trim() };
-      setFolders([...folders, newFolder]);
-      setActiveFolderId(newFolder.id);
-    }
-  };
-
-  const handleEditFolder = (id) => {
-    const folder = folders.find((f) => f.id === id);
-    const newName = prompt("Изменить название папки:", folder?.name);
-    if (newName && newName.trim() !== "") {
-      setFolders(
-        folders.map((f) => (f.id === id ? { ...f, name: newName.trim() } : f)),
-      );
-    }
-  };
-
-  const handleDeleteFolder = (id) => {
-    if (window.confirm("Удалить папку со всеми карточками?")) {
-      setFolders(folders.filter((f) => f.id !== id));
-      setCards(cards.filter((c) => c.folderId !== id));
-      if (activeFolderId === id) {
-        setActiveFolderId(folders[0]?.id || null);
+      try {
+        await createFolder(name.trim());
+      } catch (err) {
+        alert("Ошибка при создании папки: " + err.message);
       }
     }
   };
 
-  // ⚠️ Временная заглушка для добавления карточки
+  const handleEditFolder = async (id) => {
+    const folder = folders.find((f) => f.id === id);
+    const newName = prompt("Изменить название папки:", folder?.name);
+    if (newName && newName.trim() !== "" && newName !== folder?.name) {
+      try {
+        await updateFolder(id, newName.trim());
+      } catch (err) {
+        alert("Ошибка при обновлении папки: " + err.message);
+      }
+    }
+  };
+
+  const handleDeleteFolder = async (id) => {
+    if (window.confirm("Удалить папку со всеми карточками?")) {
+      try {
+        await deleteFolder(id);
+        // Также чистим локальные карточки этой папки
+        setCards((prevCards) => prevCards.filter((c) => c.folderId !== id));
+      } catch (err) {
+        alert("Ошибка при удалении папки: " + err.message);
+      }
+    }
+  };
+
   const handleAddCard = () => {
     alert("Форма создания карточки находится в разработке");
   };
@@ -101,6 +99,9 @@ const FlashcardsPage = () => {
       <Header username={username} onLogout={logout} />
 
       <div className="bookshelf-main">
+        {loading && <div className="loading-bar">Загрузка папок...</div>}
+        {error && <div className="error-banner">{error}</div>}
+
         <FlashcardsSidebar
           folders={folders}
           activeFolderId={activeFolderId}
