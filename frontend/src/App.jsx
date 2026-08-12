@@ -1,6 +1,7 @@
 import React from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookProvider } from "./context/BookContext";
+import { FolderProvider } from "./context/FolderContext.jsx";
 import Auth from "./pages/auth/Auth.jsx";
 import Bookshelf from "./pages/bookshelf/Bookshelf.jsx";
 import WelcomePage from "./pages/auth/Welcome-page.jsx";
@@ -38,7 +39,9 @@ export default function App() {
   return (
     <AuthProvider>
       <BookProvider>
-        <MainApp />
+        <FolderProvider>
+          <MainApp />
+        </FolderProvider>
       </BookProvider>
     </AuthProvider>
   );
