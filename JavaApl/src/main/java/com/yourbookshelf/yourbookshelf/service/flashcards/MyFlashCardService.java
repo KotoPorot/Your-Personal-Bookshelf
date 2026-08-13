@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.service.entity_service;
+package com.yourbookshelf.yourbookshelf.service.flashcards;
 
 import org.springframework.stereotype.Service;
 

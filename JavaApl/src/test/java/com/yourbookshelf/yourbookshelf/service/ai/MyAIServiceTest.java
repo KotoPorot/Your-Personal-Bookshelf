@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.ai;
 
-import com.yourbookshelf.yourbookshelf.DTO.ai.SimpleExample;
+import com.yourbookshelf.yourbookshelf.DTO.ai.MyExampleDTO;
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimplePhrase;
 import jakarta.validation.constraints.NotBlank;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -121,7 +121,7 @@ class MyAIServiceTest {
         PromptTemplate template = MyPrompts.GENERATE_EXAMPLE.toPromptTemplate();
 
         //when
-        List<SimpleExample> examples = service.generateExamples(request.text(), request.targetLang(), template);
+        List<MyExampleDTO> examples = service.generateExamples(request.text(), request.targetLang(), template);
 
         examples.forEach(it -> {
             System.out.println(it.example());
@@ -159,7 +159,7 @@ class MyAIServiceTest {
     void regenerateExample(TestRegenerateRequest request) {
 
         //when
-        SimpleExample example = service.regenerateExample(request.phrase(), request.targetLang(),
+        MyExampleDTO example = service.regenerateExample(request.phrase(), request.targetLang(),
                 request.oldValue(), MyPrompts.REGENERATE_EXAMPLE.toPromptTemplate());
 
         System.out.println("phrase: " + request.phrase());

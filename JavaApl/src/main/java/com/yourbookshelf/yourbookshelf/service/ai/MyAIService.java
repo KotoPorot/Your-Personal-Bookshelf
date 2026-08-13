@@ -1,10 +1,8 @@
 package com.yourbookshelf.yourbookshelf.service.ai;
 
-import com.yourbookshelf.yourbookshelf.DTO.ai.SimpleExample;
+import com.yourbookshelf.yourbookshelf.DTO.ai.MyExampleDTO;
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimplePhrase;
-import com.yourbookshelf.yourbookshelf.controller.AIRequestsController;
 import jakarta.validation.constraints.NotBlank;
-import org.jspecify.annotations.Nullable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -42,9 +40,9 @@ public class MyAIService {
         return phrases;
     }
 
-    public List<SimpleExample> generateExamples(@NotBlank String phrase, @NotBlank String lang,
-                                                PromptTemplate template) {
-        var converter = createConverter(new ParameterizedTypeReference<List<SimpleExample>>() {
+    public List<MyExampleDTO> generateExamples(@NotBlank String phrase, @NotBlank String lang,
+                                               PromptTemplate template) {
+        var converter = createConverter(new ParameterizedTypeReference<List<MyExampleDTO>>() {
         });
 
         Prompt prompt = template.create(Map.of(
@@ -53,7 +51,7 @@ public class MyAIService {
                 "format", converter.getFormat()
         ));
 
-        return client.prompt(prompt).call().entity(new ParameterizedTypeReference<List<SimpleExample>>() {
+        return client.prompt(prompt).call().entity(new ParameterizedTypeReference<List<MyExampleDTO>>() {
         });
     }
 
@@ -70,9 +68,9 @@ public class MyAIService {
         return client.prompt(prompt).call().content();
     }
 
-    public SimpleExample regenerateExample(@NotBlank String phrase, @NotBlank String lang,
-                                           @NotBlank String oldValue, PromptTemplate template) {
-        var converter = createConverter(new ParameterizedTypeReference<SimpleExample>() {
+    public MyExampleDTO regenerateExample(@NotBlank String phrase, @NotBlank String lang,
+                                          @NotBlank String oldValue, PromptTemplate template) {
+        var converter = createConverter(new ParameterizedTypeReference<MyExampleDTO>() {
         });
 
         Prompt prompt = template.create(Map.of(
@@ -83,7 +81,7 @@ public class MyAIService {
                 "format", converter.getFormat()
         ));
 
-        return client.prompt(prompt).call().entity(new ParameterizedTypeReference<SimpleExample>() {
+        return client.prompt(prompt).call().entity(new ParameterizedTypeReference<MyExampleDTO>() {
         });
     }
 

@@ -1,7 +1,11 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFlashCard;
 import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFolder;
+import com.yourbookshelf.yourbookshelf.service.flashcards.MyFlashCardService;
 import com.yourbookshelf.yourbookshelf.service.flashcards.MyFolderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1/flashcards")
 public class MyFlashCardController {
     private final MyFolderService folderService;
+    private final MyFlashCardService flashCardService;
 
 
     public record MyFolderResponse(String name, Long id) {
@@ -55,6 +60,15 @@ public class MyFlashCardController {
                 .toList()
         );
     }
+
+
+
+    //TODO
+    public ResponseEntity<MyFlashCardResponseDTO> addFlashCard (@RequestBody @Valid MyFlashCardRequestDTO flashCardRequest){
+
+        return ResponseEntity.ok(new MyFlashCardResponseDTO());
+    }
+
 }
 
 
