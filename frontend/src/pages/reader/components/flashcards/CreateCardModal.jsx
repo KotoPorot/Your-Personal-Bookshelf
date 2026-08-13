@@ -1,14 +1,20 @@
-// src/pages/reader/components/flashcard/CreateCardModal.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useFlashcard } from "../../context/FlashcardContext";
 import { useCreateCard } from "../../hooks/flashcards/useCreateCard";
 import { useTranslationSettings } from "../../../../context/TranslationContext";
+import { useFolder } from "../../../../context/FolderContext"; // <--- Подключаем FolderContext
 import "./CreateCardModal.css";
 
 const CreateCardModal = () => {
   const { isCreateCardOpen, closeCreateCardModal, createCardData } =
     useFlashcard();
   const { targetLanguage } = useTranslationSettings();
+
+  // Достаем папки и метод создания из контекста папок
+  const { folders, createFolder, activeFolderId } = useFolder();
+
+  // Локальное состояние для выбранной папки
+  const [selectedFolderId, setSelectedFolderId] = useState("");
 
   const {
     phraseText,
@@ -27,10 +33,43 @@ const CreateCardModal = () => {
     handleSaveCard,
   } = useCreateCard(isCreateCardOpen ? createCardData : null, targetLanguage);
 
+  // При открытии модалки устанавливаем дефолтную папку (активную или первую из списка)
+  useEffect(() => {
+    if (isCreateCardOpen) {
+      if (activeFolderId) {
+        setSelectedFolderId(activeFolderId);
+      } else if (folders.length > 0) {
+        setSelectedFolderId(folders[0].id);
+      } else {
+        setSelectedFolderId("");
+      }
+    }
+  }, [isCreateCardOpen, activeFolderId, folders]);
+
   if (!isCreateCardOpen) return null;
 
+  // Обработчик быстрого создания папки прямо из модалки
+  const handleAddFolder = async () => {
+    const name = prompt("Введите название новой папки:");
+    if (name && name.trim()) {
+      try {
+        const newFolder = await createFolder(name.trim());
+        if (newFolder && newFolder.id) {
+          setSelectedFolderId(newFolder.id); // Автоматически выбираем созданную папку
+        }
+      } catch (err) {
+        alert("Ошибка при создании папки: " + err.message);
+      }
+    }
+  };
+
   const onSave = () => {
-    handleSaveCard();
+    if (!selectedFolderId) {
+      alert("Пожалуйста, выберите папку для сохранения карточки!");
+      return;
+    }
+    // Передаем id папки (приводим к Number для надежности) в пейлоад сохранения
+    handleSaveCard(Number(selectedFolderId));
     closeCreateCardModal();
   };
 
@@ -50,6 +89,37 @@ const CreateCardModal = () => {
 
         {/* Тело модалки */}
         <div className="card-modal-body">
+          {/* СЕКЦИЯ ВЫБОРА ПАПКИ */}
+          <div className="card-folder-select-section">
+            <label className="card-label">
+              Папка <span style={{ color: "red" }}>*</span>:
+            </label>
+            <div className="card-folder-controls">
+              <select
+                className="card-select"
+                value={selectedFolderId}
+                onChange={(e) => setSelectedFolderId(e.target.value)}
+              >
+                <option value="" disabled>
+                  -- Выберите папку --
+                </option>
+                {folders.map((folder) => (
+                  <option key={folder.id} value={folder.id}>
+                    {folder.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="card-btn-add-folder"
+                onClick={handleAddFolder}
+                title="Создать новую папку"
+              >
+                ➕ Новая папка
+              </button>
+            </div>
+          </div>
+
           {/* ВЕРХНЯЯ СЕКЦИЯ: Лицевая (Определение) vs Обратная (Фраза) */}
           <div className="card-top-grid">
             {/* Слева: Лицевая сторона */}
@@ -100,14 +170,14 @@ const CreateCardModal = () => {
             <label className="card-label">Полные предложения и перевод:</label>
           </div>
 
-          {/* СПИСОК ПРИМЕРОВ ПАРАМИ (ВЫРОВНЕНЫ СТРОКА В СТРОКУ) */}
+          {/* СПИСОК ПРИМЕРОВ ПАРАМИ */}
           <div className="card-examples-list-wrapper">
             {loadingExamples ? (
               <div className="card-skeleton">Загрузка примеров...</div>
             ) : (
               examples.map((ex, index) => (
                 <div key={ex.id} className="card-example-pair-row">
-                  {/* Левая часть карточки примера (с пропуском) */}
+                  {/* Левая часть */}
                   <div className="card-example-item front-item">
                     <div className="card-example-controls">
                       <span className="card-ex-num">#{index + 1}</span>
@@ -131,7 +201,6 @@ const CreateCardModal = () => {
                         </button>
                       </div>
                     </div>
-                    {/* Текстовое поле с автопереносом */}
                     <textarea
                       className="card-textarea auto-height-textarea"
                       value={ex.clozeSentence}
@@ -146,13 +215,12 @@ const CreateCardModal = () => {
                     />
                   </div>
 
-                  {/* Правая часть карточки примера (полное предложение + перевод) */}
+                  {/* Правая часть */}
                   <div className="card-example-item back-item">
                     <div className="card-example-controls">
                       <span className="card-ex-num">#{index + 1}</span>
                     </div>
                     <div className="card-back-inputs">
-                      {/* Полное предложение */}
                       <textarea
                         className="card-textarea auto-height-textarea"
                         value={ex.sentence}
@@ -161,7 +229,6 @@ const CreateCardModal = () => {
                         }
                         rows={2}
                       />
-                      {/* Перевод */}
                       <textarea
                         className="card-textarea auto-height-textarea translation-textarea"
                         value={ex.translation}
@@ -187,7 +254,12 @@ const CreateCardModal = () => {
           <button className="card-btn-secondary" onClick={closeCreateCardModal}>
             Отмена
           </button>
-          <button className="card-btn-primary" onClick={onSave}>
+          <button
+            className="card-btn-primary"
+            onClick={onSave}
+            disabled={!selectedFolderId}
+            title={!selectedFolderId ? "Сначала выберите папку" : ""}
+          >
             Сохранить карточку
           </button>
         </div>
