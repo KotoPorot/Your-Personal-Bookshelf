@@ -26,4 +26,10 @@ public class MyExample {
     private String translation;
     @Column(name = "without_target_words")
     private String withoutTargetWords;
+
+    public MyExample(String example, String translation, String withoutTargetWords) {
+        this.example = example;
+        this.translation = translation;
+        this.withoutTargetWords = withoutTargetWords;
+    }
 }
