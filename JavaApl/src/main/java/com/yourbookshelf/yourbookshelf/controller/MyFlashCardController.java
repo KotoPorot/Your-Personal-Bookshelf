@@ -64,7 +64,7 @@ public class MyFlashCardController {
     }
 
 
-
+    @PostMapping()
     public ResponseEntity<MyFlashCardResponseDTO> addFlashCard (@AuthenticationPrincipal MyUserPrincipal principal,
             @RequestBody @Valid MyFlashCardRequestDTO flashCardRequest){
 
@@ -72,6 +72,19 @@ public class MyFlashCardController {
         return ResponseEntity.ok(mapper.mapToFlashCardResponse(flashCard));
     }
 
+
+    @GetMapping()
+    public ResponseEntity<List<MyFlashCardResponseDTO>> getAllUserFlashCards(@AuthenticationPrincipal MyUserPrincipal principal){
+
+        return ResponseEntity.ok(flashCardService.getUserFlashCards(principal.getUser()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<MyFlashCardResponseDTO>>getFolderFlashCards(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                                           @PathVariable Long id){
+
+        return ResponseEntity.ok(flashCardService.getUserFlashCards(principal.getUser(), id));
+    }
 }
 
 
