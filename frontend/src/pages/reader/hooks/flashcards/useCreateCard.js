@@ -22,7 +22,6 @@ export const useCreateCard = (cardData, targetLang = "EN") => {
 
   const phraseText = cardData?.sourceText || cardData?.phrase || "";
   const phraseTranslation = cardData?.translation || "";
-
   // 1. Загрузка первичного определения
   const fetchDefinition = useCallback(async () => {
     if (!phraseText) return;
@@ -174,16 +173,17 @@ export const useCreateCard = (cardData, targetLang = "EN") => {
   };
 
   // 7. Сохранение карточки
-  const handleSaveCard = () => {
+  const handleSaveCard = (folderId) => {
     const payload = {
+      folderId: Number(folderId),
       phrase: phraseText,
       phraseTranslation: phraseTranslation,
-      targetLanguage: targetLang,
+      targetLang: targetLang,
       definition: definition,
       examples: examples.map((ex) => ({
-        sentence: ex.sentence,
-        clozeSentence: ex.clozeSentence,
+        example: ex.sentence,
         translation: ex.translation,
+        withoutTargetWord: ex.clozeSentence,
       })),
     };
 

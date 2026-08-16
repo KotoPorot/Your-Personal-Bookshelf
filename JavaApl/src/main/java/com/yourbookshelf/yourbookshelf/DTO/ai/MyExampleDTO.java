@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.DTO.ai;
 
-public record SimpleExample (
+public record MyExampleDTO(
         String example,
         String translation,
         String withoutTargetWord

@@ -1,9 +1,11 @@
 import React from "react";
 import { useReader } from "../context/ReaderContext";
+import { useAuth } from "../../../context/AuthContext";
 import TranslatorSettingsPanel from "./TranslatorSettingsPanel.jsx";
 
 const ReaderSidebar = () => {
   const { state, actions } = useReader();
+  const { setCurrentScreen } = useAuth();
 
   const {
     totalSecondsSpent,
@@ -41,6 +43,12 @@ const ReaderSidebar = () => {
           onClick={() => actions.setIsTocOpen(!isTocOpen)}
         >
           📖 Оглавление
+        </button>
+        <button
+          className="sidebar-btn"
+          onClick={() => setCurrentScreen("flashcards")}
+        >
+          🃏 Flashcards
         </button>
       </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useFlashcard } from "../../context/FlashcardContext";
 import { useTranslationSettings } from "../../../../context/TranslationContext";
 import { usePhrasesBuilder } from "../../hooks/flashcards/usePhrasesBuilder";
@@ -15,10 +15,12 @@ const GetPhrasesModal = () => {
   } = useFlashcard();
   const { targetLanguage } = useTranslationSettings();
 
-  const { loading, error, phrases, handleCreateCard } = usePhrasesBuilder(
+  const [customPhrase, setCustomPhrase] = useState("");
+
+  const { loading, error, phrases } = usePhrasesBuilder(
     isOpen ? selectedText : null,
     contextText,
-    targetLanguage, // 👈 Прокидываем выбранный целевой язык
+    targetLanguage,
   );
 
   if (!isOpen) return null;
@@ -32,11 +34,20 @@ const GetPhrasesModal = () => {
     openCreateCardModal(phrase);
   };
 
+  const handleCustomCardCreate = () => {
+    if (!customPhrase.trim()) return;
+    openCreateCardModal({
+      sourceText: customPhrase.trim(),
+      translation: "",
+    });
+    setCustomPhrase("");
+  };
+
   return (
     <div
       className="flashcard-modal-overlay"
       onClick={closeModal}
-      style={{ display: isCreateCardOpen ? "none" : "flex" }} // 👈 2. Временно скрываем overlay, когда открыта карточка
+      style={{ display: isCreateCardOpen ? "none" : "flex" }}
     >
       <div
         className="flashcard-modal-container"
@@ -45,7 +56,11 @@ const GetPhrasesModal = () => {
         {/* ХЕДЕР */}
         <div className="flashcard-modal-header">
           <h3>Анализ текста</h3>
-          <button className="flashcard-close-btn" onClick={closeModal}>
+          <button
+            className="flashcard-close-btn"
+            onClick={closeModal}
+            type="button"
+          >
             ✕
           </button>
         </div>
@@ -77,7 +92,35 @@ const GetPhrasesModal = () => {
                 </div>
               )}
 
-              {/* 2. СПИСОК ИДИОМ И КЛЮЧЕВЫХ ФРАЗ */}
+              {/* 2. КАСТОМНЫЙ ВВОД СВОЕЙ ФРАЗЫ */}
+              <div className="flashcard-section">
+                <label className="flashcard-section-label">Своя фраза:</label>
+                <div className="flashcard-custom-phrase-row">
+                  <input
+                    type="text"
+                    className="flashcard-input-field"
+                    placeholder="Введите фразу вручную..."
+                    value={customPhrase}
+                    onChange={(e) => setCustomPhrase(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCustomCardCreate();
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="flashcard-create-btn"
+                    onClick={handleCustomCardCreate}
+                    disabled={!customPhrase.trim()}
+                  >
+                    Создать карточку
+                  </button>
+                </div>
+              </div>
+
+              {/* 3. СПИСОК ИДИОМ И КЛЮЧЕВЫХ ФРАЗ */}
               {idiomsList.length > 0 && (
                 <div className="flashcard-section">
                   <label className="flashcard-section-label">
@@ -115,7 +158,11 @@ const GetPhrasesModal = () => {
 
         {/* ФУТЕР */}
         <div className="flashcard-modal-footer">
-          <button className="flashcard-btn-secondary" onClick={closeModal}>
+          <button
+            className="flashcard-btn-secondary"
+            onClick={closeModal}
+            type="button"
+          >
             Закрыть
           </button>
         </div>

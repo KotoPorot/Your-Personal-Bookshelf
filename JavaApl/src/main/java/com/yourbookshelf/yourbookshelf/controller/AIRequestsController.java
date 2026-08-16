@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
-import com.yourbookshelf.yourbookshelf.DTO.ai.SimpleExample;
+import com.yourbookshelf.yourbookshelf.DTO.ai.MyExampleDTO;
 import com.yourbookshelf.yourbookshelf.DTO.ai.SimplePhrase;
 import com.yourbookshelf.yourbookshelf.service.ai.MyAIService;
 import com.yourbookshelf.yourbookshelf.service.ai.MyPrompts;
@@ -39,7 +39,7 @@ public class AIRequestsController {
 
 
     @PostMapping("/examples")
-    public ResponseEntity<List<SimpleExample>> generateExamples(@Valid @RequestBody SimpleRequest request) {
+    public ResponseEntity<List<MyExampleDTO>> generateExamples(@Valid @RequestBody SimpleRequest request) {
 
         return ResponseEntity.ok(aiService.generateExamples(request.phrase(), request.targetLang(),
                 MyPrompts.GENERATE_EXAMPLE.toPromptTemplate()));
@@ -63,7 +63,7 @@ public class AIRequestsController {
     }
 
     @PostMapping("regenerate-example")
-    public ResponseEntity<SimpleExample> regenerateExample(@Valid @RequestBody RegenerateRequest request) {
+    public ResponseEntity<MyExampleDTO> regenerateExample(@Valid @RequestBody RegenerateRequest request) {
                 return ResponseEntity.ok(aiService.regenerateExample(request.phrase(),
                 request.targetLang(), request.oldValue(), MyPrompts.REGENERATE_EXAMPLE.toPromptTemplate()));
     }
