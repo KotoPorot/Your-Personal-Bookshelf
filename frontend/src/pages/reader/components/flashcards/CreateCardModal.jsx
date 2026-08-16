@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useFlashcard } from "../../context/FlashcardContext";
+import { useFlashcards } from "../../../../context/FlashcardContext";
 import { useCreateCard } from "../../hooks/flashcards/useCreateCard";
 import { useTranslationSettings } from "../../../../context/TranslationContext";
 import { useFolder } from "../../../../context/FolderContext"; // <--- Подключаем FolderContext
@@ -12,6 +13,8 @@ const CreateCardModal = () => {
 
   // Достаем папки и метод создания из контекста папок
   const { folders, createFolder, activeFolderId } = useFolder();
+
+  const { createCard } = useFlashcards();
 
   // Локальное состояние для выбранной папки
   const [selectedFolderId, setSelectedFolderId] = useState("");
@@ -63,14 +66,24 @@ const CreateCardModal = () => {
     }
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     if (!selectedFolderId) {
       alert("Пожалуйста, выберите папку для сохранения карточки!");
       return;
     }
-    // Передаем id папки (приводим к Number для надежности) в пейлоад сохранения
-    handleSaveCard(Number(selectedFolderId));
-    closeCreateCardModal();
+
+    // 1. Собираем данные карточки в payload
+    const payload = handleSaveCard(Number(selectedFolderId));
+
+    try {
+      // 2. 👈 ЗДЕСЬ ИСПОЛЬЗУЕТСЯ createCard: отправляем POST-запрос на бэкенд
+      await createCard(payload);
+
+      // 3. Закрываем модалку после успешного сохранения
+      closeCreateCardModal();
+    } catch (err) {
+      alert("Ошибка при сохранении карточки: " + err.message);
+    }
   };
 
   return (

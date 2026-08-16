@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../bookshelf/Header";
 import FlashcardsSidebar from "./FlashcardsSidebar";
 import FlashcardGrid from "./FlashcardGrid";
 import FlashcardModal from "./FlashcardModal";
 import { useAuth } from "../../context/AuthContext";
-import { useFolder } from "../../context/FolderContext"; // <--- Подключили контекст папок
+import { useFolder } from "../../context/FolderContext";
+import { useFlashcards } from "../../context/FlashcardContext"; // 👈 Импорт карточек
 import "../bookshelf/styles/Bookshelf.css";
 
 const FlashcardsPage = () => {
   const { username, logout } = useAuth();
-
-  // Используем состояние папок из контекста
   const {
     folders,
     activeFolderId,
@@ -18,36 +17,29 @@ const FlashcardsPage = () => {
     createFolder,
     updateFolder,
     deleteFolder,
-    loading,
-    error,
+    loading: folderLoading,
+    error: folderError,
   } = useFolder();
 
-  // Моковые карточки пока оставляем в локальном стейте
-  const [cards, setCards] = useState([
-    {
-      id: 101,
-      folderId: 1,
-      phrase: "speak up",
-      phraseTranslation: "высказаться",
-      targetLanguage: "ru",
-      definition: "talk louder so that other people can hear you clearly",
-      examples: [
-        {
-          sentence: "Could you please speak up because I cannot hear you?",
-          clozeSentence: "Could you please ___ ___ because I cannot hear you?",
-          translation:
-            "Не могли бы вы говорить громче, потому что я вас не слышу?",
-        },
-      ],
-    },
-  ]);
+  const {
+    cards,
+    fetchCardsByFolder,
+    loading: cardsLoading,
+    error: cardsError,
+  } = useFlashcards();
 
   const [selectedCard, setSelectedCard] = useState(null);
 
-  // --- Управление Папками с обработкой асинхронных вызовов ---
+  // Автоматически подгружаем карточки при смене активной папки
+  useEffect(() => {
+    if (activeFolderId) {
+      fetchCardsByFolder(activeFolderId);
+    }
+  }, [activeFolderId, fetchCardsByFolder]);
+
   const handleCreateFolder = async () => {
     const name = prompt("Введите название новой папки:");
-    if (name && name.trim() !== "") {
+    if (name && name.trim()) {
       try {
         await createFolder(name.trim());
       } catch (err) {
@@ -59,7 +51,7 @@ const FlashcardsPage = () => {
   const handleEditFolder = async (id) => {
     const folder = folders.find((f) => f.id === id);
     const newName = prompt("Изменить название папки:", folder?.name);
-    if (newName && newName.trim() !== "" && newName !== folder?.name) {
+    if (newName && newName.trim() && newName !== folder?.name) {
       try {
         await updateFolder(id, newName.trim());
       } catch (err) {
@@ -72,26 +64,10 @@ const FlashcardsPage = () => {
     if (window.confirm("Удалить папку со всеми карточками?")) {
       try {
         await deleteFolder(id);
-        // Также чистим локальные карточки этой папки
-        setCards((prevCards) => prevCards.filter((c) => c.folderId !== id));
       } catch (err) {
         alert("Ошибка при удалении папки: " + err.message);
       }
     }
-  };
-
-  const handleAddCard = () => {
-    alert("Форма создания карточки находится в разработке");
-  };
-
-  const handleUpdateCard = (updatedCard) => {
-    setCards(cards.map((c) => (c.id === updatedCard.id ? updatedCard : c)));
-    setSelectedCard(updatedCard);
-  };
-
-  const handleDeleteCard = (cardId) => {
-    setCards(cards.filter((c) => c.id !== cardId));
-    setSelectedCard(null);
   };
 
   return (
@@ -99,8 +75,12 @@ const FlashcardsPage = () => {
       <Header username={username} onLogout={logout} />
 
       <div className="bookshelf-main">
-        {loading && <div className="loading-bar">Загрузка папок...</div>}
-        {error && <div className="error-banner">{error}</div>}
+        {(folderLoading || cardsLoading) && (
+          <div className="loading-bar">Загрузка данных...</div>
+        )}
+        {(folderError || cardsError) && (
+          <div className="error-banner">{folderError || cardsError}</div>
+        )}
 
         <FlashcardsSidebar
           folders={folders}
@@ -117,11 +97,6 @@ const FlashcardsPage = () => {
               {folders.find((f) => f.id === activeFolderId)?.name ||
                 "Папка не выбрана"}
             </h2>
-            {activeFolderId && (
-              <button className="add-book-btn" onClick={handleAddCard}>
-                ➕ Добавить карточку
-              </button>
-            )}
           </div>
 
           <FlashcardGrid
@@ -138,8 +113,6 @@ const FlashcardsPage = () => {
           card={selectedCard}
           folders={folders}
           onClose={() => setSelectedCard(null)}
-          onUpdateCard={handleUpdateCard}
-          onDeleteCard={handleDeleteCard}
         />
       )}
     </div>

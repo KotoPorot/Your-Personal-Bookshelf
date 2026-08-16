@@ -175,15 +175,15 @@ export const useCreateCard = (cardData, targetLang = "EN") => {
   // 7. Сохранение карточки
   const handleSaveCard = (folderId) => {
     const payload = {
+      folderId: Number(folderId),
       phrase: phraseText,
       phraseTranslation: phraseTranslation,
-      folderId: folderId,
-      targetLanguage: targetLang,
+      targetLang: targetLang,
       definition: definition,
       examples: examples.map((ex) => ({
-        sentence: ex.sentence,
-        clozeSentence: ex.clozeSentence,
+        example: ex.sentence,
         translation: ex.translation,
+        withoutTargetWord: ex.clozeSentence,
       })),
     };
 
