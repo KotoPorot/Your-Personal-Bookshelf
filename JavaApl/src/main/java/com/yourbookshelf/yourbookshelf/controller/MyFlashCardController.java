@@ -1,7 +1,12 @@
 package com.yourbookshelf.yourbookshelf.controller;
 
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFlashCard;
 import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFolder;
+import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
+import com.yourbookshelf.yourbookshelf.service.flashcards.MyFlashCardService;
 import com.yourbookshelf.yourbookshelf.service.flashcards.MyFolderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -18,6 +23,8 @@ import java.util.List;
 @RequestMapping("/api/v1/flashcards")
 public class MyFlashCardController {
     private final MyFolderService folderService;
+    private final MyFlashCardService flashCardService;
+    private final DtoMapper mapper;
 
 
     public record MyFolderResponse(String name, Long id) {
@@ -54,6 +61,29 @@ public class MyFlashCardController {
                 .map(it-> new MyFolderResponse(it.getName(), it.getId()))
                 .toList()
         );
+    }
+
+
+    @PostMapping()
+    public ResponseEntity<MyFlashCardResponseDTO> addFlashCard (@AuthenticationPrincipal MyUserPrincipal principal,
+            @RequestBody @Valid MyFlashCardRequestDTO flashCardRequest){
+
+        MyFlashCard flashCard = flashCardService.save(flashCardRequest, principal.getUser());
+        return ResponseEntity.ok(mapper.mapToFlashCardResponse(flashCard));
+    }
+
+
+    @GetMapping()
+    public ResponseEntity<List<MyFlashCardResponseDTO>> getAllUserFlashCards(@AuthenticationPrincipal MyUserPrincipal principal){
+
+        return ResponseEntity.ok(flashCardService.getUserFlashCards(principal.getUser()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<List<MyFlashCardResponseDTO>>getFolderFlashCards(@AuthenticationPrincipal MyUserPrincipal principal,
+                                                                           @PathVariable Long id){
+
+        return ResponseEntity.ok(flashCardService.getUserFlashCards(principal.getUser(), id));
     }
 }
 

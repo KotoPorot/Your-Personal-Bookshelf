@@ -25,9 +25,10 @@ const FlashcardView = ({ card }) => {
             </span>
             <div className="flashcard-examples-list">
               {card.examples?.map((ex, idx) => (
-                <div key={idx} className="flashcard-example-item">
+                <div key={ex.id || idx} className="flashcard-example-item">
                   <div className="flashcard-example-text">
-                    {ex.clozeSentence}
+                    {/* Исправлено: поддержка безлишних полей JSON */}
+                    {ex.withoutTargetWord || ex.clozeSentence}
                   </div>
                 </div>
               ))}
@@ -52,8 +53,11 @@ const FlashcardView = ({ card }) => {
             </span>
             <div className="flashcard-examples-list">
               {card.examples?.map((ex, idx) => (
-                <div key={idx} className="flashcard-example-item">
-                  <div className="flashcard-example-text">{ex.sentence}</div>
+                <div key={ex.id || idx} className="flashcard-example-item">
+                  <div className="flashcard-example-text">
+                    {/* Исправлено: поддержка безлишних полей JSON */}
+                    {ex.example || ex.sentence}
+                  </div>
                   {ex.translation && (
                     <div className="flashcard-example-translation">
                       {ex.translation}

@@ -163,15 +163,6 @@ const FlashcardModal = ({
             </div>
           )}
         </div>
-
-        {/* Подвал */}
-        {!isMovingFolder && (
-          <div className="modal-footer" style={{ marginTop: "15px" }}>
-            <button className="btn btn-secondary" onClick={onClose}>
-              Закрыть
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

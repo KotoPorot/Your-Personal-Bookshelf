@@ -2,6 +2,7 @@ import React from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookProvider } from "./context/BookContext";
 import { FolderProvider } from "./context/FolderContext.jsx";
+import { FlashcardProvider } from "./context/FlashcardContext.jsx";
 import Auth from "./pages/auth/Auth.jsx";
 import Bookshelf from "./pages/bookshelf/Bookshelf.jsx";
 import WelcomePage from "./pages/auth/Welcome-page.jsx";
@@ -40,7 +41,9 @@ export default function App() {
     <AuthProvider>
       <BookProvider>
         <FolderProvider>
-          <MainApp />
+          <FlashcardProvider>
+            <MainApp />
+          </FlashcardProvider>
         </FolderProvider>
       </BookProvider>
     </AuthProvider>

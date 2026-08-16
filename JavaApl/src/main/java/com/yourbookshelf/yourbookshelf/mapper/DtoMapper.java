@@ -3,6 +3,9 @@ package com.yourbookshelf.yourbookshelf.mapper;
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookMetadata;
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookProgressDTO;
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyExampleResponse;
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardRequestDTO;
+import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteRequestDTO;
 import com.yourbookshelf.yourbookshelf.DTO.note.MyNoteResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.shelf.MyShelfResponseDTO;
@@ -10,8 +13,13 @@ import com.yourbookshelf.yourbookshelf.entity.MyBook;
 import com.yourbookshelf.yourbookshelf.entity.MyBookProgress;
 import com.yourbookshelf.yourbookshelf.entity.MyNote;
 import com.yourbookshelf.yourbookshelf.entity.MyShelf;
+import com.yourbookshelf.yourbookshelf.entity.flashcard.MyExample;
+import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFlashCard;
+import jakarta.validation.Valid;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class DtoMapper {
@@ -36,14 +44,14 @@ public class DtoMapper {
         return bookDTO;
     }
 
-    public MyBook extractMetadataToMyBook(MyBookMetadata metadata){
+    public MyBook extractMetadataToMyBook(MyBookMetadata metadata) {
         MyBook myBook = new MyBook();
         myBook.setTitle(metadata.getTitle());
         myBook.setAuthor(metadata.getAuthor());
         return myBook;
     }
 
-    public MyBookProgress mapToMyBookProgress(MyBookProgressDTO dto){
+    public MyBookProgress mapToMyBookProgress(MyBookProgressDTO dto) {
         MyBookProgress newProgress = new MyBookProgress();
         newProgress.setProgress(dto.getProgress());
         newProgress.setCurrentCfi(dto.getCurrentCfi());
@@ -92,5 +100,37 @@ public class DtoMapper {
         dto.setNoteId(input.getId());
         dto.setBookId(input.getBookId());
         return dto;
+    }
+
+    public MyFlashCard extractSimpleCardData(MyFlashCardRequestDTO request) {
+        MyFlashCard card = new MyFlashCard();
+
+        card.setTargetLang(request.targetLang());
+        card.setPhrase(request.phrase());
+        card.setDefinition(request.definition());
+        card.setPhraseTranslation(request.phraseTranslation());
+
+        if (request.examples() != null) {
+            request.examples().forEach(it ->
+                    card.addExample(new MyExample(it.example(), it.translation(), it.withoutTargetWord()))
+            );
+        }
+
+        return card;
+    }
+
+    public MyFlashCardResponseDTO mapToFlashCardResponse(MyFlashCard card) {
+        List<MyExampleResponse> examples = card.getExamples().stream().map(it -> new MyExampleResponse(
+                it.getExample(), it.getTranslation(), it.getWithoutTargetWords(), it.getId()
+        )).toList();
+        return new MyFlashCardResponseDTO(
+                card.getId(),
+                card.getFolder().getId(),
+                card.getPhrase(),
+                card.getPhraseTranslation(),
+                card.getTargetLang(),
+                card.getDefinition(),
+                examples
+        );
     }
 }
