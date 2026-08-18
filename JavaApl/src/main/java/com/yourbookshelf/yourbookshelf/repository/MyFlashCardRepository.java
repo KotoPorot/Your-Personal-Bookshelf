@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MyFlashCardRepository extends JpaRepository<MyFlashCard, Long> {
@@ -15,4 +16,7 @@ public interface MyFlashCardRepository extends JpaRepository<MyFlashCard, Long> 
 
     @Query("SELECT DISTINCT c FROM MyFlashCard c LEFT JOIN FETCH c.examples WHERE c.user.id = :userId AND c.folder.id = :folderId")
     List<MyFlashCard> findAllByUserIdAndFolderIdWithExamples(Long userId, Long folderId);
+
+
+    Optional<MyFlashCard> findByIdAndUserId(Long cardId, Long userId);
 }
