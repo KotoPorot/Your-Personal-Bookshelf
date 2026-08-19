@@ -36,7 +36,6 @@ export const FlashcardProvider = ({ children }) => {
     [token],
   );
 
-  // 1. Получить все карточки пользователя
   const fetchAllCards = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -51,7 +50,6 @@ export const FlashcardProvider = ({ children }) => {
     }
   }, [token, fetchWithAuth]);
 
-  // 2. Получить карточки конкретной папки
   const fetchCardsByFolder = useCallback(
     async (folderId) => {
       if (!token || !folderId) return;
@@ -71,7 +69,6 @@ export const FlashcardProvider = ({ children }) => {
     [token, fetchWithAuth],
   );
 
-  // 3. Создать карточку
   const createCard = async (cardPayload) => {
     setError(null);
     try {
@@ -88,7 +85,6 @@ export const FlashcardProvider = ({ children }) => {
     }
   };
 
-  // 4. Редактировать карточку (Кнопка "Редактировать")
   const updateCard = async (updatePayload) => {
     setError(null);
     try {
@@ -107,7 +103,6 @@ export const FlashcardProvider = ({ children }) => {
     }
   };
 
-  // 5. Переместить карточку в другую папку (Кнопка "Переместить")
   const moveCard = async (cardId, newFolderId) => {
     setError(null);
     try {
@@ -126,7 +121,6 @@ export const FlashcardProvider = ({ children }) => {
     }
   };
 
-  // 6. Удалить карточку (Кнопка "Удалить")
   const deleteCard = async (cardId) => {
     setError(null);
     try {
@@ -135,6 +129,35 @@ export const FlashcardProvider = ({ children }) => {
       });
 
       setCards((prev) => prev.filter((card) => card.id !== cardId));
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  // 7. Имитация API для экспорта карточек
+  const exportCards = async (cardIds) => {
+    setError(null);
+    try {
+      /* Когда бэкенд будет готов, раскомментируйте этот блок:
+      const data = await fetchWithAuth(`${API_BASE_URL}/export`, {
+        method: "POST",
+        body: JSON.stringify({ ids: cardIds }),
+      });
+      return data.exportedText; 
+      */
+
+      // Временная имитация ответа бэкенда:
+      const selectedCards = cards.filter((c) => cardIds.includes(c.id));
+      const formattedText = selectedCards
+        .map((c, index) => {
+          const translation = c.translation ? ` — ${c.translation}` : "";
+          const example = c.example ? `\n   Пример: ${c.example}` : "";
+          return `${index + 1}. ${c.phrase}${translation}${example}`;
+        })
+        .join("\n\n");
+
+      return formattedText;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -154,6 +177,7 @@ export const FlashcardProvider = ({ children }) => {
         updateCard,
         moveCard,
         deleteCard,
+        exportCards,
       }}
     >
       {children}
