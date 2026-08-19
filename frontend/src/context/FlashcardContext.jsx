@@ -36,7 +36,7 @@ export const FlashcardProvider = ({ children }) => {
     [token],
   );
 
-  // Получить все карточки пользователя
+  // 1. Получить все карточки пользователя
   const fetchAllCards = useCallback(async () => {
     if (!token) return;
     setLoading(true);
@@ -51,14 +51,16 @@ export const FlashcardProvider = ({ children }) => {
     }
   }, [token, fetchWithAuth]);
 
-  // Получить карточки конкретной папки
+  // 2. Получить карточки конкретной папки
   const fetchCardsByFolder = useCallback(
     async (folderId) => {
       if (!token || !folderId) return;
       setLoading(true);
       setError(null);
       try {
-        const data = await fetchWithAuth(`${API_BASE_URL}/${folderId}`);
+        const data = await fetchWithAuth(
+          `${API_BASE_URL}?folderId=${folderId}`,
+        );
         setCards(data);
       } catch (err) {
         setError(err.message);
@@ -69,7 +71,7 @@ export const FlashcardProvider = ({ children }) => {
     [token, fetchWithAuth],
   );
 
-  // Создать карточку
+  // 3. Создать карточку
   const createCard = async (cardPayload) => {
     setError(null);
     try {
@@ -86,6 +88,59 @@ export const FlashcardProvider = ({ children }) => {
     }
   };
 
+  // 4. Редактировать карточку (Кнопка "Редактировать")
+  const updateCard = async (updatePayload) => {
+    setError(null);
+    try {
+      const updatedCard = await fetchWithAuth(API_BASE_URL, {
+        method: "PUT",
+        body: JSON.stringify(updatePayload),
+      });
+
+      setCards((prev) =>
+        prev.map((card) => (card.id === updatedCard.id ? updatedCard : card)),
+      );
+      return updatedCard;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  // 5. Переместить карточку в другую папку (Кнопка "Переместить")
+  const moveCard = async (cardId, newFolderId) => {
+    setError(null);
+    try {
+      const updatedCard = await fetchWithAuth(
+        `${API_BASE_URL}/${cardId}/folder/${newFolderId}`,
+        { method: "PUT" },
+      );
+
+      setCards((prev) =>
+        prev.map((card) => (card.id === updatedCard.id ? updatedCard : card)),
+      );
+      return updatedCard;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  // 6. Удалить карточку (Кнопка "Удалить")
+  const deleteCard = async (cardId) => {
+    setError(null);
+    try {
+      await fetchWithAuth(`${API_BASE_URL}/${cardId}`, {
+        method: "DELETE",
+      });
+
+      setCards((prev) => prev.filter((card) => card.id !== cardId));
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
   return (
     <FlashcardContext.Provider
       value={{
@@ -96,6 +151,9 @@ export const FlashcardProvider = ({ children }) => {
         fetchAllCards,
         fetchCardsByFolder,
         createCard,
+        updateCard,
+        moveCard,
+        deleteCard,
       }}
     >
       {children}
