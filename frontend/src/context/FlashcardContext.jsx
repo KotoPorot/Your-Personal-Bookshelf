@@ -139,25 +139,11 @@ export const FlashcardProvider = ({ children }) => {
   const exportCards = async (cardIds) => {
     setError(null);
     try {
-      /* Когда бэкенд будет готов, раскомментируйте этот блок:
       const data = await fetchWithAuth(`${API_BASE_URL}/export`, {
         method: "POST",
-        body: JSON.stringify({ ids: cardIds }),
+        body: JSON.stringify({ cardIds }),
       });
-      return data.exportedText; 
-      */
-
-      // Временная имитация ответа бэкенда:
-      const selectedCards = cards.filter((c) => cardIds.includes(c.id));
-      const formattedText = selectedCards
-        .map((c, index) => {
-          const translation = c.translation ? ` — ${c.translation}` : "";
-          const example = c.example ? `\n   Пример: ${c.example}` : "";
-          return `${index + 1}. ${c.phrase}${translation}${example}`;
-        })
-        .join("\n\n");
-
-      return formattedText;
+      return data.exportedText;
     } catch (err) {
       setError(err.message);
       throw err;

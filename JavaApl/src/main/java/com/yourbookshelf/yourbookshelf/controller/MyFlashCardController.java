@@ -11,6 +11,7 @@ import com.yourbookshelf.yourbookshelf.service.flashcards.MyFlashCardService;
 import com.yourbookshelf.yourbookshelf.service.flashcards.MyFolderService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +103,17 @@ public class MyFlashCardController {
         flashCardService.delete(id, principal.getUser());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    public record ExportRequest(@NotEmpty List<Long> cardIds){}
+    public record ExportResponse(String exportedText){}
+
+    @PostMapping("/export")
+    public ResponseEntity<ExportResponse> export (@AuthenticationPrincipal MyUserPrincipal principal,
+                                          @RequestBody @Valid ExportRequest ids){
+        String response = "mocked response";
+      return ResponseEntity.ok(new ExportResponse(response));
+    }
+
 }
 
 
