@@ -1,18 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import FlashcardView from "./FlashcardView";
+import { useFlashcards } from "../../context/FlashcardContext";
+import EditFlashcardForm from "./EditFlashcardForm";
 import "./FlashcardModal.css";
 
-const FlashcardModal = ({
-  isOpen,
-  onClose,
-  card,
-  folders,
-  onUpdateCard,
-  onDeleteCard,
-}) => {
+const FlashcardModal = ({ isOpen, onClose, card, folders }) => {
+  const { cards, moveCard, deleteCard } = useFlashcards();
   const [showMenu, setShowMenu] = useState(false);
-  const [isMovingFolder, setIsMovingFolder] = useState(false);
+  const [mode, setMode] = useState("VIEW"); // 'VIEW', 'MOVE', 'EDIT'
+  const [loadingAction, setLoadingAction] = useState(false);
   const menuRef = useRef(null);
+
+  const activeCard = cards.find((c) => c.id === card?.id) || card;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,29 +27,49 @@ const FlashcardModal = ({
 
   useEffect(() => {
     if (!isOpen) {
-      setIsMovingFolder(false);
+      setMode("VIEW");
       setShowMenu(false);
     }
   }, [isOpen]);
 
-  if (!isOpen || !card) return null;
+  if (!isOpen || !activeCard) return null;
 
   const currentFolder = folders.find(
-    (f) => Number(f.id) === Number(card.folderId),
+    (f) =>
+      Number(f.id) === Number(activeCard.folderId || activeCard.folder?.id),
   );
   const folderName = currentFolder ? currentFolder.name : "Без папки";
 
   const handleEditContent = () => {
-    alert("Функционал редактирования карточки в разработке");
     setShowMenu(false);
+    setMode("EDIT");
   };
 
-  const handleDelete = () => {
-    if (window.confirm(`Удалить карточку "${card.phrase}"?`)) {
-      onDeleteCard(card.id);
-      onClose();
+  const handleMoveFolder = async (newFolderId) => {
+    setLoadingAction(true);
+    try {
+      await moveCard(activeCard.id, newFolderId);
+      setMode("VIEW");
+    } catch (err) {
+      console.error("Ошибка при перемещении карточки:", err);
+    } finally {
+      setLoadingAction(false);
     }
+  };
+
+  const handleDelete = async () => {
     setShowMenu(false);
+    if (window.confirm(`Удалить карточку "${activeCard.phrase}"?`)) {
+      setLoadingAction(true);
+      try {
+        await deleteCard(activeCard.id);
+        onClose();
+      } catch (err) {
+        console.error("Ошибка при удалении карточки:", err);
+      } finally {
+        setLoadingAction(false);
+      }
+    }
   };
 
   return (
@@ -59,50 +78,62 @@ const FlashcardModal = ({
         className="book-info-modal flashcard-modal-container"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Шапка модального окна */}
-        <div className="modal-header">
-          <div className="settings-container" ref={menuRef}>
-            <button
-              className="icon-button settings-btn"
-              onClick={() => setShowMenu(!showMenu)}
-              title="Управление карточкой"
-            >
-              ⚙️
+        {/* Отображаем верхнюю шапку ТОЛЬКО если не в режиме редактирования */}
+        {mode !== "EDIT" && (
+          <div className="modal-header">
+            <div className="settings-container" ref={menuRef}>
+              <button
+                className="icon-button settings-btn"
+                onClick={() => setShowMenu(!showMenu)}
+                title="Управление карточкой"
+                disabled={loadingAction}
+              >
+                ⚙️
+              </button>
+
+              {showMenu && (
+                <div className="settings-dropdown">
+                  <button onClick={handleEditContent}>✏️ Редактировать</button>
+                  <button
+                    onClick={() => {
+                      setMode("MOVE");
+                      setShowMenu(false);
+                    }}
+                  >
+                    📁 Переместить
+                  </button>
+                  <button onClick={handleDelete} className="delete-action">
+                    🗑️ Удалить
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button className="close-button" onClick={onClose}>
+              &times;
             </button>
-
-            {showMenu && (
-              <div className="settings-dropdown">
-                <button onClick={handleEditContent}>✏️ Редактировать</button>
-                <button
-                  onClick={() => {
-                    setIsMovingFolder(true);
-                    setShowMenu(false);
-                  }}
-                >
-                  📁 Переместить
-                </button>
-                <button onClick={handleDelete} className="delete-action">
-                  🗑️ Удалить
-                </button>
-              </div>
-            )}
           </div>
-
-          <button className="close-button" onClick={onClose}>
-            &times;
-          </button>
-        </div>
+        )}
 
         {/* Тело модального окна */}
         <div className="modal-body">
-          {isMovingFolder ? (
+          {mode === "EDIT" && (
+            <EditFlashcardForm
+              card={activeCard}
+              folders={folders}
+              onCancel={() => setMode("VIEW")}
+              onSuccess={() => setMode("VIEW")}
+            />
+          )}
+
+          {mode === "MOVE" && (
             <div className="shelf-selection-view">
               <div
                 className="selection-header"
                 style={{ display: "flex", gap: "10px", marginBottom: "15px" }}
               >
                 <button
-                  onClick={() => setIsMovingFolder(false)}
+                  onClick={() => setMode("VIEW")}
                   style={{
                     background: "none",
                     border: "none",
@@ -120,22 +151,25 @@ const FlashcardModal = ({
                 style={{ display: "flex", flexDirection: "column", gap: "8px" }}
               >
                 {folders.map((folder) => {
-                  const isCurrent = Number(folder.id) === Number(card.folderId);
+                  const activeFolderId =
+                    activeCard.folderId || activeCard.folder?.id;
+                  const isCurrent =
+                    Number(folder.id) === Number(activeFolderId);
                   return (
                     <button
                       key={folder.id}
-                      disabled={isCurrent}
-                      onClick={() => {
-                        onUpdateCard({ ...card, folderId: folder.id });
-                        setIsMovingFolder(false);
-                      }}
+                      disabled={isCurrent || loadingAction}
+                      onClick={() => handleMoveFolder(folder.id)}
                       style={{
                         padding: "10px",
                         textAlign: "left",
                         borderRadius: "6px",
                         border: "1px solid #ddd",
-                        opacity: isCurrent ? 0.6 : 1,
-                        cursor: isCurrent ? "not-allowed" : "pointer",
+                        opacity: isCurrent || loadingAction ? 0.6 : 1,
+                        cursor:
+                          isCurrent || loadingAction
+                            ? "not-allowed"
+                            : "pointer",
                       }}
                     >
                       {isCurrent
@@ -146,7 +180,9 @@ const FlashcardModal = ({
                 })}
               </div>
             </div>
-          ) : (
+          )}
+
+          {mode === "VIEW" && (
             <div className="flashcard-preview-container">
               <div style={{ marginBottom: "12px" }}>
                 <span className="info-label">
@@ -154,8 +190,7 @@ const FlashcardModal = ({
                 </span>
               </div>
 
-              {/* Автономная карточка */}
-              <FlashcardView card={card} />
+              <FlashcardView card={activeCard} />
 
               <span className="flashcard-hint">
                 💡 Нажмите на карточку, чтобы перевернуть

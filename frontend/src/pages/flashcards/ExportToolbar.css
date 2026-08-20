@@ -1,0 +1,111 @@
+/* Панель экспорта */
+.export-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.export-toolbar-left,
+.export-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.select-all-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.selected-count {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin-left: 8px;
+}
+
+/* Кнопки */
+.btn-export-start {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-export-start:hover {
+  background-color: #2563eb;
+}
+
+.btn-export-action {
+  background-color: #10b981;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-export-action:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-export-action:disabled {
+  background-color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.btn-cancel-export {
+  background-color: transparent;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-cancel-export:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+/* Обертка карточки в режиме выбора */
+.selectable-card-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+
+.card-checkbox {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.selectable-card-wrapper.selected {
+  outline: 2px solid #3b82f6;
+  border-radius: 8px;
+}
