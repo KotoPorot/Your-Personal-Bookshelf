@@ -55,6 +55,7 @@ public class SecurityConfiguration {
 
         allowedOrigins.add("http://localhost:5173");
         allowedOrigins.add("http://localhost:3000");
+        allowedOrigins.add("https://your-personal-bookshelf.vercel.app");
 
         allowedMethods.add("GET");
         allowedMethods.add("POST");
@@ -69,6 +70,8 @@ public class SecurityConfiguration {
         configuration.setAllowedHeaders(allowedHeaders);
         configuration.setAllowedMethods(allowedMethods);
         configuration.setAllowCredentials(true);
+
+        configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
         return configuration;
     }
 
