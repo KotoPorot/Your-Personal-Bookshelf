@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../../../context/AuthContext"; // Укажите правильный путь к AuthContext
 
-const API_URL = "http://localhost:8080/api/v1/ai/phrases";
+const API_URL =
+  "https://your-personal-bookshelf.onrender.com/api/v1/ai/phrases";
 
 export const usePhrasesBuilder = (
   selectedText,

@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../../../context/AuthContext";
 
-const API_BASE = "http://localhost:8080/api/v1/ai";
+const API_BASE = "https://your-personal-bookshelf.onrender.com/api/v1/ai";
 
 export const useCreateCard = (cardData, targetLang = "EN") => {
   const { token } = useAuth();

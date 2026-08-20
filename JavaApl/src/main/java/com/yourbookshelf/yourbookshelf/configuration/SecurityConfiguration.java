@@ -35,20 +35,16 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(request -> corsConfiguration()))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().authenticated())
-                .headers(headers->headers.contentSecurityPolicy(
-                        csp ->csp.policyDirectives("frame-ancestors 'self' http://localhost:5173")));
+                        .anyRequest().authenticated());
         return httpSecurity
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtConfiguration, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
 
     public @Nullable CorsConfiguration corsConfiguration() {

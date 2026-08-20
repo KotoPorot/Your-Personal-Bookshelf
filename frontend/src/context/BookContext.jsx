@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from './AuthContext';
-import { handleRequestError } from '../utils/apiErrorHandler'; // Поправь путь, если нужно
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
+import { useAuth } from "./AuthContext";
+import { handleRequestError } from "../utils/apiErrorHandler"; // Поправь путь, если нужно
 
 const BookContext = createContext(null);
 
@@ -14,9 +14,9 @@ export const BookProvider = ({ children }) => {
 
   const apiHeaders = {
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   };
 
   // 1. Получение полок при монтировании / изменении токена
@@ -25,20 +25,23 @@ export const BookProvider = ({ children }) => {
       if (!token) return;
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:8080/api/v1/shelves/getAll', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          "https://your-personal-bookshelf.onrender.com/api/v1/shelves/getAll",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const data = response.data;
         setShelves(data);
 
         if (data.length > 0) {
-          const savedShelfId = localStorage.getItem('lastSelectedShelfId');
-          const exists = data.find(s => s.id === Number(savedShelfId));
+          const savedShelfId = localStorage.getItem("lastSelectedShelfId");
+          const exists = data.find((s) => s.id === Number(savedShelfId));
           if (exists) {
             setActiveShelfId(exists.id);
           } else {
             setActiveShelfId(data[0].id);
-            localStorage.setItem('lastSelectedShelfId', data[0].id);
+            localStorage.setItem("lastSelectedShelfId", data[0].id);
           }
         }
       } catch (err) {
@@ -57,9 +60,12 @@ export const BookProvider = ({ children }) => {
       if (!token || !activeShelfId) return;
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:8080/api/v1/books/getBooks/${activeShelfId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await axios.get(
+          `https://your-personal-bookshelf.onrender.com/api/v1/books/getBooks/${activeShelfId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         setBooks(response.data);
       } catch (err) {
         handleRequestError(err, logout);
@@ -75,9 +81,9 @@ export const BookProvider = ({ children }) => {
   const selectShelf = (id) => {
     setActiveShelfId(id);
     if (id) {
-      localStorage.setItem('lastSelectedShelfId', id);
+      localStorage.setItem("lastSelectedShelfId", id);
     } else {
-      localStorage.removeItem('lastSelectedShelfId');
+      localStorage.removeItem("lastSelectedShelfId");
     }
   };
 
@@ -86,11 +92,11 @@ export const BookProvider = ({ children }) => {
   const createShelf = async (shelfName) => {
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/v1/shelves/createShelf',
+        "https://your-personal-bookshelf.onrender.com/api/v1/shelves/createShelf",
         { shelfName },
-        apiHeaders
+        apiHeaders,
       );
-      setShelves(prev => [...prev, response.data]);
+      setShelves((prev) => [...prev, response.data]);
       selectShelf(response.data.id);
     } catch (err) {
       handleRequestError(err, logout);
@@ -100,11 +106,11 @@ export const BookProvider = ({ children }) => {
   const editShelfName = async (id, newName) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/v1/shelves/updateShelfName/${id}`,
+        `https://your-personal-bookshelf.onrender.com/api/v1/shelves/updateShelfName/${id}`,
         { shelfName: newName },
-        apiHeaders
+        apiHeaders,
       );
-      setShelves(prev => prev.map(s => s.id === id ? response.data : s));
+      setShelves((prev) => prev.map((s) => (s.id === id ? response.data : s)));
     } catch (err) {
       handleRequestError(err, logout);
     }
@@ -112,10 +118,13 @@ export const BookProvider = ({ children }) => {
 
   const deleteShelf = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/v1/shelves/deleteShelf/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const updatedShelves = shelves.filter(s => s.id !== id);
+      await axios.delete(
+        `https://your-personal-bookshelf.onrender.com/api/v1/shelves/deleteShelf/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      const updatedShelves = shelves.filter((s) => s.id !== id);
       setShelves(updatedShelves);
 
       if (activeShelfId === id) {
@@ -133,17 +142,19 @@ export const BookProvider = ({ children }) => {
   // --- МЕТОДЫ УПРАВЛЕНИЯ КНИГАМИ ---
 
   const addBookToState = (newBook) => {
-    setBooks(prev => [...prev, newBook]);
+    setBooks((prev) => [...prev, newBook]);
   };
 
   const renameBook = async (bookId, newTitle) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8080/api/v1/books/rename/${bookId}`,
+        `https://your-personal-bookshelf.onrender.com/api/v1/books/rename/${bookId}`,
         { newTitle },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      setBooks(prev => prev.map(b => b.id === bookId ? response.data : b));
+      setBooks((prev) =>
+        prev.map((b) => (b.id === bookId ? response.data : b)),
+      );
       return response.data; // Возвращаем обновленную книгу для локального стейта модалки
     } catch (err) {
       handleRequestError(err, logout);
@@ -153,11 +164,11 @@ export const BookProvider = ({ children }) => {
   const changeBookShelf = async (bookId, newShelfId) => {
     try {
       await axios.patch(
-        `http://localhost:8080/api/v1/books/changeShelf/${bookId}`,
+        `https://your-personal-bookshelf.onrender.com/api/v1/books/changeShelf/${bookId}`,
         { newShelfId },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      setBooks(prev => prev.filter(b => b.id !== bookId));
+      setBooks((prev) => prev.filter((b) => b.id !== bookId));
     } catch (err) {
       handleRequestError(err, logout);
     }
@@ -165,21 +176,35 @@ export const BookProvider = ({ children }) => {
 
   const deleteBook = async (bookId) => {
     try {
-      await axios.delete(`http://localhost:8080/api/v1/books/deleteBook/${bookId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      setBooks(prev => prev.filter(b => b.id !== bookId));
+      await axios.delete(
+        `https://your-personal-bookshelf.onrender.com/api/v1/books/deleteBook/${bookId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      setBooks((prev) => prev.filter((b) => b.id !== bookId));
     } catch (err) {
       handleRequestError(err, logout);
     }
   };
 
   return (
-    <BookContext.Provider value={{
-      shelves, books, activeShelfId, loading,
-      selectShelf, createShelf, editShelfName, deleteShelf,
-      addBookToState, renameBook, changeBookShelf, deleteBook
-    }}>
+    <BookContext.Provider
+      value={{
+        shelves,
+        books,
+        activeShelfId,
+        loading,
+        selectShelf,
+        createShelf,
+        editShelfName,
+        deleteShelf,
+        addBookToState,
+        renameBook,
+        changeBookShelf,
+        deleteBook,
+      }}
+    >
       {children}
     </BookContext.Provider>
   );

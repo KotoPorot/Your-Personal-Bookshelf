@@ -3,7 +3,8 @@ import { useAuth } from "./AuthContext";
 
 const FlashcardContext = createContext(null);
 
-const API_BASE_URL = "http://localhost:8080/api/v1/flashcards";
+const API_BASE_URL =
+  "https://your-personal-bookshelf.onrender.com/api/v1/flashcards";
 
 export const FlashcardProvider = ({ children }) => {
   const { token } = useAuth();
