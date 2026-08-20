@@ -110,7 +110,7 @@ public class MyFlashCardController {
     @PostMapping("/export")
     public ResponseEntity<ExportResponse> export (@AuthenticationPrincipal MyUserPrincipal principal,
                                           @RequestBody @Valid ExportRequest ids){
-        String response = "mocked response";
+        String response = flashCardService.convertToStringExport(ids.cardIds(), principal.getUser());
       return ResponseEntity.ok(new ExportResponse(response));
     }
 
