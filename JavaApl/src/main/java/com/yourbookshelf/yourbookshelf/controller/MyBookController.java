@@ -2,12 +2,16 @@ package com.yourbookshelf.yourbookshelf.controller;
 
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.service.book_storage.MyBookStorage;
+import com.yourbookshelf.yourbookshelf.service.book_storage.file_storage.MyFileBookStorage;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +26,8 @@ import java.util.List;
 @RequestMapping("/api/v1/books")
 public class MyBookController {
     private final MyBookService bookService;
+    @Autowired @Qualifier("file_storage")
+    private final MyBookStorage bookStorage;
 
     //work correct
     @PostMapping("/addBook/{shelfId}")

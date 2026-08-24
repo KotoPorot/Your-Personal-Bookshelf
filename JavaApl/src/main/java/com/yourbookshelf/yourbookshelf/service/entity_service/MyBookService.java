@@ -8,6 +8,8 @@ import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyBookRepository;
+import com.yourbookshelf.yourbookshelf.service.book_storage.MyBookStorage;
+import com.yourbookshelf.yourbookshelf.service.book_storage.file_storage.MyFileBookStorage;
 import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
 import lombok.AllArgsConstructor;
@@ -35,7 +37,6 @@ public class MyBookService {
     private final MyBookRepository bookRepository;
     private final MyShelfService shelfService;
     private final DtoMapper mapper;
-    private final EpubService epubService;
     private final MyFileService fileService;
 
     @Transactional(readOnly = true)
@@ -52,38 +53,22 @@ public class MyBookService {
         return shelf.getBooks().stream().map(mapper::mapToBookDTO).toList();
     }
 
-    public MyBookResponseDTO addBook(MultipartFile file, Long shelfId, MyUser user) {
-        MyShelf shelf = shelfService.findShelfByID(shelfId).filter(it -> it.getUser().getId().equals(user.getId())).orElseThrow(() -> new MyUserDoesNotHaveShelfException("Shelf does not belong user"));
+    public MyBookResponseDTO addBook(MultipartFile file, Long shelfId, MyUser user, MyBookStorage storage) {
+        MyShelf shelf = shelfService.findShelfByID(shelfId).filter(it ->
+                it.getUser().getId().equals(user.getId())).orElseThrow(() ->
+                new MyUserDoesNotHaveShelfException("Shelf does not belong user"));
 
         if (!file.getContentType().toLowerCase().contains("epub")) {
             throw new MyFileInvalidFormatException("File must be EPUB)" + " current format: " + file.getContentType().toLowerCase());
         }
 
-        try {
-            Book book = epubService.getBook(file.getInputStream());
-            MyBookMetadata metadata = epubService.extractMetadata(book);
-            MyBook myBook = mapper.extractMetadataToMyBook(metadata);
+        MyBook book = storage.addBook(file, shelf);
 
-            if (shelfService.isShelfHasBook(shelf, metadata.getTitle())) {
-                throw new MyBookAlreadyExistsOnShelfException("you have already uploaded this book: " + book.getMetadata().getFirstTitle());
-            }
-            String uuid = UUID.randomUUID().toString();
-
-            Path filePath = fileService.saveFile(file.getInputStream(), uuid + ".epub", fileService.getBOOK_STORAGE_LOCATION());
-            myBook.setFilePath(filePath.toString());
-
-            if (book.getCoverImage() != null) {
-                String imgFormat = epubService.getImageFormat(book.getCoverImage().getMediaType().toString());
-                Path coverImagePath = fileService.saveFile(book.getCoverImage().getInputStream(), uuid + imgFormat, fileService.getCOVER_IMAGE_STORAGE());
-                myBook.setCoverPath(coverImagePath.toString());
-            }
-            myBook.setShelf(shelf);
-            return mapper.mapToBookDTO(bookRepository.save(myBook));
-        } catch (IOException e) {
-            throw new MyIOException(e.getMessage());
-        }
+        return mapper.mapToBookDTO(bookRepository.save(book));
 
     }
+
+
 
 
     public ResponseEntity<Resource> getCoverImage(Long bookId, MyUser user) {
