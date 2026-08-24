@@ -1,4 +1,4 @@
-package com.yourbookshelf.yourbookshelf.service.flashcards;
+package com.yourbookshelf.yourbookshelf.service.entity_service.flashcards;
 
 import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveFolderException;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;

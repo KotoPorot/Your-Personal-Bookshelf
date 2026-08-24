@@ -1,6 +1,6 @@
 package com.yourbookshelf.yourbookshelf.service.entity_service;
 
-import com.yourbookshelf.yourbookshelf.DTO.book.MyBookMetadata;
+import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResourceDTO;
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.customException.*;
 import com.yourbookshelf.yourbookshelf.entity.MyBook;
@@ -8,13 +8,9 @@ import com.yourbookshelf.yourbookshelf.entity.MyShelf;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyBookRepository;
-import com.yourbookshelf.yourbookshelf.service.book_storage.MyBookStorage;
-import com.yourbookshelf.yourbookshelf.service.book_storage.file_storage.MyFileBookStorage;
+import com.yourbookshelf.yourbookshelf.service.book_storage_service.MyBookStorage;
 import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
-import com.yourbookshelf.yourbookshelf.service.parser.EpubService;
-import lombok.AllArgsConstructor;
-import nl.siegmann.epublib.domain.Book;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,29 +19,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class MyBookService {
 
     private final MyBookRepository bookRepository;
     private final MyShelfService shelfService;
     private final DtoMapper mapper;
-    private final MyFileService fileService;
+    private final MyBookStorage storage;
+
+    public MyBookService(MyBookRepository bookRepository, MyShelfService shelfService,
+                         DtoMapper mapper,
+                         @Qualifier("fileBookStorage") MyBookStorage storage) {
+        this.bookRepository = bookRepository;
+        this.shelfService = shelfService;
+        this.mapper = mapper;
+        this.storage = storage;
+    }
 
     @Transactional(readOnly = true)
     public List<MyBookResponseDTO> getBooks(MyUser user, Long shelfId) {
-        Optional<MyShelf> optionalMyShelf = shelfService.findShelfByID(shelfId);
-        if (!optionalMyShelf.isPresent()) {
-            throw new MyShelfDoesNotFounException("Shelf with id: " + shelfId + " Not Found");
-        }
-        MyShelf shelf = optionalMyShelf.get();
+        MyShelf shelf = shelfService.findShelfByID(shelfId)
+                .orElseThrow(()-> new MyShelfDoesNotFoundException("Shelf with id: " + shelfId + " Not Found"));
+
         if (!shelfService.isShelfBelongsUser(shelf, user.getId())) {
             throw new MyUserDoesNotHaveShelfException("User: " + user.getUsername() + " does not have a shelf with id: " + shelfId);
         }
@@ -53,7 +51,8 @@ public class MyBookService {
         return shelf.getBooks().stream().map(mapper::mapToBookDTO).toList();
     }
 
-    public MyBookResponseDTO addBook(MultipartFile file, Long shelfId, MyUser user, MyBookStorage storage) {
+    @Transactional
+    public MyBookResponseDTO addBook(MultipartFile file, Long shelfId, MyUser user) {
         MyShelf shelf = shelfService.findShelfByID(shelfId).filter(it ->
                 it.getUser().getId().equals(user.getId())).orElseThrow(() ->
                 new MyUserDoesNotHaveShelfException("Shelf does not belong user"));
@@ -68,29 +67,15 @@ public class MyBookService {
 
     }
 
-
-
-
+    @Transactional(readOnly = true)
     public ResponseEntity<Resource> getCoverImage(Long bookId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
+        MyBookResourceDTO resource =  storage.getCoverImage(book);
 
-        Path coverImgPath = fileService.validatePath(book.getCoverPath(), fileService.getCOVER_IMAGE_STORAGE());
-        Resource resource = new FileSystemResource(coverImgPath);
-
-        try {
-            String contentType = Files.probeContentType(coverImgPath);
-            //change to placeholder later
-            if (contentType == null) {
-                throw new MyFileInvalidFormatException("invalid content type");
-            }
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
-                            + coverImgPath.getFileName().toString() + "\"")
-                    .body(resource);
-
-        } catch (IOException e) {
-            throw new MyResourceNotFoundException("resource not found");
-        }
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(resource.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
+                        + resource.fileName() + "\"")
+                .body(resource.resource());
     }
 
     public MyBook getUserBook(Long bookId, MyUser user) {
@@ -99,7 +84,7 @@ public class MyBookService {
                 .orElseThrow(() -> new MyUserDoesNotHaveBookException("user does not have a book"));
     }
 
-
+    @Transactional
     public MyBookResponseDTO updateTitle(Long bookId, String newTitle, MyUser user) {
         if (newTitle == null || newTitle.isEmpty()) {
             throw new MyInvalidArgumentsException("Title cannot be empty");
@@ -111,16 +96,16 @@ public class MyBookService {
         return mapper.mapToBookDTO(bookRepository.save(book));
     }
 
+    @Transactional
     public boolean deleteBook(Long bookId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
-        fileService.deleteFileFromStorage(book.getFilePath());
-        fileService.deleteFileFromStorage(book.getCoverPath());
+        storage.deleteBook(book);
         bookRepository.delete(book);
-
         return true;
     }
 
 
+    @Transactional
     public MyBookResponseDTO updateShelf(Long bookId, Long newShelfId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
         MyShelf shelf = shelfService.getUserShelf(newShelfId, user);
@@ -131,15 +116,12 @@ public class MyBookService {
 
     public ResponseEntity<Resource> getFileBook(Long bookId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
+        MyBookResourceDTO resource = storage.getFileBook(book);
 
-        Path path = fileService.validatePath(book.getFilePath(), fileService.getBOOK_STORAGE_LOCATION());
-
-        Resource resource = new FileSystemResource(path);
-
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/epub+zip"))
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType(resource.contentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\""
-                +path.getFileName().toString()+"\"")
-                .body(resource);
+                        + resource.fileName() + "\"")
+                .body(resource.resource());
     }
 
 
