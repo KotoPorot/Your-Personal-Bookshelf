@@ -2,12 +2,15 @@ package com.yourbookshelf.yourbookshelf.controller;
 
 import com.yourbookshelf.yourbookshelf.DTO.book.MyBookResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.user.MyUserPrincipal;
+import com.yourbookshelf.yourbookshelf.service.book_storage_service.MyBookStorage;
 import com.yourbookshelf.yourbookshelf.service.entity_service.MyBookService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

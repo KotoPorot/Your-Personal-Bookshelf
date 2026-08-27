@@ -1,10 +1,9 @@
-package com.yourbookshelf.yourbookshelf.service.flashcards;
+package com.yourbookshelf.yourbookshelf.service.entity_service.flashcards;
 
 import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyExampleResponse;
 import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardRequestDTO;
 import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardResponseDTO;
 import com.yourbookshelf.yourbookshelf.DTO.flashcard.MyFlashCardUpdateRequestDTO;
-import com.yourbookshelf.yourbookshelf.controller.MyFlashCardController;
 import com.yourbookshelf.yourbookshelf.customException.MyUserDoesNotHaveFlashCardException;
 import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.entity.flashcard.MyExample;
@@ -12,7 +11,6 @@ import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFlashCard;
 import com.yourbookshelf.yourbookshelf.entity.flashcard.MyFolder;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyFlashCardRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
