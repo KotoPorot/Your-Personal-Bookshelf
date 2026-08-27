@@ -37,3 +37,7 @@ deepl:
     api-key: ${DEEPL_API_KEY}
     base-url: https://api-free.deepl.com
 
+catbox:
+  base-url: https://catbox.moe
+  userhash: ${CATBOX_USERHASH}
+

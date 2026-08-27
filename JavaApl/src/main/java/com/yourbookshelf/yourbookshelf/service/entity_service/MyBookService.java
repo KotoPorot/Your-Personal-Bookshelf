@@ -9,7 +9,6 @@ import com.yourbookshelf.yourbookshelf.entity.MyUser;
 import com.yourbookshelf.yourbookshelf.mapper.DtoMapper;
 import com.yourbookshelf.yourbookshelf.repository.MyBookRepository;
 import com.yourbookshelf.yourbookshelf.service.book_storage_service.MyBookStorage;
-import com.yourbookshelf.yourbookshelf.service.fileService.MyFileService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +31,7 @@ public class MyBookService {
 
     public MyBookService(MyBookRepository bookRepository, MyShelfService shelfService,
                          DtoMapper mapper,
-                         @Qualifier("fileBookStorage") MyBookStorage storage) {
+                         @Qualifier("myCatBoxStorage") MyBookStorage storage) {
         this.bookRepository = bookRepository;
         this.shelfService = shelfService;
         this.mapper = mapper;

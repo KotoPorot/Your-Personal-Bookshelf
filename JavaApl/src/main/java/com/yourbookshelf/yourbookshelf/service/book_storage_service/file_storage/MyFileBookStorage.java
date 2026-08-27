@@ -17,9 +17,6 @@ import lombok.RequiredArgsConstructor;
 import nl.siegmann.epublib.domain.Book;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,7 +66,6 @@ public class MyFileBookStorage implements MyBookStorage {
         Resource resource = new FileSystemResource(coverImgPath);
         try {
             String contentType = Files.probeContentType(coverImgPath);
-            //change to placeholder later
             if (contentType == null) {
                 throw new MyFileInvalidFormatException("invalid content type");
             }
@@ -98,7 +94,7 @@ public class MyFileBookStorage implements MyBookStorage {
 
         Resource resource = new FileSystemResource(path);
 
-        return new MyBookResourceDTO(resource,"application/epub+zip", path.getFileName().toString());
+        return new MyBookResourceDTO(resource, "application/epub+zip", path.getFileName().toString());
 
     }
 
