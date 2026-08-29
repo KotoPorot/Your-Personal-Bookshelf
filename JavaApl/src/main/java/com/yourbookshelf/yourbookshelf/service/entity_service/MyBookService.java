@@ -98,8 +98,11 @@ public class MyBookService {
     @Transactional
     public boolean deleteBook(Long bookId, MyUser user) {
         MyBook book = getUserBook(bookId, user);
-        storage.deleteBook(book);
         bookRepository.delete(book);
+
+        if(!bookRepository.existsByFilePath(book.getFilePath())){
+          storage.deleteBook(book);
+        }
         return true;
     }
 

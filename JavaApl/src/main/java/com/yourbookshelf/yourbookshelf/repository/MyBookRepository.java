@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MyBookRepository extends JpaRepository<MyBook, Long> {
+    boolean existsByFilePath(String filePath);
 }
