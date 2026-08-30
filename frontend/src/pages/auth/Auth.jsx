@@ -1,78 +1,91 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import './Auth.css';
+import { useState } from "react";
+import axios from "axios";
+import { useAuth } from "../../context/AuthContext";
 
 const Auth = () => {
-  const { login, setCurrentScreen } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+	const { login, setCurrentScreen } = useAuth();
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
+	const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		setError("");
 
-    try {
-      const response = await axios.post('http://localhost:8080/api/v1/auth/login', {
-        username: username,
-        password: password
-      });
+		try {
+			const response = await axios.post(
+				"http://localhost:8080/api/v1/auth/login",
+				{
+					username: username,
+					password: password,
+				},
+			);
 
-      const token = response.data;
+			const token = response.data;
 
-      if (token) {
-        login(token, username);
-      } else {
-        setError('Сервер не вернул токен доступа.');
-      }
+			if (token) {
+				login(token, username);
+			} else {
+				setError("The server did not return an access token.");
+			}
+		} catch (err) {
+			console.error("Authorization error:", err);
+			setError("Invalid username or password");
+		}
+	};
 
-    } catch (err) {
-      console.error('Ошибка авторизации:', err);
-      setError('Неверный логин или пароль');
-    }
-  };
+	return (
+		<div className="container centering-wrapper">
+			<div className="auth-surface">
+				<form className="auth-form auth-content" onSubmit={handleSubmit}>
+					<h2 className="title">Login to Bookshelf</h2>
 
-  return (
-    <div className="auth-wrapper">
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Вход в Bookshelf</h2>
+					{error && <div className="error-message">{error}</div>}
 
-        {error && <div className="error-message">{error}</div>}
+					<div className="input-group">
+						<label>Логин</label>
+						<input
+							type="text"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+							required
+						/>
+					</div>
 
-        <div className="input-group">
-          <label>Логин</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
+					<div className="input-group">
+						<label>Pass</label>
+						<input
+							type="password"
+							value={password}
+							onChange={(e) => setPassword(e.target.value)}
+							required
+						/>
+					</div>
 
-        <div className="input-group">
-          <label>Пароль</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+					<button type="submit" className="auth-btn login-btn">
+						Log In
+					</button>
 
-        <button type="submit" className="auth-btn">Войти</button>
-
-        <div className="auth-links">
-          <button type="button" onClick={() => setCurrentScreen('welcome')} className="link-btn">
-            Назад
-          </button>
-          <button type="button" onClick={() => setCurrentScreen('register')} className="link-btn">
-            Регистрация
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+					<div className="auth-links">
+						<button
+							type="button"
+							onClick={() => setCurrentScreen("welcome")}
+							className="link-btn"
+						>
+							Назад
+						</button>
+						<button
+							type="button"
+							onClick={() => setCurrentScreen("register")}
+							className="link-btn"
+						>
+							Регистрация
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	);
 };
 
 export default Auth;

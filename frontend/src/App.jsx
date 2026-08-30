@@ -1,4 +1,3 @@
-import React from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { BookProvider } from "./context/BookContext";
 import { FolderProvider } from "./context/FolderContext.jsx";
@@ -12,40 +11,40 @@ import FlashcardPage from "./pages/flashcards/FlashcardsPage.jsx";
 import "./App.css";
 
 function MainApp() {
-  const { token, currentScreen } = useAuth();
+	const { token, currentScreen } = useAuth();
 
-  if (token) {
-    if (currentScreen === "reader") {
-      return <ReaderPage />;
-    }
-    if (currentScreen === "flashcards") {
-      return <FlashcardPage />;
-    }
-    if (currentScreen === "bookshelf") {
-      return <Bookshelf />;
-    }
-    return <Bookshelf />;
-  }
+	if (token) {
+		if (currentScreen === "reader") {
+			return <ReaderPage />;
+		}
+		if (currentScreen === "flashcards") {
+			return <FlashcardPage />;
+		}
+		if (currentScreen === "bookshelf") {
+			return <Bookshelf />;
+		}
+		return <Bookshelf />;
+	}
 
-  return (
-    <div className="app-container">
-      {currentScreen === "welcome" && <WelcomePage />}
-      {currentScreen === "login" && <Auth />}
-      {currentScreen === "register" && <Register />}
-    </div>
-  );
+	return (
+		<div className="auth-page">
+			{currentScreen === "welcome" && <WelcomePage />}
+			{currentScreen === "login" && <Auth />}
+			{currentScreen === "register" && <Register />}
+		</div>
+	);
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <BookProvider>
-        <FolderProvider>
-          <FlashcardProvider>
-            <MainApp />
-          </FlashcardProvider>
-        </FolderProvider>
-      </BookProvider>
-    </AuthProvider>
-  );
+	return (
+		<AuthProvider>
+			<BookProvider>
+				<FolderProvider>
+					<FlashcardProvider>
+						<MainApp />
+					</FlashcardProvider>
+				</FolderProvider>
+			</BookProvider>
+		</AuthProvider>
+	);
 }
