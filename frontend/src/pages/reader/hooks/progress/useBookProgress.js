@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../../../context/AuthContext';
-import { handleRequestError } from '../../../../utils/apiErrorHandler';
+import { useState, useEffect, useCallback, useRef } from "react";
+import axios from "axios";
+import { useAuth } from "../../../../context/AuthContext";
+import { handleRequestError } from "../../../../utils/apiErrorHandler";
 
 export const useBookProgress = (bookId) => {
   const { token, logout } = useAuth();
@@ -16,38 +16,43 @@ export const useBookProgress = (bookId) => {
 
   const apiHeaders = {
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   };
 
   // Метод отправки прогресса на сервер (Стандартный Axios)
-  const updateServer = useCallback(async (dataToSend) => {
-    if (!token) return;
-    try {
-      const response = await axios.patch(
-        'http://localhost:8080/api/v1/progress/update',
-        dataToSend,
-        apiHeaders
-      );
+  const updateServer = useCallback(
+    async (dataToSend) => {
+      if (!token) return;
+      try {
+        const response = await axios.patch(
+          "https://your-personal-bookshelf.onrender.com/api/v1/progress/update",
+          dataToSend,
+          apiHeaders,
+        );
 
-      lastSyncedServerRef.current = response.data;
-      console.log("[Sync] Прогресс успешно сохранен на сервере.");
-    } catch (err) {
-      if (err.response?.status === 400) {
-        const actualServerData = err.response.data;
-        console.warn("[Sync] Конфликт таймстампов! Данные бэка новее. Синхронизируем фронтенд с сервером.");
+        lastSyncedServerRef.current = response.data;
+        console.log("[Sync] Прогресс успешно сохранен на сервере.");
+      } catch (err) {
+        if (err.response?.status === 400) {
+          const actualServerData = err.response.data;
+          console.warn(
+            "[Sync] Конфликт таймстампов! Данные бэка новее. Синхронизируем фронтенд с сервером.",
+          );
 
-        localStorage.setItem(cacheKey, JSON.stringify(actualServerData));
-        lastSavedLocalRef.current = actualServerData;
-        lastSyncedServerRef.current = actualServerData;
-        latestDataRef.current = actualServerData;
-      } else {
-        console.error("[Sync] Ошибка сети при синхронизации:", err);
-        handleRequestError(err, logout);
+          localStorage.setItem(cacheKey, JSON.stringify(actualServerData));
+          lastSavedLocalRef.current = actualServerData;
+          lastSyncedServerRef.current = actualServerData;
+          latestDataRef.current = actualServerData;
+        } else {
+          console.error("[Sync] Ошибка сети при синхронизации:", err);
+          handleRequestError(err, logout);
+        }
       }
-    }
-  }, [token, cacheKey, logout]);
+    },
+    [token, cacheKey, logout],
+  );
 
   // ОПТИМИЗАЦИЯ: Гарантированный синк методом keepalive при экстренном закрытии вкладки
   const syncOnClose = useCallback(() => {
@@ -57,21 +62,30 @@ export const useBookProgress = (bookId) => {
     if (!lastSavedLocal || !token) return;
 
     // Проверяем, есть ли неотправленные изменения
-    const needsSync = !lastSyncedServer || lastSavedLocal.timestamp !== lastSyncedServer.timestamp;
+    const needsSync =
+      !lastSyncedServer ||
+      lastSavedLocal.timestamp !== lastSyncedServer.timestamp;
 
     if (needsSync) {
-      console.log("[Sync] Обнаружены неотправленные данные. Запуск незакрываемого keepalive-запроса...");
+      console.log(
+        "[Sync] Обнаружены неотправленные данные. Запуск незакрываемого keepalive-запроса...",
+      );
 
       // Используем native fetch + keepalive, чтобы браузер доставил запрос даже после закрытия вкладки
-      fetch('http://localhost:8080/api/v1/progress/update', {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      fetch(
+        "https://your-personal-bookshelf.onrender.com/api/v1/progress/update",
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(lastSavedLocal),
+          keepalive: true,
         },
-        body: JSON.stringify(lastSavedLocal),
-        keepalive: true
-      }).catch(err => console.error("[Sync] Ошибка экстренной отправки:", err));
+      ).catch((err) =>
+        console.error("[Sync] Ошибка экстренной отправки:", err),
+      );
 
       // Фиксируем отправку в рефе
       lastSyncedServerRef.current = lastSavedLocal;
@@ -87,8 +101,8 @@ export const useBookProgress = (bookId) => {
         let serverData = null;
         try {
           const response = await axios.get(
-            `http://localhost:8080/api/v1/progress/get/${bookId}`,
-            { headers: { 'Authorization': `Bearer ${token}` } }
+            `https://your-personal-bookshelf.onrender.com/api/v1/progress/get/${bookId}`,
+            { headers: { Authorization: `Bearer ${token}` } },
           );
           serverData = response.data;
         } catch (err) {
@@ -106,11 +120,15 @@ export const useBookProgress = (bookId) => {
           const serverTime = new Date(serverData.timestamp).getTime();
 
           if (cacheTime > serverTime) {
-            console.log("[Sync] Кэш новее сервера. Используем кэш, готовим апдейт на бэк.");
+            console.log(
+              "[Sync] Кэш новее сервера. Используем кэш, готовим апдейт на бэк.",
+            );
             finalData = cachedData;
             needImmediateSync = true;
           } else {
-            console.log("[Sync] Данные сервера свежее или равны кэшу. Обновляем кэш.");
+            console.log(
+              "[Sync] Данные сервера свежее или равны кэшу. Обновляем кэш.",
+            );
             finalData = serverData;
             localStorage.setItem(cacheKey, JSON.stringify(serverData));
           }
@@ -130,7 +148,7 @@ export const useBookProgress = (bookId) => {
             numberOfSections: 1,
             currentChapterInSection: 1,
             numberOfChaptersInSection: 1,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
           };
           localStorage.setItem(cacheKey, JSON.stringify(finalData));
         }
@@ -144,16 +162,22 @@ export const useBookProgress = (bookId) => {
         } else {
           lastSyncedServerRef.current = finalData;
         }
-
       } catch (err) {
-        console.error("[Sync] Ошибка при первичной синхронизации, откат на кэш:", err);
+        console.error(
+          "[Sync] Ошибка при первичной синхронизации, откат на кэш:",
+          err,
+        );
         const cachedRaw = localStorage.getItem(cacheKey);
-        setInitialData(cachedRaw ? JSON.parse(cachedRaw) : {
-          bookId,
-          readingTime: 0,
-          progress: 0,
-          timestamp: new Date().toISOString()
-        });
+        setInitialData(
+          cachedRaw
+            ? JSON.parse(cachedRaw)
+            : {
+                bookId,
+                readingTime: 0,
+                progress: 0,
+                timestamp: new Date().toISOString(),
+              },
+        );
         handleRequestError(err, logout);
       } finally {
         setLoadingProgress(false);
@@ -164,12 +188,15 @@ export const useBookProgress = (bookId) => {
   }, [bookId, cacheKey, token, updateServer, logout]);
 
   // 2. ФУНКЦИЯ СТРИМИНГА ДАННЫХ ИЗ ИНТЕРФЕЙСА (Без изменений)
-  const reportLiveProgress = useCallback((data) => {
-    latestDataRef.current = {
-      bookId: Number(bookId),
-      ...data
-    };
-  }, [bookId]);
+  const reportLiveProgress = useCallback(
+    (data) => {
+      latestDataRef.current = {
+        bookId: Number(bookId),
+        ...data,
+      };
+    },
+    [bookId],
+  );
 
   // 3. ТАЙМЕР ЛОКАЛЬНОГО КЭША (Без изменений)
   useEffect(() => {
@@ -181,14 +208,15 @@ export const useBookProgress = (bookId) => {
 
       if (!latest) return;
 
-      const isChanged = !lastSaved ||
+      const isChanged =
+        !lastSaved ||
         latest.currentCfi !== lastSaved.currentCfi ||
         latest.readingTime !== lastSaved.readingTime;
 
       if (isChanged) {
         const updatedData = {
           ...latest,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
         localStorage.setItem(cacheKey, JSON.stringify(updatedData));
         lastSavedLocalRef.current = updatedData;
@@ -209,7 +237,9 @@ export const useBookProgress = (bookId) => {
 
       if (!lastSavedLocal) return;
 
-      const needsSync = !lastSyncedServer || lastSavedLocal.timestamp !== lastSyncedServer.timestamp;
+      const needsSync =
+        !lastSyncedServer ||
+        lastSavedLocal.timestamp !== lastSyncedServer.timestamp;
 
       if (needsSync) {
         updateServer(lastSavedLocal);
@@ -223,8 +253,14 @@ export const useBookProgress = (bookId) => {
       const lastSavedLocal = lastSavedLocalRef.current;
       const lastSyncedServer = lastSyncedServerRef.current;
 
-      if (lastSavedLocal && (!lastSyncedServer || lastSavedLocal.timestamp !== lastSyncedServer.timestamp)) {
-        console.log("[Sync] Хук размонтирован. Выполняется финальный синк данных...");
+      if (
+        lastSavedLocal &&
+        (!lastSyncedServer ||
+          lastSavedLocal.timestamp !== lastSyncedServer.timestamp)
+      ) {
+        console.log(
+          "[Sync] Хук размонтирован. Выполняется финальный синк данных...",
+        );
         updateServer(lastSavedLocal);
       }
     };
@@ -233,14 +269,14 @@ export const useBookProgress = (bookId) => {
   // 5. ОПТИМИЗАЦИЯ: Подписка на сворачивание / закрытие вкладки браузера
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (document.visibilityState === "hidden") {
         syncOnClose();
       }
     };
 
-    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [syncOnClose]);
 

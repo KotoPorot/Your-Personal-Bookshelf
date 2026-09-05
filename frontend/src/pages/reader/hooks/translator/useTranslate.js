@@ -37,14 +37,17 @@ export const useTranslate = () => {
           payload,
         );
 
-        const response = await fetch("http://localhost:8080/api/v1/translate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          "https://your-personal-bookshelf.onrender.com/api/v1/translate",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
           },
-          body: JSON.stringify(payload),
-        });
+        );
 
         console.log(
           "%c💬 [API] Ответ сервера:",

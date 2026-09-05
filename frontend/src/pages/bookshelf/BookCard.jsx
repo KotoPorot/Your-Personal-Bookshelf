@@ -21,7 +21,7 @@ const BookCard = ({ book, onBookClick, token }) => {
 				}
 
 				const response = await axios.get(
-					`http://localhost:8080/api/v1/books/getCoverImage/${book.id}`,
+          `https://your-personal-bookshelf.onrender.com/api/v1/books/getCoverImage/${book.id}`,
 					{
 						headers: { Authorization: `Bearer ${token}` },
 						responseType: "blob",
