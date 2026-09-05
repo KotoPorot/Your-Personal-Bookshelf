@@ -20,7 +20,7 @@
 	align-items: center;
 }
 .welcome__books-icon {
-	margin-bottom: 40px;
+	margin-bottom: 35px;
 }
 .welcome__title--accent {
 	color: var(--accent-color);
@@ -50,11 +50,10 @@
 .auth-btn {
 	padding: 12px 35px 12px 74px;
 	font-size: 16px;
-	border: none;
 	border-radius: 5px;
-	cursor: pointer;
 	position: relative;
 	box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+	transition: 0.4s;
 }
 
 .auth-btn::before {
@@ -65,14 +64,13 @@
 	width: 30px;
 	height: 24px;
 
-	mask: url("../../assets/icons/button-icon.svg") center / contain no-repeat;
-	-webkit-mask: url("../../assets/icons/button-icon.svg") center / contain
+	mask: url("../../assets/icons/login-btn.svg") center / contain no-repeat;
+	-webkit-mask: url("../../assets/icons/login-btn.svg") center / contain
 		no-repeat;
 }
 .auth-btn:hover::before {
-	mask: url("../../assets/icons/button-hover-icon.svg") center / contain
-		no-repeat;
-	-webkit-mask: url("../../assets/icons/button-hover-icon.svg") center / contain
+	mask: url("../../assets/icons/login-btn-hover.svg") center / contain no-repeat;
+	-webkit-mask: url("../../assets/icons/login-btn-hover.svg") center / contain
 		no-repeat;
 }
 .login-btn {

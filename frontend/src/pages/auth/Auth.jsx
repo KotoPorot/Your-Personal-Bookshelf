@@ -43,7 +43,7 @@ const Auth = () => {
 					{error && <div className="error-message">{error}</div>}
 
 					<div className="input-group">
-						<label>Логин</label>
+						<label>Login</label>
 						<input
 							type="text"
 							value={username}
@@ -53,7 +53,7 @@ const Auth = () => {
 					</div>
 
 					<div className="input-group">
-						<label>Pass</label>
+						<label>Password</label>
 						<input
 							type="password"
 							value={password}
@@ -72,14 +72,14 @@ const Auth = () => {
 							onClick={() => setCurrentScreen("welcome")}
 							className="link-btn"
 						>
-							Назад
+							Back to main page
 						</button>
 						<button
 							type="button"
 							onClick={() => setCurrentScreen("register")}
 							className="link-btn"
 						>
-							Регистрация
+							Registration
 						</button>
 					</div>
 				</form>

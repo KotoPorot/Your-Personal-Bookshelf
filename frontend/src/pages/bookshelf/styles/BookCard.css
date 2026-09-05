@@ -1,80 +1,178 @@
 /* Карточка книги */
 .book-card {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
+	background-color: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	overflow: hidden;
+	cursor: pointer;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+	display: flex;
+	flex-direction: column;
+	max-width: 250px;
 }
 
 .book-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	transform: translateY(-4px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .book-card-cover {
-    height: 160px;
-    background-color: #edf2f7;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 48px;
+	height: 160px;
+	background-color: #edf2f7;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 48px;
 }
 
 .book-card-info {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
+	padding: 15px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
 }
 
 .book-card-title {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    color: #2d3748;
+	margin: 0 0 5px 0;
+	font-size: 16px;
+	color: #2d3748;
 }
 
 .book-card-author {
-    margin: 0 0 15px 0;
-    font-size: 14px;
-    color: #718096;
+	margin: 0 0 15px 0;
+	font-size: 14px;
+	color: #718096;
 }
 
 .book-card-footer {
-    margin-top: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 12px;
+	margin-top: auto;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 12px;
 }
 
 .book-card-pages {
-    color: #a0aec0;
+	color: #a0aec0;
 }
 
 /* Бейджи статусов */
 .status-badge {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 10px;
+	padding: 3px 8px;
+	border-radius: 12px;
+	font-weight: bold;
+	text-transform: uppercase;
+	font-size: 10px;
 }
 
-.status-badge.reading { background-color: #feebc8; color: #c05621; }
-.status-badge.planned { background-color: #e2e8f0; color: #4a5568; }
-.status-badge.completed { background-color: #c6f6d5; color: #22543d; }
+.status-badge.reading {
+	background-color: #feebc8;
+	color: #c05621;
+}
+.status-badge.planned {
+	background-color: #e2e8f0;
+	color: #4a5568;
+}
+.status-badge.completed {
+	background-color: #c6f6d5;
+	color: #22543d;
+}
 
 .no-books-message {
-    color: #718096;
-    font-style: italic;
+	color: #718096;
+	font-style: italic;
 }
 /* Сетка (Grid) */
 .book-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 25px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 25px;
+}
+/* Карточка книги */
+
+.book-card {
+	background-color: #ffffff;
+
+	border: 1px solid #e2e8f0;
+
+	border-radius: 8px;
+
+	overflow: hidden;
+
+	cursor: pointer;
+
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	display: flex;
+
+	flex-direction: column;
+}
+
+.book-card:hover {
+	transform: translateY(-4px);
+
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.book-card-cover-wrapper {
+	height: 240px; /* Фиксированная высота для всех обложек */
+	background-color: #edf2f7;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden; /* Скрывает части картинки, которые не влезли */
+}
+
+/* Добавьте это правило для самого тега img */
+.book-card-cover-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /* Ключевое свойство: заполняет область без деформации */
+	display: block;
+}
+
+.book-card-info {
+	padding: 15px;
+
+	display: flex;
+
+	flex-direction: column;
+
+	flex: 1;
+}
+
+.book-card-title {
+	margin: 0 0 5px 0;
+
+	font-size: 16px;
+
+	color: #2d3748;
+}
+
+.book-card-author {
+	margin: 0 0 15px 0;
+
+	font-size: 14px;
+
+	color: #718096;
+}
+
+.book-card-footer {
+	margin-top: auto;
+
+	display: flex;
+
+	justify-content: space-between;
+
+	align-items: center;
+
+	font-size: 12px;
+}
+
+.book-card-pages {
+	color: #a0aec0;
 }

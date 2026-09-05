@@ -80,9 +80,12 @@ h6 {
 	--primary-color: #707014;
 	--success-color: #427014;
 	--accent-color: #701442;
-	--text-color: #2b1908;
+	--text-color-dark: #2b1908;
+	--text-color-light: #f7f0e3;
 	--muted-color: #cdbb9f;
 	--surface-color: #f7f0e3;
+
+	/* #f9deaf  #63531c #f9ebca*/
 
 	--sans: system-ui, "Segoe UI", Roboto, sans-serif;
 	--heading: system-ui, "Segoe UI", Roboto, sans-serif;
@@ -92,8 +95,7 @@ h6 {
 	font: 18px/145% var(--sans);
 	letter-spacing: 0.18px;
 	line-height: 1.1;
-
-	color: var(--text-color);
+	color: var(--text-color-dark);
 
 	background: #4d2e0e;
 	font-synthesis: none;
