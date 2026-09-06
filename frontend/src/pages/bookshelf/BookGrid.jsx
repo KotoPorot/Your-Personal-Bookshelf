@@ -1,4 +1,3 @@
-import React from "react";
 import BookCard from "./BookCard";
 
 const BookGrid = ({ books, activeShelfId, onBookClick, token }) => {

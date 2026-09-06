@@ -1,4 +1,3 @@
-import React from "react";
 import { useReader } from "../context/ReaderContext";
 import { useAuth } from "../../../context/AuthContext";
 import TranslatorSettingsPanel from "./TranslatorSettingsPanel.jsx";

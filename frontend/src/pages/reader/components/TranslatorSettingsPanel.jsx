@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useTranslationSettings } from "../../../context/TranslationContext";
 import "./styles/TranslatorSettingPanel.css";
 
