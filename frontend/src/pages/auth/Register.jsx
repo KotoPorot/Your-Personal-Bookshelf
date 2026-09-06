@@ -7,10 +7,12 @@ const Register = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
+		setIsSubmitting(true);
 
 		try {
 			const response = await axios.post(
@@ -45,6 +47,7 @@ const Register = () => {
 				setError("Unable to connect to the server.");
 			}
 		}
+		setIsSubmitting(false);
 	};
 
 	return (
@@ -75,8 +78,12 @@ const Register = () => {
 						/>
 					</div>
 
-					<button type="submit" className="auth-btn register-btn">
-						Sign Up
+					<button
+						type="submit"
+						className="auth-btn register-btn"
+						disabled={isSubmitting}
+					>
+						{isSubmitting ? "Registering..." : "Sign Up"}
 					</button>
 
 					<div className="auth-links">
