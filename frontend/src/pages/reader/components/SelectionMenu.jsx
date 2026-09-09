@@ -14,6 +14,8 @@ const SelectionMenu = () => {
 		contextText,
 	} = state.selectionMenu;
 
+	const [menuLeft, setMenuLeft] = useState(left);
+
 	// 👈 2. Берём метод открытия из FlashcardContext
 	const { openModalWithSelection } = useFlashcard();
 
@@ -30,17 +32,39 @@ const SelectionMenu = () => {
 	} = useTranslate();
 
 	useLayoutEffect(() => {
-		if (visible && menuRef.current) {
-			const menuHeight = menuRef.current.offsetHeight || 150;
-			const spaceAbove = top;
+		if (!visible || !menuRef.current) return;
 
-			if (spaceAbove < menuHeight + 20) {
-				setPlacement("bottom");
-			} else {
-				setPlacement("top");
-			}
+		const menu = menuRef.current;
+		const menuRect = menu.getBoundingClientRect();
+
+		const gap = 10;
+		const padding = 8;
+
+		// top — координата точки, относительно которой ты ставишь меню
+		const spaceAbove = top;
+		// const spaceBelow = window.innerHeight - top;
+
+		// Вертикальное положение
+		if (spaceAbove < menuRect.height + gap + padding) {
+			setPlacement("bottom");
+		} else {
+			setPlacement("top");
 		}
-	}, [visible, top, viewMode, translatedText, isLoading]);
+
+		// Горизонтальное положение
+		let newLeft = left;
+
+		const halfMenuWidth = menuRect.width / 2;
+
+		newLeft = Math.max(
+			halfMenuWidth + padding,
+			Math.min(newLeft, window.innerWidth - halfMenuWidth - padding),
+		);
+
+		if (newLeft !== left) {
+			setMenuLeft(newLeft);
+		}
+	}, [visible, top, left, viewMode, translatedText, isLoading]);
 
 	useEffect(() => {
 		if (!visible) {
@@ -85,7 +109,7 @@ const SelectionMenu = () => {
 			ref={menuRef}
 			className={menuClasses}
 			onClick={(e) => e.stopPropagation()}
-			style={{ top: `${top}px`, left: `${left}px` }}
+			style={{ top: `${top}px`, left: `${menuLeft}px` }}
 		>
 			{/* РЕЖИМ 1: ОБЫЧНЫЕ КНОПКИ МЕНЮ */}
 			{viewMode === "menu" && (

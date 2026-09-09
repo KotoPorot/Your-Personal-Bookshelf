@@ -310,7 +310,6 @@
 	border-left: 4px solid #28a745;
 	padding-left: 41px;
 }
-
 /* Состояние размытия контейнера с книгой */
 .blur-mode {
 	filter: blur(8px);
