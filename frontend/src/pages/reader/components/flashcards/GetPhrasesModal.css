@@ -254,4 +254,7 @@
 	.flashcard-custom-phrase-row {
 		flex-direction: column;
 	}
+	.flashcard-phrase-card {
+		flex-direction: column;
+	}
 }
