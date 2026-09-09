@@ -33,7 +33,7 @@ export const TranslationProvider = ({ children }) => {
       try {
         // Вызываем контроллер: /api/v1/translate/lang
         const response = await fetch(
-          "http://localhost:8080/api/v1/translate/lang",
+          "https://your-personal-bookshelf.onrender.com/api/v1/translate/lang",
           {
             headers: {
               Authorization: `Bearer ${token}`,

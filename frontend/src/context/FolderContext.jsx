@@ -9,7 +9,8 @@ import { useAuth } from "./AuthContext";
 
 const FolderContext = createContext(null);
 
-const API_BASE_URL = "http://localhost:8080/api/v1/flashcards/folders";
+const API_BASE_URL =
+  "https://your-personal-bookshelf.onrender.com/api/v1/flashcards/folders";
 
 export const FolderProvider = ({ children }) => {
   const { token } = useAuth();
