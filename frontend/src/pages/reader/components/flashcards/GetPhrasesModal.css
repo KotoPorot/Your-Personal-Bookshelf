@@ -2,228 +2,259 @@
 
 /* 1. Полноэкранный темный оверлей */
 .flashcard-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.75) !important;
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 20px;
-  box-sizing: border-box;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(0, 0, 0, 0.75) !important;
+	backdrop-filter: blur(4px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	padding: 20px;
+	box-sizing: border-box;
 }
 
 /* 2. Контейнер модального окна (без белой рамки и лишних padding) */
 .flashcard-modal-container {
-  background-color: #1a1a22 !important;
-  border: 1px solid #2e2e3a !important;
-  border-radius: 12px !important;
-  width: 580px;
-  max-width: 90vw;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7) !important;
-  color: #e5e7eb;
-  overflow: hidden;
-  padding: 0 !important;
-  margin: 0 !important;
-  outline: none !important;
+	background-color: #1a1a22 !important;
+	border: 1px solid #2e2e3a !important;
+	border-radius: 12px !important;
+	width: 580px;
+	max-width: 90vw;
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7) !important;
+	color: #e5e7eb;
+	overflow: hidden;
+	padding: 0 !important;
+	margin: 0 !important;
+	outline: none !important;
 }
 
 /* 3. Хедер модалки */
 .flashcard-modal-header {
-  padding: 16px 24px;
-  border-bottom: 1px solid #2e2e3a;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #1e1e28;
+	padding: 16px 24px;
+	border-bottom: 1px solid #2e2e3a;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #1e1e28;
 }
 
 .flashcard-modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #ffffff;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #ffffff;
 }
 
 .flashcard-close-btn {
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-  transition: color 0.2s ease;
+	background: transparent;
+	border: none;
+	color: #9ca3af;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 4px;
+	line-height: 1;
+	transition: color 0.2s ease;
 }
 
 .flashcard-close-btn:hover {
-  color: #ffffff;
+	color: #ffffff;
 }
 
 /* 4. Корпус и скроллбар */
 .flashcard-modal-body {
-  padding: 24px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex: 1;
-  background-color: #1a1a22;
+	padding: 24px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	background-color: #1a1a22;
 }
 
 .flashcard-modal-body::-webkit-scrollbar {
-  width: 6px;
+	width: 6px;
 }
 
 .flashcard-modal-body::-webkit-scrollbar-thumb {
-  background-color: #3f3f4e;
-  border-radius: 4px;
+	background-color: #3f3f4e;
+	border-radius: 4px;
 }
 
 .flashcard-section {
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .flashcard-section-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 8px;
-  display: block;
+	font-size: 11px;
+	font-weight: 700;
+	color: #9ca3af;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	margin-bottom: 8px;
+	display: block;
 }
 
 .flashcard-phrases-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 }
 
 /* 5. Карточки фраз и списка */
 .flashcard-phrase-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }
 
 .flashcard-phrase-card {
-  background-color: #242430;
-  border: 1px solid #323242;
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 0;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+	background-color: #242430;
+	border: 1px solid #323242;
+	border-radius: 8px;
+	padding: 14px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 0;
+	transition:
+		border-color 0.2s ease,
+		background-color 0.2s ease;
 }
 
 .flashcard-phrase-card:hover {
-  border-color: #3a3a4c;
-  background-color: #2a2a38;
+	border-color: #3a3a4c;
+	background-color: #2a2a38;
 }
 
 /* Главный выделенный фрагмент текста */
 .flashcard-phrase-card.main-text-card {
-  border-color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.12);
+	border-color: #3b82f6;
+	background-color: rgba(59, 130, 246, 0.12);
 }
 
 .flashcard-phrase-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 0; /* Важно для правильного переноса flex-текста */
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+	min-width: 0; /* Важно для правильного переноса flex-текста */
 }
 
 .flashcard-phrase-text {
-  font-weight: 600;
-  color: #ffffff;
-  font-size: 0.95rem;
-  line-height: 1.4;
-  word-break: break-word;
+	font-weight: 600;
+	color: #ffffff;
+	font-size: 0.95rem;
+	line-height: 1.4;
+	word-break: break-word;
 }
 
 .flashcard-phrase-translation {
-  color: #9ca3af;
-  font-size: 0.85rem;
-  line-height: 1.35;
-  word-break: break-word;
+	color: #9ca3af;
+	font-size: 0.85rem;
+	line-height: 1.35;
+	word-break: break-word;
 }
 
 /* 6. Кнопка "Создать карточку" */
 .flashcard-create-btn {
-  background-color: #3b82f6;
-  color: #ffffff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0;
+	background-color: #3b82f6;
+	color: #ffffff;
+	border: none;
+	padding: 8px 14px;
+	border-radius: 6px;
+	font-size: 0.8rem;
+	font-weight: 600;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: background-color 0.2s ease;
+	flex-shrink: 0;
+	width: fit-content;
 }
 
 .flashcard-create-btn:hover {
-  background-color: #2563eb;
+	background-color: #2563eb;
 }
 
 /* 7. Футер и кнопки */
 .flashcard-modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #2e2e3a;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  background-color: #1e1e28;
-  gap: 12px;
+	padding: 16px 24px;
+	border-top: 1px solid #2e2e3a;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	background-color: #1e1e28;
+	gap: 12px;
 }
 
 .flashcard-btn-secondary {
-  background: transparent;
-  border: 1px solid #3f3f4e;
-  color: #d1d5db;
-  padding: 8px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+	background: transparent;
+	border: 1px solid #3f3f4e;
+	color: #d1d5db;
+	padding: 8px 18px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: 500;
+	transition:
+		background-color 0.2s ease,
+		color 0.2s ease;
 }
 
 .flashcard-btn-secondary:hover {
-  background-color: #2a2a36;
-  color: #ffffff;
+	background-color: #2a2a36;
+	color: #ffffff;
 }
 
 .flashcard-loading {
-  text-align: center;
-  padding: 20px;
-  color: #9ca3af;
-  font-size: 14px;
+	text-align: center;
+	padding: 20px;
+	color: #9ca3af;
+	font-size: 14px;
 }
-
 .flashcard-error-banner {
-  background-color: rgba(239, 68, 68, 0.15);
-  border: 1px solid #ef4444;
-  color: #fca5a5;
-  padding: 10px 14px;
-  border-radius: 6px;
-  font-size: 13px;
+	background-color: rgba(239, 68, 68, 0.15);
+	border: 1px solid #ef4444;
+	color: #fca5a5;
+	padding: 10px 14px;
+	border-radius: 6px;
+	font-size: 13px;
+}
+.flashcard-custom-phrase-row {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	margin: 0 auto 12px;
+	align-items: center;
+	width: 100%;
+}
+.flashcard-input-field {
+	padding: 8px 12px;
+	border: 1px solid #7a7a84;
+	border-radius: 6px;
+	background-color: #1a1a22;
+	color: #ffffff;
+	font-size: 14px;
+	outline: none;
+	width: 80%;
+	transition:
+		border-color 0.2s ease,
+		background-color 0.2s ease;
+}
+@media (max-width: 640px) {
+	.flashcard-modal-body {
+		padding: 14px;
+	}
+
+	.flashcard-custom-phrase-row {
+		flex-direction: column;
+	}
+	.flashcard-phrase-card {
+		flex-direction: column;
+	}
 }

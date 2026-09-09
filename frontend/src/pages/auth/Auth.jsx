@@ -7,10 +7,12 @@ const Auth = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
+		setIsSubmitting(true);
 
 		try {
 			const response = await axios.post(
@@ -32,6 +34,7 @@ const Auth = () => {
 			console.error("Authorization error:", err);
 			setError("Invalid username or password");
 		}
+		setIsSubmitting(false);
 	};
 
 	return (
@@ -62,8 +65,12 @@ const Auth = () => {
 						/>
 					</div>
 
-					<button type="submit" className="auth-btn login-btn">
-						Log In
+					<button
+						type="submit"
+						className="auth-btn login-btn"
+						disabled={isSubmitting}
+					>
+						{isSubmitting ? "Logging in..." : "Log In"}
 					</button>
 
 					<div className="auth-links">

@@ -1,6 +1,20 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
+
+/**
+ * Global authentication and application state context.
+ *
+ * AuthContext provides access to:
+ * - Authentication token
+ * - Current username
+ * - Current application screen
+ * - Currently opened book
+ * - Authentication actions
+ * - Reader navigation actions
+ *
+ * The context also synchronizes persistent data with localStorage.
+ */
 
 export const AuthProvider = ({ children }) => {
 	const [token, setToken] = useState(localStorage.getItem("token") || null);

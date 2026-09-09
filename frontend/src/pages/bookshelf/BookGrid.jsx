@@ -1,4 +1,3 @@
-import React from "react";
 import BookCard from "./BookCard";
 
 const BookGrid = ({ books, activeShelfId, onBookClick, token }) => {
@@ -7,24 +6,6 @@ const BookGrid = ({ books, activeShelfId, onBookClick, token }) => {
 
 	return (
 		<div className="book-grid">
-			{filteredBooks.map((book) => (
-				<BookCard
-					key={book.id}
-					book={book}
-					onBookClick={onBookClick}
-					token={token}
-				/>
-			))}
-			{filteredBooks.map((book) => (
-				<BookCard
-					key={book.id}
-					book={book}
-					onBookClick={onBookClick}
-					token={token}
-				/>
-			))}
-			{/* tempolar */}
-
 			{filteredBooks.length > 0 ? (
 				filteredBooks.map((book) => (
 					<BookCard

@@ -1,148 +1,172 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useReader } from "../context/ReaderContext";
 import { useTranslate } from "../hooks/translator/useTranslate";
 import { useFlashcard } from "../context/FlashcardContext"; // 👈 1. Импортируем наш контекст
 import "./styles/SelectionMenu.css";
 
 const SelectionMenu = () => {
-  const { state, actions } = useReader();
-  const {
-    visible,
-    top,
-    left,
-    text: selectedText,
-    contextText,
-  } = state.selectionMenu;
+	const { state, actions } = useReader();
+	const {
+		visible,
+		top,
+		left,
+		text: selectedText,
+		contextText,
+	} = state.selectionMenu;
 
-  // 👈 2. Берём метод открытия из FlashcardContext
-  const { openModalWithSelection } = useFlashcard();
+	const [menuLeft, setMenuLeft] = useState(left);
 
-  const [viewMode, setViewMode] = useState("menu");
-  const menuRef = useRef(null);
-  const [placement, setPlacement] = useState("top");
+	// 👈 2. Берём метод открытия из FlashcardContext
+	const { openModalWithSelection } = useFlashcard();
 
-  const {
-    translatedText,
-    isLoading,
-    error,
-    translate,
-    reset: resetTranslation,
-  } = useTranslate();
+	const [viewMode, setViewMode] = useState("menu");
+	const menuRef = useRef(null);
+	const [placement, setPlacement] = useState("top");
 
-  useLayoutEffect(() => {
-    if (visible && menuRef.current) {
-      const menuHeight = menuRef.current.offsetHeight || 150;
-      const spaceAbove = top;
+	const {
+		translatedText,
+		isLoading,
+		error,
+		translate,
+		reset: resetTranslation,
+	} = useTranslate();
 
-      if (spaceAbove < menuHeight + 20) {
-        setPlacement("bottom");
-      } else {
-        setPlacement("top");
-      }
-    }
-  }, [visible, top, viewMode, translatedText, isLoading]);
+	useLayoutEffect(() => {
+		if (!visible || !menuRef.current) return;
 
-  useEffect(() => {
-    if (!visible) {
-      setViewMode("menu");
-      resetTranslation();
-    }
-  }, [visible, resetTranslation]);
+		const menu = menuRef.current;
+		const menuRect = menu.getBoundingClientRect();
 
-  if (!visible) return null;
+		const gap = 10;
+		const padding = 8;
 
-  const handleTranslateClick = () => {
-    setViewMode("translation");
-    translate(selectedText);
-  };
+		// top — координата точки, относительно которой ты ставишь меню
+		const spaceAbove = top;
+		// const spaceBelow = window.innerHeight - top;
 
-  // 👈 3. Создаём обработчик для карточки
-  const handleCreateFlashcardClick = () => {
-    // Передаем выбранный текст в FlashcardContext
-    openModalWithSelection(selectedText, contextText);
+		// Вертикальное положение
+		if (spaceAbove < menuRect.height + gap + padding) {
+			setPlacement("bottom");
+		} else {
+			setPlacement("top");
+		}
 
-    console.log(
-      `[SelectionMenu] Создание карточки для выделенного текста: "${selectedText}" с контекстом: "${contextText}"`,
-    );
+		// Горизонтальное положение
+		let newLeft = left;
 
-    // Сбрасываем меню выделения в ReaderContext
-    actions.closeSelectionMenu();
-    actions.clearBrowserSelection();
-  };
+		const halfMenuWidth = menuRect.width / 2;
 
-  const handleClose = () => {
-    actions.closeSelectionMenu();
-  };
+		newLeft = Math.max(
+			halfMenuWidth + padding,
+			Math.min(newLeft, window.innerWidth - halfMenuWidth - padding),
+		);
 
-  const menuClasses = [
-    "selection-floating-menu",
-    `placement-${placement}`,
-    `mode-${viewMode}`,
-  ].join(" ");
+		if (newLeft !== left) {
+			setMenuLeft(newLeft);
+		}
+	}, [visible, top, left, viewMode, translatedText, isLoading]);
 
-  return (
-    <div
-      ref={menuRef}
-      className={menuClasses}
-      onClick={(e) => e.stopPropagation()}
-      style={{ top: `${top}px`, left: `${left}px` }}
-    >
-      {/* РЕЖИМ 1: ОБЫЧНЫЕ КНОПКИ МЕНЮ */}
-      {viewMode === "menu" && (
-        <div className="selection-menu-actions">
-          <button className="selection-btn" onClick={actions.openNoteModal}>
-            📝 Заметка
-          </button>
-          <span className="selection-menu-divider">|</span>
-          <button className="selection-btn" onClick={handleTranslateClick}>
-            🌐 Перевести
-          </button>
-          <button
-            className="selection-btn"
-            onClick={
-              handleCreateFlashcardClick
-            } /* 👈 4. Вызываем новый обработчик */
-          >
-            📘 Создать карточку
-          </button>
-        </div>
-      )}
+	useEffect(() => {
+		if (!visible) {
+			setViewMode("menu");
+			resetTranslation();
+		}
+	}, [visible, resetTranslation]);
 
-      {/* РЕЖИМ 2: ОТОБРАЖЕНИЕ ПЕРЕВОДА */}
-      {viewMode === "translation" && (
-        <div className="selection-translation-content">
-          <div className="selection-translation-header">
-            <button
-              className="selection-btn selection-btn-back"
-              onClick={() => setViewMode("menu")}
-            >
-              ◀ Назад
-            </button>
+	if (!visible) return null;
 
-            <button
-              className="selection-btn selection-btn-close"
-              onClick={handleClose}
-              title="Закрыть"
-            >
-              ✕
-            </button>
-          </div>
+	const handleTranslateClick = () => {
+		setViewMode("translation");
+		translate(selectedText);
+	};
 
-          {isLoading && (
-            <div className="selection-translation-loading">⏳ Переводим...</div>
-          )}
+	// 👈 3. Создаём обработчик для карточки
+	const handleCreateFlashcardClick = () => {
+		// Передаем выбранный текст в FlashcardContext
+		openModalWithSelection(selectedText, contextText);
 
-          {error && (
-            <div className="selection-translation-error">⚠️ {error}</div>
-          )}
+		console.log(
+			`[SelectionMenu] Создание карточки для выделенного текста: "${selectedText}" с контекстом: "${contextText}"`,
+		);
 
-          {!isLoading && !error && translatedText && (
-            <div className="selection-translation-result">{translatedText}</div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+		// Сбрасываем меню выделения в ReaderContext
+		actions.closeSelectionMenu();
+		actions.clearBrowserSelection();
+	};
+
+	const handleClose = () => {
+		actions.closeSelectionMenu();
+	};
+
+	const menuClasses = [
+		"selection-floating-menu",
+		`placement-${placement}`,
+		`mode-${viewMode}`,
+	].join(" ");
+
+	return (
+		<div
+			ref={menuRef}
+			className={menuClasses}
+			onClick={(e) => e.stopPropagation()}
+			style={{ top: `${top}px`, left: `${menuLeft}px` }}
+		>
+			{/* РЕЖИМ 1: ОБЫЧНЫЕ КНОПКИ МЕНЮ */}
+			{viewMode === "menu" && (
+				<div className="selection-menu-actions">
+					<button className="selection-btn" onClick={actions.openNoteModal}>
+						📝 Заметка
+					</button>
+					<span className="selection-menu-divider">|</span>
+					<button className="selection-btn" onClick={handleTranslateClick}>
+						🌐 Перевести
+					</button>
+					<button
+						className="selection-btn"
+						onClick={
+							handleCreateFlashcardClick
+						} /* 👈 4. Вызываем новый обработчик */
+					>
+						📘 Создать карточку
+					</button>
+				</div>
+			)}
+
+			{/* РЕЖИМ 2: ОТОБРАЖЕНИЕ ПЕРЕВОДА */}
+			{viewMode === "translation" && (
+				<div className="selection-translation-content">
+					<div className="selection-translation-header">
+						<button
+							className="selection-btn selection-btn-back"
+							onClick={() => setViewMode("menu")}
+						>
+							◀ Назад
+						</button>
+
+						<button
+							className="selection-btn selection-btn-close"
+							onClick={handleClose}
+							title="Закрыть"
+						>
+							✕
+						</button>
+					</div>
+
+					{isLoading && (
+						<div className="selection-translation-loading">⏳ Переводим...</div>
+					)}
+
+					{error && (
+						<div className="selection-translation-error">⚠️ {error}</div>
+					)}
+
+					{!isLoading && !error && translatedText && (
+						<div className="selection-translation-result">{translatedText}</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default SelectionMenu;
